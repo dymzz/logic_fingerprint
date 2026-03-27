@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "logic-fingerprint"
+version = "1.0.0"
+description = "Logic fingerprint stable protocol layer"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["fastapi>=0.110.0","uvicorn>=0.29.0","pydantic>=2.6.0"]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
