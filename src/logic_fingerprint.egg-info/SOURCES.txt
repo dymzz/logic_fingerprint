@@ -18,6 +18,7 @@ src/logic_fingerprint/middleware.py
 src/logic_fingerprint/models.py
 src/logic_fingerprint/output_models.py
 src/logic_fingerprint/prometheus_metrics.py
+src/logic_fingerprint/protect.py
 src/logic_fingerprint/redis_consensus.py
 src/logic_fingerprint/runtime.py
 src/logic_fingerprint/service.py
