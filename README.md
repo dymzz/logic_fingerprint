@@ -1,253 +1,109 @@
-# Logic Fingerprint
+## ⚡ Quick Start
 
-> Turn any function into a **safe, controllable execution unit**.
-
----
-
-## ⚡ Quick Start (30 seconds)
-
-### 1. Install
+### Install
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
 ```
 
----
-
-### 2. Add protection to any function
+### Protect a real local LLM call
 
 ```python
 from logic_fingerprint import protect
 
 
 @protect()
-def hello(request):
-    return {"msg": "hello world"}
+def ask_local_llm(request):
+    import json
+    import urllib.request
+
+    payload = {
+        "model": "llama3.2",
+        "prompt": request.payload["prompt"],
+        "stream": False,
+    }
+
+    req = urllib.request.Request(
+        "http://127.0.0.1:11434/api/generate",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        body = json.loads(resp.read().decode("utf-8"))
+
+    return {"answer": body["response"].strip()}
 ```
 
----
-
-### 3. Call it like a normal function
+### Call it like a normal function
 
 ```python
-print(hello({}))
+result = ask_local_llm({
+    "prompt": "Explain circuit breaker in one sentence."
+})
+
+print(result)
 ```
 
 Output:
 
 ```python
-{'msg': 'hello world'}
+{'answer': 'A circuit breaker is a safety device that automatically stops an overcurrent flow in an electrical circuit to prevent damage to equipment and potential hazards.'}
+```
+
+### What you get automatically
+
+* circuit breaker protection
+* safe recovery probing
+* controlled failure handling
+* optional schema validation
+* auto request context
+
+
+
+```md
+## 🎬 Demos
+
+Run real examples locally:
+
+### 1. Simple mode (like a normal function)
+
+```bash
+python demo/demo_protect_simple.py
 ```
 
 ---
 
-### 4. Errors are automatically controlled
+### 2. Full mode (engineering output)
 
-```python
-@protect()
-def broken(request):
-    return 1 / 0
-
-
-broken({})
-```
-
-Output:
-
-```text
-ProtectRuntimeError: division by zero
+```bash
+python demo/demo_protect_full.py
 ```
 
 ---
 
-## 🧠 What just happened?
+### 3. Error handling (simple mode)
 
-You just added:
-
-* Circuit breaker (prevents repeated failures)
-* Safe recovery (HALF_OPEN probing)
-* Controlled execution (no retry storm)
-* Optional schema validation
-* Auto context (request_id, trace_id, etc.)
-* Unified error handling
-
-👉 Without changing your function logic
-
----
-
-## 🔁 Advanced Mode (Engineering)
-
-If you need full observability:
-
-```python
-@protect(simple=False)
-def hello(request):
-    return {"msg": "hello world"}
-```
-
-Return format:
-
-```python
-{
-  "ok": True,
-  "result": {...},
-  "context": {...}
-}
-```
-
-Use this for:
-
-* APIs
-* services
-* metrics & monitoring
-* structured error analysis
-
----
-
-## 🧩 Input / Output Validation
-
-```python
-from pydantic import BaseModel
-
-
-class Input(BaseModel):
-    numbers: list[int]
-
-
-class Output(BaseModel):
-    sum: int
-
-
-@protect(input_model=Input, output_model=Output)
-def sum_numbers(request):
-    return {"sum": sum(request.payload["numbers"])}
+```bash
+python demo/demo_error_simple.py
 ```
 
 ---
 
-## 💡 One-line Mental Model
+### 4. Error handling (full mode)
 
-```text
-@protect = "add a safety layer to any function"
+```bash
+python demo/demo_error_full.py
 ```
 
 ---
 
-## 🚀 What is this?
+### 5. Real LLM demo (Ollama)
 
-Logic Fingerprint is an **execution control layer**.
-
-It sits between your application and your handlers:
-
-```text
-Function → Logic Fingerprint → Safe Execution
+```bash
+python demo/demo_protect_ollama_simple.py
 ```
 
----
-
-## ⚠️ Why this exists
-
-Real-world systems are unstable:
-
-* APIs timeout
-* LLM outputs are unpredictable
-* retries cause cascading failures
-* outputs are inconsistent
-* errors are hard to manage
-
----
-
-## ✅ What it solves
-
-| Problem         | Result               |
-| --------------- | -------------------- |
-| Retry storms    | Controlled probing   |
-| System crashes  | Circuit breaker      |
-| Unstable output | Schema validation    |
-| Messy errors    | Unified protocol     |
-| Hidden failures | Observable execution |
-
----
-
-## 🧠 Positioning
-
-```text
-LangChain = "How to call"
-Logic Fingerprint = "Should we call + Is it safe"
-```
-
-👉 This is not a replacement
-👉 It is a **stability layer under your execution**
-
----
-
-## 🧪 Built-in Capabilities
-
-* Circuit Breaker (CLOSED / OPEN / HALF_OPEN)
-* Time-driven probe (no low-QPS deadlock)
-* Consecutive success recovery
-* Global failure awareness (anti-cascade)
-* Context auto injection
-* Unified error protocol
-
----
-
-## 🔗 Use Cases
-
-### 1. LLM Safety Layer
-
-```text
-LangChain → LogicFingerprint → LLM API
-```
-
----
-
-### 2. API Protection Layer
-
-```text
-Client → LogicFingerprint → Service
-```
-
----
-
-### 3. Workflow Execution
-
-```text
-Task → Protected Function → Safe Execution
-```
-
----
-
-## 🆚 vs LangChain
-
-| Capability         | LangChain  | Logic Fingerprint |
-| ------------------ | ---------- | ----------------- |
-| Prompt / Agent     | ✅          | ❌                 |
-| Execution Safety   | ❌          | ✅                 |
-| Circuit Breaker    | ❌          | ✅                 |
-| Failure Control    | ❌          | ✅                 |
-| Schema Enforcement | ⚠️ Partial | ✅                 |
-| Error Protocol     | ❌          | ✅                 |
-
----
-
-## 🧭 Philosophy
-
-> Don't make systems smarter.
-> Make execution safer.
-
----
-
-## 📌 Roadmap
-
-* v1.1 → config-based protection
-* v1.2 → distributed consensus (Redis / etcd)
-* v1.3 → rate limiting & auth
-* v2.0 → execution runtime system
-
----
-
-## ⭐ If useful
-
-Give a star ⭐ — this project focuses on real-world system stability.
+👉 Make sure Ollama is running locally before running this demo.
