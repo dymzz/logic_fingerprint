@@ -24,5 +24,9 @@ design/
 **/.pytest_cache/
 __pycache__/
 **/__pycache__/
+
+/.dist/
+**/.dist/
+
 # 忽略所有 .pyc 文件 (Python 编译文件)
 *.pyc
