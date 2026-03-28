@@ -7,14 +7,16 @@ import inspect
 
 from pydantic import BaseModel
 
-from .context_builder import ContextBuilder
+from logic_fingerprint.event_logger import LogEvent, NullEventLogger, PrintEventLogger
+
+from .core.context_builder import ContextBuilder
 from .consensus import InMemoryConsensusBackend
-from .config import ProbeConfig
-from .executor import LogicFingerprintExecutor
-from .fsm import LogicFingerprintFSM
-from .metrics import InMemoryMetrics
-from .models import HandlerRequest, RequestContext
-from .validator import validate_input, validate_output
+from .config import RuntimeConfig
+from .core.executor import LogicFingerprintExecutor
+from .core.fsm import LogicFingerprintFSM
+from .core.metrics import InMemoryMetrics
+from .core.models import HandlerRequest, RequestContext
+from .core.validator import validate_input, validate_output
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -27,12 +29,13 @@ class ProtectRuntimeError(RuntimeError):
         code: str | None = None,
         details: dict[str, Any] | None = None,
         context: dict[str, Any] | None = None,
+    
     ) -> None:
         super().__init__(message)
         self.code = code
         self.details = details or {}
         self.context = context or {}
-
+        
 
 class Protector:
     def __init__(
@@ -46,7 +49,7 @@ class Protector:
         global_fail_threshold: float = 1.0,
         default_source: str = "decorator",
     ) -> None:
-        config = ProbeConfig(
+        config = RuntimeConfig(
             probe_rate=probe_rate,
             probe_interval_seconds=probe_interval_seconds,
             consecutive_success_threshold=consecutive_success_threshold,
@@ -65,7 +68,7 @@ class Protector:
         self.executor = LogicFingerprintExecutor(fsm)
         self.metrics = InMemoryMetrics()
         self.context_builder = ContextBuilder(default_source=default_source)
-
+        self.event_logger = PrintEventLogger()
     def _success_response(
         self,
         validated_output: Any,
@@ -135,9 +138,20 @@ class Protector:
                     )
                     context_dict = asdict(built_request.context)
 
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_started",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    ))
+
                     validated_payload = validate_input(
                         built_request.payload,
                         input_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
                     )
                     prepared_request = HandlerRequest(
                         payload=validated_payload,
@@ -161,8 +175,20 @@ class Protector:
 
                     if outcome.succeeded:
                         result = outcome.result
-                        validated_output = validate_output(result, output_model)
-
+                        validated_output = validate_output(
+                            result,
+                            output_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                        self.event_logger.emit(LogEvent(
+                            event="protect_call_succeeded",
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        ))
                         if is_dataclass(validated_output):
                             validated_output = asdict(validated_output)
 
@@ -171,6 +197,15 @@ class Protector:
                             context_dict,
                             simple=simple,
                         )
+                    
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_failed",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                        error_code=outcome.error_code,
+                        message=outcome.error_message,
+                    ))
 
                     return self._error_response(
                         error_code=outcome.error_code,
@@ -199,9 +234,20 @@ class Protector:
                 )
                 context_dict = asdict(built_request.context)
 
+                self.event_logger.emit(LogEvent(
+                    event="protect_call_started",
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
+                ))
+
                 validated_payload = validate_input(
                     built_request.payload,
                     input_model,
+                    event_logger=self.event_logger,
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
                 )
                 prepared_request = HandlerRequest(
                     payload=validated_payload,
@@ -225,16 +271,39 @@ class Protector:
 
                 if outcome.succeeded:
                     result = outcome.result
-                    validated_output = validate_output(result, output_model)
+                    validated_output = validate_output(
+                        result,
+                        output_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
 
                     if is_dataclass(validated_output):
                         validated_output = asdict(validated_output)
+                    
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_succeeded",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    ))
 
                     return self._success_response(
                         validated_output,
                         context_dict,
                         simple=simple,
                     )
+
+                self.event_logger.emit(LogEvent(
+                    event="protect_call_failed",
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
+                    error_code=outcome.error_code,
+                    message=outcome.error_message,
+                ))
 
                 return self._error_response(
                     error_code=outcome.error_code,

@@ -1,21 +1,66 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=61"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "logic-fingerprint"
-version = "1.0.0"
-description = "Logic fingerprint stable protocol layer"
+version = "0.1.0"
+description = "Execution safety layer for functions, APIs, and LLMs."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = ["fastapi>=0.110.0","uvicorn>=0.29.0","pydantic>=2.6.0"]
 
-[tool.setuptools]
-package-dir = {"" = "src"}
+authors = [
+  { name = "Your Name" }
+]
+
+license = { text = "MIT" }
+
+dependencies = [
+  "annotated-doc==0.0.4",
+  "annotated-types==0.7.0",
+  "anyio==4.13.0",
+  "certifi==2026.2.25",
+  "charset-normalizer==3.4.6",
+  "click==8.3.1",
+  "colorama==0.4.6",
+  "fastapi==0.135.2",
+  "h11==0.16.0",
+  "httpcore==1.0.9",
+  "httpx==0.28.1",
+  "id==1.6.1",
+  "idna==3.11",
+  "iniconfig==2.3.0",
+  "jaraco-classes==3.4.0",
+  "jaraco-context==6.1.2",
+  "jaraco-functools==4.4.0",
+  "more-itertools==10.8.0",
+  "nh3==0.3.4",
+  "packaging==26.0",
+  "pluggy==1.6.0",
+  "pydantic==2.12.5",
+  "pydantic-core==2.41.5",
+  "requests==2.33.0",
+  "starlette==1.0.0",
+  "typing-extensions==4.15.0",
+  "typing-inspection==0.4.2",
+  "urllib3==2.6.3",
+  "uvicorn==0.42.0",
+]
+
+keywords = [
+  "llm",
+  "circuit-breaker",
+  "middleware",
+  "reliability",
+  "api",
+  "decorator"
+]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent"
+]
 
 [tool.setuptools.packages.find]
 where = ["src"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["src"]

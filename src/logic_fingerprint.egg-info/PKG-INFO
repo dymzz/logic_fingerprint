@@ -1,696 +1,222 @@
 Metadata-Version: 2.4
 Name: logic-fingerprint
-Version: 1.0.0
-Summary: Logic fingerprint stable protocol layer
+Version: 0.1.0
+Summary: Execution safety layer for functions, APIs, and LLMs.
+Author: Your Name
+License: MIT
+Keywords: llm,circuit-breaker,middleware,reliability,api,decorator
+Classifier: Programming Language :: Python :: 3
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
 Requires-Python: >=3.10
 Description-Content-Type: text/markdown
-Requires-Dist: fastapi>=0.110.0
-Requires-Dist: uvicorn>=0.29.0
-Requires-Dist: pydantic>=2.6.0
+Requires-Dist: annotated-doc==0.0.4
+Requires-Dist: annotated-types==0.7.0
+Requires-Dist: anyio==4.13.0
+Requires-Dist: build==1.4.2
+Requires-Dist: certifi==2026.2.25
+Requires-Dist: charset-normalizer==3.4.6
+Requires-Dist: click==8.3.1
+Requires-Dist: colorama==0.4.6
+Requires-Dist: docutils==0.22.4
+Requires-Dist: fastapi==0.135.2
+Requires-Dist: h11==0.16.0
+Requires-Dist: httpcore==1.0.9
+Requires-Dist: httpx==0.28.1
+Requires-Dist: id==1.6.1
+Requires-Dist: idna==3.11
+Requires-Dist: iniconfig==2.3.0
+Requires-Dist: jaraco-classes==3.4.0
+Requires-Dist: jaraco-context==6.1.2
+Requires-Dist: jaraco-functools==4.4.0
+Requires-Dist: keyring==25.7.0
+Requires-Dist: markdown-it-py==4.0.0
+Requires-Dist: mdurl==0.1.2
+Requires-Dist: more-itertools==10.8.0
+Requires-Dist: nh3==0.3.4
+Requires-Dist: packaging==26.0
+Requires-Dist: pluggy==1.6.0
+Requires-Dist: pydantic==2.12.5
+Requires-Dist: pydantic-core==2.41.5
+Requires-Dist: pygments==2.19.2
+Requires-Dist: pyproject-hooks==1.2.0
+Requires-Dist: pywin32-ctypes==0.2.3
+Requires-Dist: readme-renderer==44.0
+Requires-Dist: requests==2.33.0
+Requires-Dist: requests-toolbelt==1.0.0
+Requires-Dist: rfc3986==2.0.0
+Requires-Dist: rich==14.3.3
+Requires-Dist: starlette==1.0.0
+Requires-Dist: twine==6.2.0
+Requires-Dist: typing-extensions==4.15.0
+Requires-Dist: typing-inspection==0.4.2
+Requires-Dist: urllib3==2.6.3
+Requires-Dist: uvicorn==0.42.0
 
-# Logic Fingerprint System
 
-> A lightweight execution control layer for stable, safe, and observable handler execution.
+Add a safety layer to any function.
 
----
+Logic Fingerprint protects your function/LLM/API calls with:
 
-## 🚀 What is this?
+circuit breaker (no retry storms)
+safe recovery (HALF_OPEN probing)
+schema validation (stable outputs)
+unified error handling
 
-**Logic Fingerprint** is an execution engine that sits between your application and your handlers (LLM, APIs, business logic).
+Works with a single decorator: @protect()
 
-It ensures:
+## 🧭 How it works
 
-* ✅ Stable execution (circuit breaker)
-* ✅ Safe recovery (HALF_OPEN probing)
-* ✅ Anti-cascade failure (global consensus)
-* ✅ Strict input/output validation
-* ✅ Unified error protocol
-* ✅ Auto context injection
-
----
-
-## ⚠️ Why this exists
-
-In real-world systems:
-
-* APIs timeout unpredictably
-* LLM outputs are unstable
-* Retry strategies cause cascading failures
-* Handler outputs are inconsistent
-* Errors are messy and hard to debug
-
-### This system fixes that:
-
-| Problem        | Without         | With Logic Fingerprint |
-| -------------- | --------------- | ---------------------- |
-| Timeout        | Retry storm     | Controlled probe       |
-| Failure spread | System collapse | Global fail consensus  |
-| Output chaos   | Random JSON     | Schema enforced        |
-| Debugging      | Logs everywhere | Unified error protocol |
-
----
-
-## 🧠 Positioning
-
+```text
+Your Function
+      ↓
+   @protect
+      ↓
+Logic Fingerprint
+  ├─ Circuit Breaker
+  ├─ Probe Recovery
+  ├─ Validation Layer
+  ├─ Error Control
+      ↓
+ Safe Execution
+      ↓
+   Result / Error
 ```
-LangChain = "How to call"
-Logic Fingerprint = "Should we call + Is it safe"
-```
 
-This is **not a replacement**, but a **stability layer under LangChain / APIs / services**.
+## ⚡ Quick Start
 
----
+### Install
 
-## ⚡ Quick Start (5 min)
+```bash
+pip install logic-fingerprint
 
 ```bash
 pip install -r requirements.txt
 pip install -e .
-uvicorn logic_fingerprint.app_factory:app --reload
 ```
 
-Open:
-
-```
-http://127.0.0.1:8000/docs
-```
-
----
-
-## 📦 First Request
-
-```json
-POST /execute_handler
-{
-  "handler": "sum_numbers",
-  "payload": {
-    "numbers": [1, 2, 3]
-  }
-}
-```
-
-### Response
-
-```json
-{
-  "ok": true,
-  "result": {
-    "ok": true,
-    "data": {
-      "sum": 6
-    }
-  }
-}
-```
-
----
-
-## ❌ Error Example (Validation)
-
-```json
-{
-  "handler": "sum_numbers",
-  "payload": {
-    "numbers": ["x"]
-  }
-}
-```
-
-### Response
-
-```json
-{
-  "ok": false,
-  "error": {
-    "code": "ERR_VALIDATION",
-    "message": "Input validation failed.",
-    "details": {
-      "errors": [...]
-    }
-  }
-}
-```
-
----
-
-## 🧩 Register a Handler
-
-### Basic
+### Protect a real local LLM call
 
 ```python
-handler_registry.register(
-    "my_handler",
-    my_func
-)
+from logic_fingerprint import protect
+
+
+@protect()
+def ask_local_llm(request):
+    import json
+    import urllib.request
+
+    payload = {
+        "model": "llama3.2",
+        "prompt": request.payload["prompt"],
+        "stream": False,
+    }
+
+    req = urllib.request.Request(
+        "http://127.0.0.1:11434/api/generate",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={"Content-Type": "application/json"},
+        method="POST",
+    )
+
+    with urllib.request.urlopen(req, timeout=60) as resp:
+        body = json.loads(resp.read().decode("utf-8"))
+
+    return {"answer": body["response"].strip()}
 ```
 
-### With Schema
+### Call it like a normal function
 
 ```python
-handler_registry.register(
-    "my_handler",
-    my_func,
-    input_model=MyInput,
-    output_model=MyOutput,
-)
+result = ask_local_llm({
+    "prompt": "Explain circuit breaker in one sentence."
+})
+
+print(result)
 ```
 
-### Decorator Style
+Output:
 
 ```python
-@handler_registry.register_decorator("my_handler")
-def my_handler(request):
-    return HandlerResponse(ok=True, data={...})
+{'answer': 'A circuit breaker is a safety device that automatically stops an overcurrent flow in an electrical circuit to prevent damage to equipment and potential hazards.'}
+```
+
+### What you get automatically
+
+* circuit breaker protection
+* safe recovery probing
+* controlled failure handling
+* optional schema validation
+* auto request context
+
+
+
+```md
+## 🎬 Demos
+
+Run real examples locally:
+
+### 1. Simple mode (like a normal function)
+
+```bash
+python demo/demo_protect_simple.py
 ```
 
 ---
 
-## 🔄 Execution Flow
+### 2. Full mode (engineering output)
 
-```
-Request
-   ↓
-Context Builder (auto-fill request_id, trace_id, etc.)
-   ↓
-Middleware
-   ↓
-FSM (Circuit Breaker)
-   ↓
-Executor
-   ↓
-Handler
-   ↓
-Validation (input/output)
-   ↓
-Response (Unified Protocol)
+```bash
+python demo/demo_protect_full.py
 ```
 
 ---
 
-## 🧱 Core Features
+### 3. Error handling (simple mode)
 
-### 1. Circuit Breaker
-
-* CLOSED → OPEN → HALF_OPEN
-* Prevents repeated failures
-
-### 2. Time-driven Probe
-
-* Avoid low-QPS deadlock
-* Deterministic recovery
-
-### 3. Consecutive Success Recovery
-
-* Prevent false recovery
-
-### 4. Global Failure Consensus
-
-* Multi-node safety
-* Avoid cascading failures
-
-### 5. Context Auto Injection
-
-```json
-{
-  "request_id": "...",
-  "trace_id": "...",
-  "timestamp": "...",
-  "source": "api"
-}
+```bash
+python demo/demo_error_simple.py
 ```
 
 ---
 
-## 🧪 Built-in Demo Handlers
+### 4. Error handling (full mode)
 
-* `echo_payload`
-* `sum_numbers`
-* `demo_timeout`
-* `demo_logic_error`
-* `demo_null`
-* `demo_norm_error`
-
----
-
-## 📊 Metrics
-
-```
-/metrics
-/metrics.prom
-```
-
-Includes:
-
-* total_requests
-* blocked_requests
-* probe_requests
-* success_requests
-* failed_requests
-
----
-
-## 🔗 Use Cases
-
-### 1. LLM Safety Layer
-
-```
-LangChain → LogicFingerprint → OpenAI API
-```
-
-### 2. API Gateway Protection
-
-```
-Client → LogicFingerprint → Microservice
-```
-
-### 3. Workflow Execution Engine
-
-```
-Task → Handler → Controlled Execution
+```bash
+python demo/demo_error_full.py
 ```
 
 ---
 
-## 🆚 vs LangChain
+### 5. Real LLM demo (Ollama)
 
-| Capability         | LangChain  | Logic Fingerprint |
-| ------------------ | ---------- | ----------------- |
-| Prompt / Agent     | ✅          | ❌                 |
-| Execution Safety   | ❌          | ✅                 |
-| Circuit Breaker    | ❌          | ✅                 |
-| Failure Consensus  | ❌          | ✅                 |
-| Schema Enforcement | ⚠️ Partial | ✅                 |
-| Error Protocol     | ❌          | ✅                 |
-
----
-
-## 🛠 Architecture
-
-```
-+---------------------+
-|     API Layer       |
-+---------------------+
-           ↓
-+---------------------+
-| Context Builder     |
-+---------------------+
-           ↓
-+---------------------+
-| Middleware          |
-+---------------------+
-           ↓
-+---------------------+
-| FSM (Circuit Break) |
-+---------------------+
-           ↓
-+---------------------+
-| Executor            |
-+---------------------+
-           ↓
-+---------------------+
-| Handler             |
-+---------------------+
+```bash
+python demo/demo_protect_ollama_simple.py
 ```
 
----
+👉 Make sure Ollama is running locally before running this demo.
 
-## 📌 Roadmap
+------------------------------------------------------------------------
 
-### v1.1
+**Logic Fingerprint — Execution Safety Layer (Python)**
 
-* Local Swagger (no CDN)
-* Config-driven handlers
-* Better observability
+* Designed and implemented a decorator-based execution control layer for functions, APIs, and LLM calls
+* Built circuit breaker with HALF_OPEN recovery, time-driven probing, and consecutive-success gating
+* Added schema validation (Pydantic) and unified error protocol for stable, observable outputs
+* Delivered dual-mode API (`simple` vs `full`) to support both developer-friendly usage and production observability
+* Integrated with local LLM (Ollama) to demonstrate real-world stability against timeouts and malformed outputs
+* Structured demos and documentation to enable 30-second onboarding and clear behavior comparison
 
-### v1.2+
 
-* Distributed consensus backend (Redis / etcd)
-* Rate limiting
-* Auth context
+Logic Fingerprint — 执行安全层（Python）
 
----
-
-## 🧭 Philosophy
-
-> Don’t make systems smarter.
-> Make execution safer.
-
----
-
-## 📄 License
-
-MIT
+设计并实现基于装饰器的执行控制层，用于函数 / API / LLM 调用的稳定性保护
+实现熔断机制（CLOSED / OPEN / HALF_OPEN）及时间驱动探测恢复与连续成功判定
+引入输入输出 Schema 校验（Pydantic）与统一错误协议，保证结果结构稳定、可观测
+设计双模式接口（simple / full），兼顾易用性与工程可观测性
+集成本地 LLM（Ollama）进行真实场景验证，解决 timeout、异常输出等问题
+构建分层 demo 与文档体系，实现 30 秒上手与行为对照演示
 
 ---
+“I built a decorator-based execution safety layer for LLM and API calls.”
 
-## ⭐ If useful
-
-Give a star ⭐ — this project is built for real-world stability problems.
-
-
-
-# Logic Fingerprint System
-
-> 一个用于“稳定执行 handler”的轻量级执行控制层（Execution Control Layer）
-
----
-
-## 🚀 项目简介
-
-**Logic Fingerprint** 是一个位于应用与执行逻辑之间的控制层，用于保证调用过程：
-
-* ✅ 稳定（熔断机制）
-* ✅ 可恢复（HALF_OPEN 探测）
-* ✅ 防雪崩（全局失败共识）
-* ✅ 可校验（输入 / 输出 Schema）
-* ✅ 可观测（统一错误协议 + 指标）
-* ✅ 可追踪（自动上下文注入）
-
----
-
-## ⚠️ 为什么需要它
-
-在真实系统中你会遇到：
-
-* LLM / API 经常 timeout
-* 下游服务不稳定
-* 重试导致系统雪崩
-* handler 返回结构混乱
-* 错误不可控、难以定位
-
-### 本系统解决：
-
-| 问题      | 传统方式 | Logic Fingerprint |
-| ------- | ---- | ----------------- |
-| Timeout | 无限重试 | 可控探测恢复            |
-| 故障扩散    | 整体崩溃 | 全局失败共识            |
-| 输出混乱    | 非结构化 | Schema 校验         |
-| 错误处理    | 各自为政 | 统一协议              |
-
----
-
-## 🧠 定位（非常重要）
-
-```id="kqz0yx"
-LangChain = “怎么调用”
-Logic Fingerprint = “该不该调用 + 调用是否安全”
-```
-
-👉 它不是替代 LangChain，而是：
-
-> **LangChain / API / 微服务的执行保护层**
-
----
-
-## ⚡ 5分钟快速开始
-
-```bash id="5f6gcm"
-pip install -r requirements.txt
-pip install -e .
-uvicorn logic_fingerprint.app_factory:app --reload
-```
-
-打开：
-
-```id="g6iqkm"
-http://127.0.0.1:8000/docs
-```
-
----
-
-## 📦 第一个请求
-
-```json id="3qxtu6"
-POST /execute_handler
-{
-  "handler": "sum_numbers",
-  "payload": {
-    "numbers": [1, 2, 3]
-  }
-}
-```
-
-返回：
-
-```json id="92x9i3"
-{
-  "ok": true,
-  "result": {
-    "ok": true,
-    "data": {
-      "sum": 6
-    }
-  }
-}
-```
-
----
-
-## ❌ 错误示例（Schema校验）
-
-```json id="0n92vd"
-{
-  "handler": "sum_numbers",
-  "payload": {
-    "numbers": ["x"]
-  }
-}
-```
-
-返回：
-
-```json id="c61n6l"
-{
-  "ok": false,
-  "error": {
-    "code": "ERR_VALIDATION",
-    "message": "Input validation failed.",
-    "details": {
-      "errors": [...]
-    }
-  }
-}
-```
-
----
-
-## 🧩 注册一个 Handler
-
-### 基础用法
-
-```python id="m5y3qk"
-handler_registry.register(
-    "my_handler",
-    my_func
-)
-```
-
-### 带输入输出校验
-
-```python id="5a6ytk"
-handler_registry.register(
-    "my_handler",
-    my_func,
-    input_model=MyInput,
-    output_model=MyOutput,
-)
-```
-
-### 装饰器方式
-
-```python id="nt9i9j"
-@handler_registry.register_decorator("my_handler")
-def my_handler(request):
-    return HandlerResponse(ok=True, data={...})
-```
-
----
-
-## 🔄 执行流程
-
-```id="qv8gh7"
-请求
- ↓
-Context Builder（自动补全 request_id / trace_id）
- ↓
-Middleware
- ↓
-FSM（熔断器）
- ↓
-Executor
- ↓
-Handler
- ↓
-Schema 校验
- ↓
-统一响应
-```
-
----
-
-## 🧱 核心能力
-
-### 1️⃣ 熔断机制（Circuit Breaker）
-
-* CLOSED → OPEN → HALF_OPEN
-* 防止持续失败
-
----
-
-### 2️⃣ 时间驱动 Probe（关键优化）
-
-* 避免低QPS系统卡死
-* 保证探测一定发生
-
----
-
-### 3️⃣ 连续成功恢复
-
-* 避免“误恢复”
-* 必须连续成功 N 次才恢复
-
----
-
-### 4️⃣ 全局失败共识
-
-* 多实例共享失败状态
-* 防止集群雪崩
-
----
-
-### 5️⃣ 自动上下文注入
-
-系统自动补全：
-
-```json id="f4d3t2"
-{
-  "request_id": "...",
-  "trace_id": "...",
-  "timestamp": "...",
-  "source": "api"
-}
-```
-
----
-
-## 🧪 内置示例 Handler
-
-* `echo_payload`
-* `sum_numbers`
-* `demo_timeout`
-* `demo_logic_error`
-* `demo_null`
-* `demo_norm_error`
-
----
-
-## 📊 指标监控
-
-```id="8n8y8f"
-/metrics
-/metrics.prom
-```
-
-包含：
-
-* total_requests
-* blocked_requests
-* probe_requests
-* success_requests
-* failed_requests
-
----
-
-## 🔗 应用场景
-
-### 1️⃣ LLM 调用保护层
-
-```id="m6kw3d"
-LangChain → LogicFingerprint → OpenAI API
-```
-
-👉 防止 LLM timeout / 崩溃
-
----
-
-### 2️⃣ 微服务熔断层
-
-```id="3h0hqn"
-Client → LogicFingerprint → Service
-```
-
-👉 防止服务级联故障
-
----
-
-### 3️⃣ 工作流执行引擎
-
-```id="0qch4z"
-任务 → Handler → 可控执行
-```
-
----
-
-## 🆚 与 LangChain 对比
-
-| 能力             | LangChain | Logic Fingerprint |
-| -------------- | --------- | ----------------- |
-| Prompt / Agent | ✅         | ❌                 |
-| 执行稳定性          | ❌         | ✅                 |
-| 熔断             | ❌         | ✅                 |
-| 防雪崩            | ❌         | ✅                 |
-| Schema 校验      | 部分        | ✅                 |
-| 错误协议           | ❌         | ✅                 |
-
----
-
-## 🛠 架构
-
-```id="v1y43y"
-API层
- ↓
-Context Builder
- ↓
-Middleware
- ↓
-FSM（熔断）
- ↓
-Executor
- ↓
-Handler
-```
-
----
-
-## 📌 Roadmap
-
-### v1.1
-
-* 本地 Swagger（去 CDN）
-* 配置化 handler
-* 更完善的日志
-
-### v1.2+
-
-* Redis / etcd 共识
-* 限流（Rate Limit）
-* 权限系统
-
----
-
-## 🧭 设计哲学
-
-> 不让系统更聪明
-> 让系统更安全
-
----
-
-## 📄 License
-
-MIT
-
----
-
-## ⭐ 如果有帮助
-
-欢迎点个 Star ⭐

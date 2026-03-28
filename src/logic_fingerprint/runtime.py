@@ -1,17 +1,17 @@
 from dataclasses import dataclass
-from .config import ProbeConfig
+from .config import RuntimeConfig
 from .consensus import InMemoryConsensusBackend
-from .context_builder import ContextBuilder
-from .executor import LogicFingerprintExecutor
-from .fsm import LogicFingerprintFSM
+from .core.context_builder import ContextBuilder
+from .core.executor import LogicFingerprintExecutor
+from .core.fsm import LogicFingerprintFSM
 from .handlers import HandlerRegistry
 from .heartbeat import HeartbeatService
 from .input_models import SumNumbersInput
-from .metrics import InMemoryMetrics
+from .core.metrics import InMemoryMetrics
 from .middleware import LogicFingerprintMiddleware
 from .output_models import SumNumbersOutput
-from .errors import TimeoutErrorLF, LogicExecutionError, NormalizationError
-from .models import HandlerRequest, HandlerResponse
+from .core.errors import TimeoutErrorLF, LogicExecutionError, NormalizationError
+from .core.models import HandlerRequest, HandlerResponse
 
 @dataclass(slots=True)
 class LogicFingerprintRuntime:
@@ -25,7 +25,7 @@ class LogicFingerprintRuntime:
     context_builder: object
 
 def build_runtime() -> LogicFingerprintRuntime:
-    config = ProbeConfig(probe_rate=0.2, probe_interval_seconds=5.0, consecutive_success_threshold=3, total_nodes=1, global_fail_threshold=1.0)
+    config = RuntimeConfig(probe_rate=0.2, probe_interval_seconds=5.0, consecutive_success_threshold=3, total_nodes=1, global_fail_threshold=1.0)
     backend = InMemoryConsensusBackend()
     fsm = LogicFingerprintFSM(instance_id="node-a", config=config, backend=backend)
     executor = LogicFingerprintExecutor(fsm)

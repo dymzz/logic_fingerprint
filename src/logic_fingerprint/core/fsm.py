@@ -1,13 +1,13 @@
 from dataclasses import dataclass, field
 from typing import Optional
 import time
-from .config import ProbeConfig
+from ..config import RuntimeConfig
 from .models import FSMState, ProbeResult
 
 @dataclass(slots=True)
 class LogicFingerprintFSM:
     instance_id: str
-    config: ProbeConfig
+    config: RuntimeConfig
     backend: object
     state: FSMState = FSMState.CLOSED
     request_counter: int = 0

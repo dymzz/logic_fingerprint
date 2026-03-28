@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 
-from .executor import LogicFingerprintExecutor
-from .fsm import LogicFingerprintFSM
+from .core.executor import LogicFingerprintExecutor
+from .core.fsm import LogicFingerprintFSM
 
 
 @dataclass(slots=True)

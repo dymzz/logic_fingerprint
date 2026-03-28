@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from pydantic import BaseModel
-from .errors import HandlerNotFoundError
+from .core.errors import HandlerNotFoundError
 
 @dataclass(slots=True)
 class HandlerDefinition:

@@ -1,5 +1,5 @@
-from .fsm import LogicFingerprintFSM
-from .metrics import InMemoryMetrics
+from .core.fsm import LogicFingerprintFSM
+from .core.metrics import InMemoryMetrics
 
 
 def render_prometheus_metrics(metrics: InMemoryMetrics, fsm: LogicFingerprintFSM) -> str:

@@ -1,7 +1,7 @@
 from dataclasses import asdict, is_dataclass
 from fastapi import APIRouter, Response
 from pydantic import BaseModel, Field
-from .models import HandlerRequest, RequestContext
+from .core.models import HandlerRequest, RequestContext
 from .prometheus_metrics import render_prometheus_metrics
 
 class ForceFailRequest(BaseModel):
