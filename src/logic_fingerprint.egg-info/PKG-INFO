@@ -1,6 +1,6 @@
 Metadata-Version: 2.4
 Name: logic-fingerprint
-Version: 0.1.0
+Version: 1.1.0
 Summary: Execution safety layer for functions, APIs, and LLMs.
 Author: Your Name
 License: MIT
@@ -13,12 +13,10 @@ Description-Content-Type: text/markdown
 Requires-Dist: annotated-doc==0.0.4
 Requires-Dist: annotated-types==0.7.0
 Requires-Dist: anyio==4.13.0
-Requires-Dist: build==1.4.2
 Requires-Dist: certifi==2026.2.25
 Requires-Dist: charset-normalizer==3.4.6
 Requires-Dist: click==8.3.1
 Requires-Dist: colorama==0.4.6
-Requires-Dist: docutils==0.22.4
 Requires-Dist: fastapi==0.135.2
 Requires-Dist: h11==0.16.0
 Requires-Dist: httpcore==1.0.9
@@ -29,25 +27,14 @@ Requires-Dist: iniconfig==2.3.0
 Requires-Dist: jaraco-classes==3.4.0
 Requires-Dist: jaraco-context==6.1.2
 Requires-Dist: jaraco-functools==4.4.0
-Requires-Dist: keyring==25.7.0
-Requires-Dist: markdown-it-py==4.0.0
-Requires-Dist: mdurl==0.1.2
 Requires-Dist: more-itertools==10.8.0
 Requires-Dist: nh3==0.3.4
 Requires-Dist: packaging==26.0
 Requires-Dist: pluggy==1.6.0
 Requires-Dist: pydantic==2.12.5
 Requires-Dist: pydantic-core==2.41.5
-Requires-Dist: pygments==2.19.2
-Requires-Dist: pyproject-hooks==1.2.0
-Requires-Dist: pywin32-ctypes==0.2.3
-Requires-Dist: readme-renderer==44.0
 Requires-Dist: requests==2.33.0
-Requires-Dist: requests-toolbelt==1.0.0
-Requires-Dist: rfc3986==2.0.0
-Requires-Dist: rich==14.3.3
 Requires-Dist: starlette==1.0.0
-Requires-Dist: twine==6.2.0
 Requires-Dist: typing-extensions==4.15.0
 Requires-Dist: typing-inspection==0.4.2
 Requires-Dist: urllib3==2.6.3

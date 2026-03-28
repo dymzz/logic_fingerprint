@@ -1,5 +1,8 @@
 import asyncio
-from logic_fingerprint.models import HandlerRequest
+import pytest
+from logic_fingerprint.core.models import HandlerRequest
+
+pytest.importorskip("pydantic")
 from logic_fingerprint.runtime import build_runtime
 
 def test_middleware_autofills_context_for_sync_handler():

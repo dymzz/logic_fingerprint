@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logic-fingerprint"
-version = "0.1.0"
+version = "1.1.0"
 description = "Execution safety layer for functions, APIs, and LLMs."
 readme = "README.md"
 requires-python = ">=3.10"
@@ -64,3 +64,8 @@ classifiers = [
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[[tool.uv.index]]
+name = "testpypi"
+url = "https://test.pypi.org/legacy/"
+publish-url = "https://test.pypi.org/legacy/"

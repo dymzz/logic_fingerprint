@@ -1,3 +1,6 @@
+import pytest
+
+pytest.importorskip("pydantic")
 from logic_fingerprint.runtime import build_runtime
 
 def test_runtime_contains_registered_handlers():

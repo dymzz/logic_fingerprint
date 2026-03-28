@@ -1,5 +1,5 @@
-from logic_fingerprint.context_builder import ContextBuilder
-from logic_fingerprint.models import HandlerRequest, RequestContext
+from logic_fingerprint.core.context_builder import ContextBuilder
+from logic_fingerprint.core.models import HandlerRequest, RequestContext
 
 def test_context_builder_autofills_missing_fields():
     builder = ContextBuilder(default_source="api")

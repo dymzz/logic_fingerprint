@@ -1,13 +1,13 @@
 import asyncio
 
-from logic_fingerprint.config import ProbeConfig
+from logic_fingerprint.config import RuntimeConfig
 from logic_fingerprint.consensus import InMemoryConsensusBackend
-from logic_fingerprint.executor import LogicFingerprintExecutor
-from logic_fingerprint.fsm import LogicFingerprintFSM
+from logic_fingerprint.core.executor import LogicFingerprintExecutor
+from logic_fingerprint.core.fsm import LogicFingerprintFSM
 
 
 def build_executor(**kwargs) -> LogicFingerprintExecutor:
-    config = ProbeConfig(**kwargs)
+    config = RuntimeConfig(**kwargs)
     backend = InMemoryConsensusBackend()
     fsm = LogicFingerprintFSM(
         instance_id="node-a",
