@@ -6,7 +6,7 @@
 
 - 用户模式：默认入口是 `@protect()`
 - 高级用户模式：需要多个保护实例时，用 `create_protector()`
-- 工程模式：服务化接入时，用 `logic_fingerprint.engineering`
+- 工程模式：服务化接入时，用 `logicfp.engineering`
 
 ## 1. 两种模式分别解决什么问题
 
@@ -29,7 +29,7 @@
 最常见写法就是：
 
 ```python
-from logic_fingerprint import protect
+from logicfp import protect
 from pydantic import BaseModel
 
 
@@ -49,7 +49,7 @@ def review_text(request):
 如果你需要两个不同配置的保护器，用：
 
 ```python
-from logic_fingerprint import create_protector
+from logicfp import create_protector
 
 fast_guard = create_protector(
     instance_id="fast-lane",
@@ -81,7 +81,7 @@ slow_guard = create_protector(
 最常见写法是：
 
 ```python
-from logic_fingerprint.engineering import create_app
+from logicfp.engineering import create_app
 
 app = create_app()
 ```
@@ -89,7 +89,7 @@ app = create_app()
 然后通过配置把你的 registrar 接进去：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   handler_registrars:
     - your_real_package.handlers.register
 ```
@@ -104,9 +104,9 @@ your_project/
     config.yaml
 ```
 
-Logic Fingerprint 现在会按这个顺序找文件：
+logicfp 现在会按这个顺序找文件：
 
-1. 如果设置了 `LOGIC_FINGERPRINT_CONFIG_FILE`，优先使用它
+1. 如果设置了 `LOGICFP_CONFIG_FILE`，优先使用它
 2. 否则从当前工作目录开始，优先查找 `config/config.yaml`
 
 所以最稳妥的做法就是：
@@ -158,8 +158,8 @@ Logic Fingerprint 现在会按这个顺序找文件：
 
 ## 5. 工程模式怎么读取配置
 
-`logic_fingerprint.engineering.create_app()` 和
-`logic_fingerprint.engineering.build_production_runtime()` 会走工程模式配置链：
+`logicfp.engineering.create_app()` 和
+`logicfp.engineering.build_production_runtime()` 会走工程模式配置链：
 
 1. `build_runtime_config()`
 2. `build_runtime_settings(profile="api")`
@@ -172,7 +172,7 @@ Logic Fingerprint 现在会按这个顺序找文件：
 - `instance_id=node-a`
 - `default_source=api`
 
-如果配置里提供了 `LOGIC_FINGERPRINT_HANDLER_REGISTRARS`，production runtime 会继续加载你的业务 registrar。
+如果配置里提供了 `LOGICFP_HANDLER_REGISTRARS`，production runtime 会继续加载你的业务 registrar。
 
 ## 6. 对应示例看哪里
 

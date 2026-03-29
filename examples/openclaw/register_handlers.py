@@ -6,8 +6,8 @@ from typing import Any
 from examples.config_support import load_example_section, read_example_str
 from pydantic import BaseModel, Field
 
-from logic_fingerprint.domain.models import HandlerRequest, HandlerResponse
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.domain.models import HandlerRequest, HandlerResponse
+from logicfp.handler_registry import HandlerRegistry
 
 
 @dataclass(slots=True)

@@ -10,11 +10,22 @@ from .runtime_settings import RuntimeSettings
 from .yaml_support import load_simple_yaml_file
 
 
-DEFAULT_ENV_PREFIX = "LOGIC_FINGERPRINT_"
+DEFAULT_ENV_PREFIX = "LOGICFP_"
+LEGACY_ENV_PREFIX = "LOGIC_FINGERPRINT_"
 DEFAULT_CONFIG_DIR_NAME = "config"
 DEFAULT_CONFIG_FILE_NAME = "config.yaml"
 API_PROFILE = "api"
 DECORATOR_PROFILE = "decorator"
+
+
+def _resolve_env_value(env_name: str) -> str | None:
+    value = os.getenv(env_name)
+    if value is not None:
+        return value
+    if env_name.startswith(DEFAULT_ENV_PREFIX):
+        legacy_name = LEGACY_ENV_PREFIX + env_name[len(DEFAULT_ENV_PREFIX) :]
+        return os.getenv(legacy_name)
+    return None
 
 
 def _resolve_value(
@@ -24,7 +35,7 @@ def _resolve_value(
     *,
     file_values: Mapping[str, Any],
 ) -> Any:
-    value = os.getenv(env_name)
+    value = _resolve_env_value(env_name)
     if value is None:
         return file_values.get(config_key, default)
     return value
@@ -115,8 +126,8 @@ def _normalize_config_path(path: str | Path) -> Path:
     return (Path.cwd() / normalized).resolve()
 
 
-def _extract_logic_fingerprint_values(data: dict[str, Any]) -> dict[str, Any]:
-    for section_name in ("logic_fingerprint", "logicfingerprint"):
+def _extract_logicfp_values(data: dict[str, Any]) -> dict[str, Any]:
+    for section_name in ("logicfp", "logic_fingerprint", "logicfingerprint"):
         section = data.get(section_name)
         if section is None:
             continue
@@ -135,17 +146,17 @@ def discover_config_file(
     if config_file is not None:
         explicit_path = _normalize_config_path(config_file)
         if not explicit_path.is_file():
-            raise FileNotFoundError(f"Logic Fingerprint config file not found: {explicit_path}")
+            raise FileNotFoundError(f"logicfp config file not found: {explicit_path}")
         return explicit_path
 
-    env_override = os.getenv(f"{prefix}CONFIG_FILE")
+    env_override = _resolve_env_value(f"{prefix}CONFIG_FILE")
     if env_override is not None:
         env_override = env_override.strip()
         if not env_override:
             return None
         explicit_path = _normalize_config_path(env_override)
         if not explicit_path.is_file():
-            raise FileNotFoundError(f"Logic Fingerprint config file not found: {explicit_path}")
+            raise FileNotFoundError(f"logicfp config file not found: {explicit_path}")
         return explicit_path
 
     current_dir = Path(start_dir or Path.cwd()).resolve()
@@ -172,7 +183,7 @@ def load_config_file_values(
     )
     if path is None:
         return {}
-    return _extract_logic_fingerprint_values(load_simple_yaml_file(path))
+    return _extract_logicfp_values(load_simple_yaml_file(path))
 
 
 def _default_runtime_settings(profile: str) -> RuntimeSettings:

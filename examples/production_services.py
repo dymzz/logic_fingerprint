@@ -10,8 +10,8 @@ from examples.config_support import (
     read_example_int,
     read_example_str,
 )
-from logic_fingerprint.domain.models import HandlerRequest, HandlerResponse
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.domain.models import HandlerRequest, HandlerResponse
+from logicfp.handler_registry import HandlerRegistry
 
 
 @dataclass(slots=True)

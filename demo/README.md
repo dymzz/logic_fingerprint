@@ -1,6 +1,6 @@
 # Demo Guide
 
-This folder contains runnable examples of Logic Fingerprint.
+This folder contains runnable examples of logicfp.
 
 ---
 
@@ -76,7 +76,7 @@ Requirements:
 | simple | behaves like normal function          |
 | full   | returns structured engineering output |
 
-Logic Fingerprint lets you choose between:
+logicfp lets you choose between:
 
 * developer-friendly usage (simple)
 * production-ready execution (full)

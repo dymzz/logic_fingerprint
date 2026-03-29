@@ -6,8 +6,8 @@ from typing import Any, Protocol
 
 from pydantic import BaseModel, Field
 
-from logic_fingerprint.domain.models import HandlerRequest
-from logic_fingerprint import protect
+from logicfp.domain.models import HandlerRequest
+from logicfp import protect
 
 
 class ReviewRequest(BaseModel):
@@ -111,7 +111,7 @@ def main() -> None:
     guarded_review = build_review_guard(agent)
     result = guarded_review(
         payload={
-            "product_name": "Logic Fingerprint",
+            "product_name": "logicfp",
             "review_text": "Fast setup, but support should confirm the retry policy.",
             "customer_tier": "enterprise",
         }

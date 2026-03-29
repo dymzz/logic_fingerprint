@@ -9,6 +9,6 @@ class RuntimeSettings:
     handler_registrars: tuple[str, ...] = ()
     redis_url: str | None = None
     redis_decode_responses: bool = True
-    redis_key: str = "logic_fingerprint:failed_nodes"
-    redis_key_prefix: str = "logic_fingerprint:failed_node"
+    redis_key: str = "logicfp:failed_nodes"
+    redis_key_prefix: str = "logicfp:failed_node"
     redis_ttl_seconds: int = 30

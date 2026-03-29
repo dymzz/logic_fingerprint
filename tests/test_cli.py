@@ -8,9 +8,9 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-import logic_fingerprint.cli as cli_module
+import logicfp.cli as cli_module
 
-from logic_fingerprint.cli import (
+from logicfp.cli import (
     discover_cli_config_path,
     load_start_config,
     main,
@@ -19,7 +19,7 @@ from logic_fingerprint.cli import (
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-cli-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-cli-", dir=Path.cwd()))
 
 
 def test_parse_simple_yaml_supports_nested_sections_and_lists():
@@ -30,7 +30,7 @@ server:
   port: 9000
 app:
   demo: true
-logic_fingerprint:
+logicfp:
   backend_type: memory
   handler_registrars:
     - tests.sample_handlers
@@ -41,7 +41,7 @@ logic_fingerprint:
     assert data["server"]["host"] == "127.0.0.1"
     assert data["server"]["port"] == 9000
     assert data["app"]["demo"] is True
-    assert data["logic_fingerprint"]["handler_registrars"] == [
+    assert data["logicfp"]["handler_registrars"] == [
         "tests.sample_handlers",
         "tests.more_handlers",
     ]
@@ -79,7 +79,7 @@ server:
   port: 9100
 app:
   demo: false
-logic_fingerprint:
+logicfp:
   instance_id: cli-node
   handler_registrars:
     - tests.sample_handlers
@@ -112,7 +112,7 @@ def test_main_start_uses_demo_app_and_uvicorn(monkeypatch):
             """
 server:
   port: 9100
-logic_fingerprint:
+logicfp:
   instance_id: demo-node
 """,
             encoding="utf-8",

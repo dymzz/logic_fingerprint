@@ -33,7 +33,7 @@ your_project/config/config.yaml
 
 其中包含两类配置：
 
-- `logic_fingerprint:`：运行时、backend、registrar
+- `logicfp:`：运行时、backend、registrar
 - `openclaw:`：Gateway URL、agent/session 约定、远端 token 环境变量名
 
 ## Start
@@ -41,7 +41,7 @@ your_project/config/config.yaml
 推荐用 CLI：
 
 ```powershell
-logicfingerprint start --config config/config.yaml
+logicfp start --config config/config.yaml
 ```
 
 如果只是仓库内调试，也可以继续参考：

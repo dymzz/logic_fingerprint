@@ -4,8 +4,8 @@ import os
 from pathlib import Path
 from typing import Any, Mapping
 
-from logic_fingerprint.config import discover_config_file
-from logic_fingerprint.config.yaml_support import load_simple_yaml_file
+from logicfp.config import discover_config_file
+from logicfp.config.yaml_support import load_simple_yaml_file
 
 
 def load_example_section(

@@ -53,10 +53,10 @@ your_project/
 默认查找顺序是：
 
 1. 显式参数 `config_file=...`
-2. 环境变量 `LOGIC_FINGERPRINT_CONFIG_FILE`
+2. 环境变量 `LOGICFP_CONFIG_FILE`
 3. 从当前工作目录向上查找 `config/config.yaml`
 
-CLI 的 `logicfingerprint start --config ...` 也是同样思路，只是额外支持常见系统目录。
+CLI 的 `logicfp start --config ...` 也是同样思路，只是额外支持常见系统目录。
 
 ## 4. 推荐的 YAML 结构
 
@@ -68,7 +68,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: api-node-a
   default_source: api
   backend_type: memory
@@ -81,7 +81,7 @@ logic_fingerprint:
     - your_real_package.handlers.register
 ```
 
-库核心读取的是 `logic_fingerprint:` 这一节。
+库核心读取的是 `logicfp:` 这一节。
 
 `server:` 和 `app:` 主要给 CLI 用。
 
@@ -91,16 +91,16 @@ logic_fingerprint:
 
 | YAML key | 环境变量覆盖名 | 默认值 | 作用 | 模式 |
 | --- | --- | --- | --- | --- |
-| `probe_rate` | `LOGIC_FINGERPRINT_PROBE_RATE` | `0.2` | HALF_OPEN 时允许多少比例的 probe 请求通过 | 用户模式、工程模式 |
-| `probe_interval_seconds` | `LOGIC_FINGERPRINT_PROBE_INTERVAL_SECONDS` | `5.0` | 相邻 probe 的最小时间间隔 | 用户模式、工程模式 |
-| `consecutive_success_threshold` | `LOGIC_FINGERPRINT_CONSECUTIVE_SUCCESS_THRESHOLD` | `3` | HALF_OPEN 恢复到 CLOSED 需要连续成功多少次 | 用户模式、工程模式 |
-| `total_nodes` | `LOGIC_FINGERPRINT_TOTAL_NODES` | `1` | 全局失败判断里的总节点数 | 用户模式、工程模式 |
-| `global_fail_threshold` | `LOGIC_FINGERPRINT_GLOBAL_FAIL_THRESHOLD` | `1.0` | 达到多少全局失败比例后视为失败共识 | 用户模式、工程模式 |
+| `probe_rate` | `LOGICFP_PROBE_RATE` | `0.2` | HALF_OPEN 时允许多少比例的 probe 请求通过 | 用户模式、工程模式 |
+| `probe_interval_seconds` | `LOGICFP_PROBE_INTERVAL_SECONDS` | `5.0` | 相邻 probe 的最小时间间隔 | 用户模式、工程模式 |
+| `consecutive_success_threshold` | `LOGICFP_CONSECUTIVE_SUCCESS_THRESHOLD` | `3` | HALF_OPEN 恢复到 CLOSED 需要连续成功多少次 | 用户模式、工程模式 |
+| `total_nodes` | `LOGICFP_TOTAL_NODES` | `1` | 全局失败判断里的总节点数 | 用户模式、工程模式 |
+| `global_fail_threshold` | `LOGICFP_GLOBAL_FAIL_THRESHOLD` | `1.0` | 达到多少全局失败比例后视为失败共识 | 用户模式、工程模式 |
 
 来源：
 
-- 默认值来自 `src/logic_fingerprint/config/runtime_config.py`
-- 文件、环境变量和显式参数由 `src/logic_fingerprint/config/loader.py` 合并
+- 默认值来自 `src/logicfp/config/runtime_config.py`
+- 文件、环境变量和显式参数由 `src/logicfp/config/loader.py` 合并
 
 ## 6. RuntimeSettings 参数
 
@@ -108,20 +108,20 @@ logic_fingerprint:
 
 | YAML key | 环境变量覆盖名 | 默认值 | 作用 | 模式 |
 | --- | --- | --- | --- | --- |
-| `instance_id` | `LOGIC_FINGERPRINT_INSTANCE_ID` | `decorator-node` 或 `node-a` | 当前实例标识 | 用户模式、工程模式 |
-| `default_source` | `LOGIC_FINGERPRINT_DEFAULT_SOURCE` | `decorator` 或 `api` | 请求上下文里的默认来源 | 用户模式、工程模式 |
-| `backend_type` | `LOGIC_FINGERPRINT_BACKEND_TYPE` | `memory` | 状态后端类型：`memory`、`redis`、`redis_ttl` | 用户模式、工程模式 |
-| `handler_registrars` | `LOGIC_FINGERPRINT_HANDLER_REGISTRARS` | 空 | 要加载的 handler registrar 模块列表 | 工程模式 |
-| `redis_url` | `LOGIC_FINGERPRINT_REDIS_URL` | 空 | Redis 连接地址 | 工程模式，或高级用户模式 |
-| `redis_decode_responses` | `LOGIC_FINGERPRINT_REDIS_DECODE_RESPONSES` | `true` | Redis client 是否自动 decode | 工程模式，或高级用户模式 |
-| `redis_key` | `LOGIC_FINGERPRINT_REDIS_KEY` | `logic_fingerprint:failed_nodes` | Redis 集合模式使用的 key | 工程模式 |
-| `redis_key_prefix` | `LOGIC_FINGERPRINT_REDIS_KEY_PREFIX` | `logic_fingerprint:failed_node` | Redis TTL 模式的 key 前缀 | 工程模式 |
-| `redis_ttl_seconds` | `LOGIC_FINGERPRINT_REDIS_TTL_SECONDS` | `30` | Redis TTL 模式失败记录的过期时间 | 工程模式 |
+| `instance_id` | `LOGICFP_INSTANCE_ID` | `decorator-node` 或 `node-a` | 当前实例标识 | 用户模式、工程模式 |
+| `default_source` | `LOGICFP_DEFAULT_SOURCE` | `decorator` 或 `api` | 请求上下文里的默认来源 | 用户模式、工程模式 |
+| `backend_type` | `LOGICFP_BACKEND_TYPE` | `memory` | 状态后端类型：`memory`、`redis`、`redis_ttl` | 用户模式、工程模式 |
+| `handler_registrars` | `LOGICFP_HANDLER_REGISTRARS` | 空 | 要加载的 handler registrar 模块列表 | 工程模式 |
+| `redis_url` | `LOGICFP_REDIS_URL` | 空 | Redis 连接地址 | 工程模式，或高级用户模式 |
+| `redis_decode_responses` | `LOGICFP_REDIS_DECODE_RESPONSES` | `true` | Redis client 是否自动 decode | 工程模式，或高级用户模式 |
+| `redis_key` | `LOGICFP_REDIS_KEY` | `logicfp:failed_nodes` | Redis 集合模式使用的 key | 工程模式 |
+| `redis_key_prefix` | `LOGICFP_REDIS_KEY_PREFIX` | `logicfp:failed_node` | Redis TTL 模式的 key 前缀 | 工程模式 |
+| `redis_ttl_seconds` | `LOGICFP_REDIS_TTL_SECONDS` | `30` | Redis TTL 模式失败记录的过期时间 | 工程模式 |
 
 来源：
 
-- 默认值来自 `src/logic_fingerprint/config/runtime_settings.py`
-- profile 默认值由 `src/logic_fingerprint/config/loader.py` 里的 `_default_runtime_settings()` 补上
+- 默认值来自 `src/logicfp/config/runtime_settings.py`
+- profile 默认值由 `src/logicfp/config/loader.py` 里的 `_default_runtime_settings()` 补上
 - 文件、环境变量和显式参数由 `build_runtime_settings()` 合并
 
 ## 7. CLI 参数
@@ -142,12 +142,12 @@ CLI 文件路径优先级是：
 
 ## 8. 示例自己的配置怎么来
 
-下面这些不是 Logic Fingerprint 核心参数，而是示例自己的 section。
+下面这些不是 logicfp 核心参数，而是示例自己的 section。
 
 ### LangChain 用户模式
 
 - 模板：`examples/langchain/config.yaml.example`
-- 主要 section：`logic_fingerprint:`
+- 主要 section：`logicfp:`
 - 外部依赖如 `OPENAI_API_KEY` 仍然由你使用的模型 SDK 自己读取
 
 ### Service-Wired 示例
@@ -185,7 +185,7 @@ CLI 文件路径优先级是：
 ## 9. 一个最小用户模式配置
 
 ```yaml
-logic_fingerprint:
+logicfp:
   instance_id: langchain-node
   default_source: langchain
   backend_type: memory
@@ -203,7 +203,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: api-node-a
   default_source: api
   backend_type: memory
@@ -214,7 +214,7 @@ logic_fingerprint:
 如果要切 Redis，再补：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis_ttl
   redis_url: redis://127.0.0.1:6379/0
   redis_ttl_seconds: 30

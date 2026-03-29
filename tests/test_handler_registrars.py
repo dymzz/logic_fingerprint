@@ -11,14 +11,14 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.domain.models import HandlerRequest
-from logic_fingerprint.handler_registry import HandlerRegistry
-from logic_fingerprint.handlers import load_handler_registrar, load_handler_registrars
-from logic_fingerprint.runtime import build_production_runtime
+from logicfp.domain.models import HandlerRequest
+from logicfp.handler_registry import HandlerRegistry
+from logicfp.handlers import load_handler_registrar, load_handler_registrars
+from logicfp.runtime import build_production_runtime
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-example-services-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-example-services-", dir=Path.cwd()))
 
 
 def test_load_handler_registrar_supports_default_function_name(monkeypatch):
@@ -102,7 +102,7 @@ example_services:
         )
         monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
         monkeypatch.delenv("EXAMPLE_BASE_STOCK", raising=False)
         monkeypatch.delenv("EXAMPLE_DISCOUNT_RATE", raising=False)
         monkeypatch.delenv("EXAMPLE_TAX_RATE", raising=False)

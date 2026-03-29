@@ -15,7 +15,7 @@
 - `handlers/register.py`
 - `config.yaml.example`
 
-Logic Fingerprint 会加载的 registrar 是：
+logicfp 会加载的 registrar 是：
 
 ```text
 examples.business_skeleton.handlers.register
@@ -35,7 +35,7 @@ your_project/config/config.yaml
 
 这个模板里分成两块：
 
-- `logic_fingerprint:`：库的运行配置
+- `logicfp:`：库的运行配置
 - `business:`：你自己的业务配置
 
 ## Registered Handlers

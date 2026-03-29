@@ -14,6 +14,7 @@ from .engineering import create_app, create_demo_app
 
 
 CLI_CONFIG_FILENAMES = (DEFAULT_CONFIG_FILE_NAME,)
+CONFIG_SECTION_NAMES = ("logicfp", "logic_fingerprint", "logicfingerprint")
 
 RUNTIME_KWARG_KEYS = (
     "instance_id",
@@ -53,6 +54,7 @@ def _iter_project_config_candidates(start_dir: Path) -> list[Path]:
 
 def _iter_system_config_dirs() -> list[Path]:
     system_dirs = [
+        Path("/etc/logicfp"),
         Path("/etc/logic_fingerprint"),
         Path("/etc/logicfingerprint"),
     ]
@@ -62,6 +64,7 @@ def _iter_system_config_dirs() -> list[Path]:
         if not value:
             continue
         base_dir = Path(value)
+        system_dirs.append(base_dir / "logicfp")
         system_dirs.append(base_dir / "logic_fingerprint")
         system_dirs.append(base_dir / "logicfingerprint")
 
@@ -111,10 +114,19 @@ def _read_mapping(data: dict[str, Any], key: str) -> dict[str, Any]:
 
 def _normalize_runtime_kwargs(data: dict[str, Any]) -> dict[str, Any]:
     runtime_kwargs: dict[str, Any] = {}
-    logic_fingerprint = _read_mapping(data, "logic_fingerprint")
+    logicfp_config: dict[str, Any] = {}
+
+    for section_name in CONFIG_SECTION_NAMES:
+        value = data.get(section_name)
+        if value is None:
+            continue
+        if not isinstance(value, dict):
+            raise ValueError(f"Expected '{section_name}' to be a mapping in CLI config.")
+        logicfp_config = value
+        break
 
     for key in RUNTIME_KWARG_KEYS:
-        value = logic_fingerprint.get(key)
+        value = logicfp_config.get(key)
         if value is None and key in data:
             value = data[key]
         if value is None:
@@ -157,7 +169,7 @@ def load_start_config(
 
 
 def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="logicfingerprint")
+    parser = argparse.ArgumentParser(prog="logicfp")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
     start_parser = subparsers.add_parser("start", help="Start the HTTP service.")
@@ -193,7 +205,7 @@ def start_command(args: argparse.Namespace) -> int:
 
     mode = "demo" if start_config.demo else "production"
     print(
-        f"Starting Logic Fingerprint HTTP service on "
+        f"Starting logicfp HTTP service on "
         f"{start_config.host}:{start_config.port} ({mode})"
     )
 

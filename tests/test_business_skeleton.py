@@ -9,12 +9,12 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.domain.models import HandlerRequest
-from logic_fingerprint.runtime import build_production_runtime
+from logicfp.domain.models import HandlerRequest
+from logicfp.runtime import build_production_runtime
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-business-skeleton-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-business-skeleton-", dir=Path.cwd()))
 
 
 def test_business_skeleton_registrar_loads_and_executes(monkeypatch):
@@ -35,7 +35,7 @@ business:
         )
         monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
         monkeypatch.delenv("BUSINESS_INVENTORY_SOURCE", raising=False)
         monkeypatch.delenv("BUSINESS_PRICING_CURRENCY", raising=False)
         monkeypatch.delenv("BUSINESS_STOCK_OFFSET", raising=False)

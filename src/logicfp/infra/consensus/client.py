@@ -8,7 +8,7 @@ from ...config.runtime_settings import RuntimeSettings
 def build_redis_client(*, settings: RuntimeSettings) -> object:
     if not settings.redis_url:
         raise ValueError(
-            "LOGIC_FINGERPRINT_REDIS_URL is required when using a Redis backend.",
+            "LOGICFP_REDIS_URL is required when using a Redis backend.",
         )
 
     try:

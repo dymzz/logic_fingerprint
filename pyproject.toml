@@ -5,7 +5,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "logicfp"
 dynamic = ["version"]
-description = "Logic Fingerprint protection runtime and HTTP service"
+description = "logicfp protection runtime and HTTP service"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi==0.135.2",
@@ -14,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-logicfingerprint = "logic_fingerprint.cli:main"
+logicfp = "logicfp.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -22,7 +23,7 @@ include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["logic_fingerprint*"]
+include = ["logicfp*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "logic_fingerprint._version.__version__"}
+version = {attr = "logicfp._version.__version__"}

@@ -9,12 +9,12 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.domain.models import HandlerRequest
-from logic_fingerprint.protect import create_protector
+from logicfp.domain.models import HandlerRequest
+from logicfp.protect import create_protector
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-protect-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-protect-", dir=Path.cwd()))
 
 
 def test_protect_supports_async_functions():
@@ -37,7 +37,7 @@ def test_create_protector_reads_project_yaml_config_file(monkeypatch):
         config_dir.mkdir()
         (config_dir / "config.yaml").write_text(
             """
-logic_fingerprint:
+logicfp:
   instance_id: user-mode-node
   default_source: langchain
   probe_rate: 0.33
@@ -46,7 +46,7 @@ logic_fingerprint:
             encoding="utf-8",
         )
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
 
         protector = create_protector()
 

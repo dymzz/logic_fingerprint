@@ -6,7 +6,7 @@ from dataclasses import dataclass
 @dataclass(slots=True)
 class RedisConsensusBackend:
     redis_client: object
-    key: str = "logic_fingerprint:failed_nodes"
+    key: str = "logicfp:failed_nodes"
 
     def mark_failed(self, instance_id: str) -> None:
         self.redis_client.sadd(self.key, instance_id)
@@ -24,7 +24,7 @@ class RedisConsensusBackend:
 @dataclass(slots=True)
 class RedisTTLConsensusBackend:
     redis_client: object
-    key_prefix: str = "logic_fingerprint:failed_node"
+    key_prefix: str = "logicfp:failed_node"
     ttl_seconds: int = 30
 
     def _node_key(self, instance_id: str) -> str:

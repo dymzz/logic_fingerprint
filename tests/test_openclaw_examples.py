@@ -9,12 +9,12 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.domain.models import HandlerRequest
-from logic_fingerprint.runtime import build_production_runtime
+from logicfp.domain.models import HandlerRequest
+from logicfp.runtime import build_production_runtime
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-openclaw-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-openclaw-", dir=Path.cwd()))
 
 
 def test_openclaw_registrar_loads_and_executes(monkeypatch):
@@ -37,7 +37,7 @@ openclaw:
         )
         monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
         monkeypatch.delenv("OPENCLAW_GATEWAY_URL", raising=False)
         monkeypatch.delenv("OPENCLAW_AGENT_ID", raising=False)
         monkeypatch.delenv("OPENCLAW_MAIN_KEY", raising=False)

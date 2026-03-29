@@ -1,4 +1,4 @@
-from logic_fingerprint.infra.consensus import RedisTTLConsensusBackend
+from logicfp.infra.consensus import RedisTTLConsensusBackend
 
 
 class FakeRedis:

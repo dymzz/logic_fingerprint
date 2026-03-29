@@ -28,7 +28,7 @@ def test_langchain_review_guard_wraps_sync_invoke(monkeypatch):
     guarded = build_review_guard(FakeAgent())
     result = guarded(
         payload={
-            "product_name": "Logic Fingerprint",
+            "product_name": "logicfp",
             "review_text": "Fast setup and stable retries.",
             "customer_tier": "enterprise",
         }
@@ -60,7 +60,7 @@ def test_langchain_review_guard_wraps_async_ainvoke(monkeypatch):
     result = asyncio.run(
         guarded(
             payload={
-                "product_name": "Logic Fingerprint",
+                "product_name": "logicfp",
                 "review_text": "Works well, but escalation is unclear.",
                 "customer_tier": "pro",
             }

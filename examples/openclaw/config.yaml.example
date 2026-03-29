@@ -5,7 +5,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: openclaw-node-a
   default_source: api
   backend_type: memory

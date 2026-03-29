@@ -6,12 +6,12 @@ import pytest
 pytest.importorskip("pydantic")
 pytest.importorskip("fastapi")
 
-sys.modules.pop("logic_fingerprint", None)
-logic_fingerprint = importlib.import_module("logic_fingerprint")
-engineering = importlib.import_module("logic_fingerprint.engineering")
+sys.modules.pop("logicfp", None)
+logicfp = importlib.import_module("logicfp")
+engineering = importlib.import_module("logicfp.engineering")
 
-from logic_fingerprint import create_protector, protect
-from logic_fingerprint.engineering import (
+from logicfp import create_protector, protect
+from logicfp.engineering import (
     assemble_runtime,
     build_demo_runtime,
     build_production_runtime,
@@ -22,14 +22,14 @@ from logic_fingerprint.engineering import (
 
 
 def test_root_package_exports_user_mode_only():
-    assert logic_fingerprint.__all__ == ["protect", "create_protector"]
+    assert logicfp.__all__ == ["protect", "create_protector"]
     assert callable(protect)
     assert callable(create_protector)
 
 
 def test_root_package_guides_engineering_imports():
-    with pytest.raises(AttributeError, match="logic_fingerprint.engineering"):
-        logic_fingerprint.build_production_runtime
+    with pytest.raises(AttributeError, match="logicfp.engineering"):
+        logicfp.build_production_runtime
 
 
 def test_engineering_module_exports_service_entrypoints():

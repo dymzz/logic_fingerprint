@@ -34,7 +34,7 @@ def create_protector(*args: Any, **kwargs: Any):
 def __getattr__(name: str):
     if name in _ENGINEERING_EXPORTS:
         raise AttributeError(
-            f"'logic_fingerprint.{name}' is not exported from the package root. "
-            "Import it from 'logic_fingerprint.engineering' instead."
+            f"'logicfp.{name}' is not exported from the package root. "
+            "Import it from 'logicfp.engineering' instead."
         )
-    raise AttributeError(f"module 'logic_fingerprint' has no attribute '{name}'")
+    raise AttributeError(f"module 'logicfp' has no attribute '{name}'")

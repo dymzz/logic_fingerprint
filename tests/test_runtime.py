@@ -1,15 +1,15 @@
 import pytest
 
 pytest.importorskip("pydantic")
-from logic_fingerprint.application.context_builder import ContextBuilder
-from logic_fingerprint.config import RuntimeConfig, build_runtime_settings
-from logic_fingerprint.handler_registry import HandlerRegistry
-from logic_fingerprint.handlers import (
+from logicfp.application.context_builder import ContextBuilder
+from logicfp.config import RuntimeConfig, build_runtime_settings
+from logicfp.handler_registry import HandlerRegistry
+from logicfp.handlers import (
     compose_handler_registrars,
     register_builtin_handlers,
 )
-from logic_fingerprint.infra.consensus import InMemoryConsensusBackend
-from logic_fingerprint.runtime import (
+from logicfp.infra.consensus import InMemoryConsensusBackend
+from logicfp.runtime import (
     assemble_runtime,
     build_demo_runtime,
     build_production_runtime,

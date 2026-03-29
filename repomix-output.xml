@@ -52,137 +52,54 @@ documents/Tutorial/protect 的用户模式与工程模式.md
 MANIFEST.in
 pyproject.toml
 requirements.txt
-src/logic_fingerprint/__init__.py
-src/logic_fingerprint/_version.py
-src/logic_fingerprint/app_factory.py
-src/logic_fingerprint/application/__init__.py
-src/logic_fingerprint/application/context_builder.py
-src/logic_fingerprint/application/metrics.py
-src/logic_fingerprint/application/validator.py
-src/logic_fingerprint/cli.py
-src/logic_fingerprint/config/__init__.py
-src/logic_fingerprint/config/loader.py
-src/logic_fingerprint/config/policy_config.py
-src/logic_fingerprint/config/runtime_config.py
-src/logic_fingerprint/config/runtime_settings.py
-src/logic_fingerprint/config/strategy_config.py
-src/logic_fingerprint/config/yaml_support.py
-src/logic_fingerprint/domain/__init__.py
-src/logic_fingerprint/domain/errors.py
-src/logic_fingerprint/domain/executor.py
-src/logic_fingerprint/domain/fsm.py
-src/logic_fingerprint/domain/models.py
-src/logic_fingerprint/engineering.py
-src/logic_fingerprint/handler_registry.py
-src/logic_fingerprint/handlers/__init__.py
-src/logic_fingerprint/handlers/demo_handlers.py
-src/logic_fingerprint/handlers/registry.py
-src/logic_fingerprint/handlers/schemas.py
-src/logic_fingerprint/infra/__init__.py
-src/logic_fingerprint/infra/consensus/__init__.py
-src/logic_fingerprint/infra/consensus/client.py
-src/logic_fingerprint/infra/consensus/factory.py
-src/logic_fingerprint/infra/consensus/heartbeat.py
-src/logic_fingerprint/infra/consensus/memory.py
-src/logic_fingerprint/infra/consensus/redis.py
-src/logic_fingerprint/infra/logging/__init__.py
-src/logic_fingerprint/infra/logging/event_logger.py
-src/logic_fingerprint/infra/metrics/__init__.py
-src/logic_fingerprint/infra/metrics/prometheus.py
-src/logic_fingerprint/lifespan.py
-src/logic_fingerprint/middleware.py
-src/logic_fingerprint/protect.py
-src/logic_fingerprint/router.py
-src/logic_fingerprint/runtime.py
-src/logic_fingerprint/schemas.py
-src/logic_fingerprint/service.py
+src/logicfp/__init__.py
+src/logicfp/_version.py
+src/logicfp/app_factory.py
+src/logicfp/application/__init__.py
+src/logicfp/application/context_builder.py
+src/logicfp/application/metrics.py
+src/logicfp/application/validator.py
+src/logicfp/cli.py
+src/logicfp/config/__init__.py
+src/logicfp/config/loader.py
+src/logicfp/config/policy_config.py
+src/logicfp/config/runtime_config.py
+src/logicfp/config/runtime_settings.py
+src/logicfp/config/strategy_config.py
+src/logicfp/config/yaml_support.py
+src/logicfp/domain/__init__.py
+src/logicfp/domain/errors.py
+src/logicfp/domain/executor.py
+src/logicfp/domain/fsm.py
+src/logicfp/domain/models.py
+src/logicfp/engineering.py
+src/logicfp/handler_registry.py
+src/logicfp/handlers/__init__.py
+src/logicfp/handlers/demo_handlers.py
+src/logicfp/handlers/registry.py
+src/logicfp/handlers/schemas.py
+src/logicfp/infra/__init__.py
+src/logicfp/infra/consensus/__init__.py
+src/logicfp/infra/consensus/client.py
+src/logicfp/infra/consensus/factory.py
+src/logicfp/infra/consensus/heartbeat.py
+src/logicfp/infra/consensus/memory.py
+src/logicfp/infra/consensus/redis.py
+src/logicfp/infra/logging/__init__.py
+src/logicfp/infra/logging/event_logger.py
+src/logicfp/infra/metrics/__init__.py
+src/logicfp/infra/metrics/prometheus.py
+src/logicfp/lifespan.py
+src/logicfp/middleware.py
+src/logicfp/protect.py
+src/logicfp/router.py
+src/logicfp/runtime.py
+src/logicfp/schemas.py
+src/logicfp/service.py
 </directory_structure>
 
 <files>
 This section contains the contents of the repository's files.
-
-<file path=".gitignore">
-# 忽略所有 .env 文件 (通常包含环境变量和密钥)
-.env
-.env.local
-.env.production
-config/config.yaml
-
-# 忽略所有 pem 或 key 后缀的证书文件
-*.pem
-*.key
-
-# 忽略压缩文件
-*.zip
-*.rar
-*.tar.gz
-*.7z
-
-# 忽略 IDE 或系统产生的临时文件
-.DS_Store
-*.log
-
-analysis/
-design/
-.vscode/
-/.pytest_cache/
-**/.pytest_cache/
-__pycache__/
-**/__pycache__/
-*.sqlite
-*.egg-info
-*.egg-info/
-build/
-dist/
-pip-wheel-metadata/
-.pytest_tmp*/
-/.pytest_tmp*/
-
-/.dist/
-**/.dist/
-
-# 忽略所有 .pyc 文件 (Python 编译文件)
-*.pyc
-</file>
-
-<file path="config/config.yaml.example">
-server:
-  host: 0.0.0.0
-  port: 8000
-
-app:
-  demo: false
-
-logic_fingerprint:
-  instance_id: api-node-a
-  default_source: api
-  backend_type: memory
-  probe_rate: 0.2
-  probe_interval_seconds: 5
-  consecutive_success_threshold: 3
-  total_nodes: 1
-  global_fail_threshold: 1.0
-  handler_registrars:
-    - your_real_package.handlers.register
-  # redis_url: redis://127.0.0.1:6379/0
-  # redis_decode_responses: true
-  # redis_key: logic_fingerprint:failed_nodes
-  # redis_key_prefix: logic_fingerprint:failed_node
-  # redis_ttl_seconds: 30
-</file>
-
-<file path="demo_protect.py">
-from logic_fingerprint import protect
-
-
-@protect()
-def hello(request):
-    return {"msg": "hello world"}
-
-
-if __name__ == "__main__":
-    print(hello({}))
-</file>
 
 <file path="documents/Tutorial/从 demo 到生产接入.md">
 # 从 Demo 到生产接入
@@ -203,7 +120,7 @@ if __name__ == "__main__":
 这里建议同时记住两个对外模式：
 
 - 用户模式：以 `@protect()` 为主入口
-- 工程模式：以 `logic_fingerprint.engineering` / registrar / runtime 为主入口
+- 工程模式：以 `logicfp.engineering` / registrar / runtime 为主入口
 
 单独教程看这里：
 
@@ -216,12 +133,12 @@ if __name__ == "__main__":
 
 对外推荐导入路径：
 
-- 用户模式：`from logic_fingerprint import protect, create_protector`
-- 工程模式：`from logic_fingerprint.engineering import create_app, build_production_runtime`
+- 用户模式：`from logicfp import protect, create_protector`
+- 工程模式：`from logicfp.engineering import create_app, build_production_runtime`
 
 1. Demo 运行时
    文件：
-   `src/logic_fingerprint/runtime.py`
+   `src/logicfp/runtime.py`
    `build_demo_runtime(...)`
 
    用途：
@@ -229,7 +146,7 @@ if __name__ == "__main__":
 
 2. Production 运行时
    文件：
-   `src/logic_fingerprint/runtime.py`
+   `src/logicfp/runtime.py`
    `build_production_runtime(...)`
 
    用途：
@@ -237,7 +154,7 @@ if __name__ == "__main__":
 
 3. HTTP 启动入口
    文件：
-   `src/logic_fingerprint/app_factory.py`
+   `src/logicfp/app_factory.py`
    `create_app()`
 
    用途：
@@ -271,7 +188,7 @@ src/your_real_package/
 其中最关键的是提供一个 registrar 模块，例如：
 
 ```python
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.handler_registry import HandlerRegistry
 from your_real_package.handlers.order_handlers import build_order_quote_handler
 from your_real_package.handlers.inventory_handlers import build_inventory_lookup_handler
 from your_real_package.services.pricing_service import PricingService
@@ -300,7 +217,7 @@ def register_handlers(handler_registry: HandlerRegistry) -> None:
 然后通过配置文件或环境变量接进系统：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   handler_registrars:
     - your_real_package.handlers.register
 ```
@@ -355,7 +272,7 @@ def register_handlers(handler_registry: HandlerRegistry) -> None:
 先用：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: memory
 ```
 
@@ -372,20 +289,20 @@ logic_fingerprint:
 当单机逻辑跑稳后，再切共享状态：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis_ttl
   redis_url: redis://127.0.0.1:6379/0
-  redis_key_prefix: logic_fingerprint:failed_node
+  redis_key_prefix: logicfp:failed_node
   redis_ttl_seconds: 30
 ```
 
 如果需要集合型失败节点记录，可以切：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis
   redis_url: redis://127.0.0.1:6379/0
-  redis_key: logic_fingerprint:failed_nodes
+  redis_key: logicfp:failed_nodes
 ```
 
 ## 4. 生产环境最小配置
@@ -399,7 +316,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: prod-node-a
   default_source: api
   backend_type: memory
@@ -410,7 +327,7 @@ logic_fingerprint:
 推荐补齐的运行参数：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   probe_rate: 0.2
   probe_interval_seconds: 5
   consecutive_success_threshold: 3
@@ -421,7 +338,7 @@ logic_fingerprint:
 如果要切 Redis：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   redis_url: redis://127.0.0.1:6379/0
   redis_decode_responses: true
 ```
@@ -431,7 +348,7 @@ logic_fingerprint:
 推荐直接用 CLI：
 
 ```powershell
-logicfingerprint start --port 8000 --config config/config.yaml
+logicfp start --port 8000 --config config/config.yaml
 ```
 
 如果不传 `--config`，CLI 会先找项目里的：
@@ -442,14 +359,14 @@ config/config.yaml
 
 再去常见系统目录里找，比如：
 
-- `/etc/logic_fingerprint/*.yaml`
-- `%ProgramData%\\logic_fingerprint\\*.yaml`
+- `/etc/logicfp/*.yaml`
+- `%ProgramData%\\logicfp\\*.yaml`
 
 从仓库根目录启动：
 
 ```powershell
 $env:PYTHONPATH=".;src"
-uv run logicfingerprint start --config config/config.yaml --port 8000
+uv run logicfp start --config config/config.yaml --port 8000
 ```
 
 这条启动链会经过：
@@ -612,10 +529,10 @@ your_project/config/config.yaml
 
 工程模式通常至少会用到：
 
-- `logic_fingerprint.handler_registrars`
-- `logic_fingerprint.backend_type`
-- `logic_fingerprint.instance_id`
-- `logic_fingerprint.default_source`
+- `logicfp.handler_registrars`
+- `logicfp.backend_type`
+- `logicfp.instance_id`
+- `logicfp.default_source`
 
 示例自己的业务配置则放在各自 section：
 
@@ -628,7 +545,7 @@ your_project/config/config.yaml
 工程模式推荐直接用 CLI：
 
 ```powershell
-logicfingerprint start --config config/config.yaml
+logicfp start --config config/config.yaml
 ```
 
 如果你只是仓库内快速看效果，也可以继续用：
@@ -702,8 +619,8 @@ your_project/config/config.yaml
 
 用户模式推荐只用这两个入口：
 
-- `from logic_fingerprint import protect`
-- `from logic_fingerprint import create_protector`
+- `from logicfp import protect`
+- `from logicfp import create_protector`
 
 如果你发现自己已经开始关心 registrar、runtime、`create_app()`，说明你已经在往工程模式走了。
 </file>
@@ -764,10 +681,10 @@ your_project/
 默认查找顺序是：
 
 1. 显式参数 `config_file=...`
-2. 环境变量 `LOGIC_FINGERPRINT_CONFIG_FILE`
+2. 环境变量 `LOGICFP_CONFIG_FILE`
 3. 从当前工作目录向上查找 `config/config.yaml`
 
-CLI 的 `logicfingerprint start --config ...` 也是同样思路，只是额外支持常见系统目录。
+CLI 的 `logicfp start --config ...` 也是同样思路，只是额外支持常见系统目录。
 
 ## 4. 推荐的 YAML 结构
 
@@ -779,7 +696,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: api-node-a
   default_source: api
   backend_type: memory
@@ -792,7 +709,7 @@ logic_fingerprint:
     - your_real_package.handlers.register
 ```
 
-库核心读取的是 `logic_fingerprint:` 这一节。
+库核心读取的是 `logicfp:` 这一节。
 
 `server:` 和 `app:` 主要给 CLI 用。
 
@@ -802,16 +719,16 @@ logic_fingerprint:
 
 | YAML key | 环境变量覆盖名 | 默认值 | 作用 | 模式 |
 | --- | --- | --- | --- | --- |
-| `probe_rate` | `LOGIC_FINGERPRINT_PROBE_RATE` | `0.2` | HALF_OPEN 时允许多少比例的 probe 请求通过 | 用户模式、工程模式 |
-| `probe_interval_seconds` | `LOGIC_FINGERPRINT_PROBE_INTERVAL_SECONDS` | `5.0` | 相邻 probe 的最小时间间隔 | 用户模式、工程模式 |
-| `consecutive_success_threshold` | `LOGIC_FINGERPRINT_CONSECUTIVE_SUCCESS_THRESHOLD` | `3` | HALF_OPEN 恢复到 CLOSED 需要连续成功多少次 | 用户模式、工程模式 |
-| `total_nodes` | `LOGIC_FINGERPRINT_TOTAL_NODES` | `1` | 全局失败判断里的总节点数 | 用户模式、工程模式 |
-| `global_fail_threshold` | `LOGIC_FINGERPRINT_GLOBAL_FAIL_THRESHOLD` | `1.0` | 达到多少全局失败比例后视为失败共识 | 用户模式、工程模式 |
+| `probe_rate` | `LOGICFP_PROBE_RATE` | `0.2` | HALF_OPEN 时允许多少比例的 probe 请求通过 | 用户模式、工程模式 |
+| `probe_interval_seconds` | `LOGICFP_PROBE_INTERVAL_SECONDS` | `5.0` | 相邻 probe 的最小时间间隔 | 用户模式、工程模式 |
+| `consecutive_success_threshold` | `LOGICFP_CONSECUTIVE_SUCCESS_THRESHOLD` | `3` | HALF_OPEN 恢复到 CLOSED 需要连续成功多少次 | 用户模式、工程模式 |
+| `total_nodes` | `LOGICFP_TOTAL_NODES` | `1` | 全局失败判断里的总节点数 | 用户模式、工程模式 |
+| `global_fail_threshold` | `LOGICFP_GLOBAL_FAIL_THRESHOLD` | `1.0` | 达到多少全局失败比例后视为失败共识 | 用户模式、工程模式 |
 
 来源：
 
-- 默认值来自 `src/logic_fingerprint/config/runtime_config.py`
-- 文件、环境变量和显式参数由 `src/logic_fingerprint/config/loader.py` 合并
+- 默认值来自 `src/logicfp/config/runtime_config.py`
+- 文件、环境变量和显式参数由 `src/logicfp/config/loader.py` 合并
 
 ## 6. RuntimeSettings 参数
 
@@ -819,20 +736,20 @@ logic_fingerprint:
 
 | YAML key | 环境变量覆盖名 | 默认值 | 作用 | 模式 |
 | --- | --- | --- | --- | --- |
-| `instance_id` | `LOGIC_FINGERPRINT_INSTANCE_ID` | `decorator-node` 或 `node-a` | 当前实例标识 | 用户模式、工程模式 |
-| `default_source` | `LOGIC_FINGERPRINT_DEFAULT_SOURCE` | `decorator` 或 `api` | 请求上下文里的默认来源 | 用户模式、工程模式 |
-| `backend_type` | `LOGIC_FINGERPRINT_BACKEND_TYPE` | `memory` | 状态后端类型：`memory`、`redis`、`redis_ttl` | 用户模式、工程模式 |
-| `handler_registrars` | `LOGIC_FINGERPRINT_HANDLER_REGISTRARS` | 空 | 要加载的 handler registrar 模块列表 | 工程模式 |
-| `redis_url` | `LOGIC_FINGERPRINT_REDIS_URL` | 空 | Redis 连接地址 | 工程模式，或高级用户模式 |
-| `redis_decode_responses` | `LOGIC_FINGERPRINT_REDIS_DECODE_RESPONSES` | `true` | Redis client 是否自动 decode | 工程模式，或高级用户模式 |
-| `redis_key` | `LOGIC_FINGERPRINT_REDIS_KEY` | `logic_fingerprint:failed_nodes` | Redis 集合模式使用的 key | 工程模式 |
-| `redis_key_prefix` | `LOGIC_FINGERPRINT_REDIS_KEY_PREFIX` | `logic_fingerprint:failed_node` | Redis TTL 模式的 key 前缀 | 工程模式 |
-| `redis_ttl_seconds` | `LOGIC_FINGERPRINT_REDIS_TTL_SECONDS` | `30` | Redis TTL 模式失败记录的过期时间 | 工程模式 |
+| `instance_id` | `LOGICFP_INSTANCE_ID` | `decorator-node` 或 `node-a` | 当前实例标识 | 用户模式、工程模式 |
+| `default_source` | `LOGICFP_DEFAULT_SOURCE` | `decorator` 或 `api` | 请求上下文里的默认来源 | 用户模式、工程模式 |
+| `backend_type` | `LOGICFP_BACKEND_TYPE` | `memory` | 状态后端类型：`memory`、`redis`、`redis_ttl` | 用户模式、工程模式 |
+| `handler_registrars` | `LOGICFP_HANDLER_REGISTRARS` | 空 | 要加载的 handler registrar 模块列表 | 工程模式 |
+| `redis_url` | `LOGICFP_REDIS_URL` | 空 | Redis 连接地址 | 工程模式，或高级用户模式 |
+| `redis_decode_responses` | `LOGICFP_REDIS_DECODE_RESPONSES` | `true` | Redis client 是否自动 decode | 工程模式，或高级用户模式 |
+| `redis_key` | `LOGICFP_REDIS_KEY` | `logicfp:failed_nodes` | Redis 集合模式使用的 key | 工程模式 |
+| `redis_key_prefix` | `LOGICFP_REDIS_KEY_PREFIX` | `logicfp:failed_node` | Redis TTL 模式的 key 前缀 | 工程模式 |
+| `redis_ttl_seconds` | `LOGICFP_REDIS_TTL_SECONDS` | `30` | Redis TTL 模式失败记录的过期时间 | 工程模式 |
 
 来源：
 
-- 默认值来自 `src/logic_fingerprint/config/runtime_settings.py`
-- profile 默认值由 `src/logic_fingerprint/config/loader.py` 里的 `_default_runtime_settings()` 补上
+- 默认值来自 `src/logicfp/config/runtime_settings.py`
+- profile 默认值由 `src/logicfp/config/loader.py` 里的 `_default_runtime_settings()` 补上
 - 文件、环境变量和显式参数由 `build_runtime_settings()` 合并
 
 ## 7. CLI 参数
@@ -853,12 +770,12 @@ CLI 文件路径优先级是：
 
 ## 8. 示例自己的配置怎么来
 
-下面这些不是 Logic Fingerprint 核心参数，而是示例自己的 section。
+下面这些不是 logicfp 核心参数，而是示例自己的 section。
 
 ### LangChain 用户模式
 
 - 模板：`examples/langchain/config.yaml.example`
-- 主要 section：`logic_fingerprint:`
+- 主要 section：`logicfp:`
 - 外部依赖如 `OPENAI_API_KEY` 仍然由你使用的模型 SDK 自己读取
 
 ### Service-Wired 示例
@@ -896,7 +813,7 @@ CLI 文件路径优先级是：
 ## 9. 一个最小用户模式配置
 
 ```yaml
-logic_fingerprint:
+logicfp:
   instance_id: langchain-node
   default_source: langchain
   backend_type: memory
@@ -914,7 +831,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: api-node-a
   default_source: api
   backend_type: memory
@@ -925,7 +842,7 @@ logic_fingerprint:
 如果要切 Redis，再补：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis_ttl
   redis_url: redis://127.0.0.1:6379/0
   redis_ttl_seconds: 30
@@ -941,7 +858,7 @@ logic_fingerprint:
 
 - 用户模式：默认入口是 `@protect()`
 - 高级用户模式：需要多个保护实例时，用 `create_protector()`
-- 工程模式：服务化接入时，用 `logic_fingerprint.engineering`
+- 工程模式：服务化接入时，用 `logicfp.engineering`
 
 ## 1. 两种模式分别解决什么问题
 
@@ -964,7 +881,7 @@ logic_fingerprint:
 最常见写法就是：
 
 ```python
-from logic_fingerprint import protect
+from logicfp import protect
 from pydantic import BaseModel
 
 
@@ -984,7 +901,7 @@ def review_text(request):
 如果你需要两个不同配置的保护器，用：
 
 ```python
-from logic_fingerprint import create_protector
+from logicfp import create_protector
 
 fast_guard = create_protector(
     instance_id="fast-lane",
@@ -1016,7 +933,7 @@ slow_guard = create_protector(
 最常见写法是：
 
 ```python
-from logic_fingerprint.engineering import create_app
+from logicfp.engineering import create_app
 
 app = create_app()
 ```
@@ -1024,7 +941,7 @@ app = create_app()
 然后通过配置把你的 registrar 接进去：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   handler_registrars:
     - your_real_package.handlers.register
 ```
@@ -1039,9 +956,9 @@ your_project/
     config.yaml
 ```
 
-Logic Fingerprint 现在会按这个顺序找文件：
+logicfp 现在会按这个顺序找文件：
 
-1. 如果设置了 `LOGIC_FINGERPRINT_CONFIG_FILE`，优先使用它
+1. 如果设置了 `LOGICFP_CONFIG_FILE`，优先使用它
 2. 否则从当前工作目录开始，优先查找 `config/config.yaml`
 
 所以最稳妥的做法就是：
@@ -1093,8 +1010,8 @@ Logic Fingerprint 现在会按这个顺序找文件：
 
 ## 5. 工程模式怎么读取配置
 
-`logic_fingerprint.engineering.create_app()` 和
-`logic_fingerprint.engineering.build_production_runtime()` 会走工程模式配置链：
+`logicfp.engineering.create_app()` 和
+`logicfp.engineering.build_production_runtime()` 会走工程模式配置链：
 
 1. `build_runtime_config()`
 2. `build_runtime_settings(profile="api")`
@@ -1107,7 +1024,7 @@ Logic Fingerprint 现在会按这个顺序找文件：
 - `instance_id=node-a`
 - `default_source=api`
 
-如果配置里提供了 `LOGIC_FINGERPRINT_HANDLER_REGISTRARS`，production runtime 会继续加载你的业务 registrar。
+如果配置里提供了 `LOGICFP_HANDLER_REGISTRARS`，production runtime 会继续加载你的业务 registrar。
 
 ## 6. 对应示例看哪里
 
@@ -1138,12 +1055,2722 @@ Logic Fingerprint 现在会按这个顺序找文件：
 这样入口会非常清楚，不会让用户一上来就在 `runtime / registrar / app_factory` 里迷路。
 </file>
 
+<file path="src/logicfp/__init__.py">
+from __future__ import annotations
+
+from typing import Any
+
+from ._version import __version__
+
+__all__ = [
+    "protect",
+    "create_protector",
+]
+
+_ENGINEERING_EXPORTS = {
+    "assemble_runtime",
+    "build_demo_runtime",
+    "build_production_runtime",
+    "build_runtime",
+    "create_app",
+    "create_demo_app",
+}
+
+
+def protect(*args: Any, **kwargs: Any):
+    from .protect import protect as _protect
+
+    return _protect(*args, **kwargs)
+
+
+def create_protector(*args: Any, **kwargs: Any):
+    from .protect import create_protector as _create_protector
+
+    return _create_protector(*args, **kwargs)
+
+
+def __getattr__(name: str):
+    if name in _ENGINEERING_EXPORTS:
+        raise AttributeError(
+            f"'logicfp.{name}' is not exported from the package root. "
+            "Import it from 'logicfp.engineering' instead."
+        )
+    raise AttributeError(f"module 'logicfp' has no attribute '{name}'")
+</file>
+
+<file path="src/logicfp/_version.py">
+from __future__ import annotations
+
+__version__ = "1.1.0"
+</file>
+
+<file path="src/logicfp/app_factory.py">
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+from fastapi import FastAPI
+from fastapi.openapi.docs import (
+    get_swagger_ui_html,
+    get_swagger_ui_oauth2_redirect_html,
+)
+from fastapi.staticfiles import StaticFiles
+
+from ._version import __version__
+from .router import build_router
+from .lifespan import build_lifespan
+from .runtime import (
+    LogicFingerprintRuntime,
+    build_demo_runtime,
+    build_production_runtime,
+)
+
+
+DOCS_STATIC_DIR = Path(__file__).resolve().parents[2] / "static" / "dist"
+
+
+def _create_app_from_runtime(runtime: LogicFingerprintRuntime) -> FastAPI:
+    app = FastAPI(
+        title="logicfp",
+        version=__version__,
+        lifespan=build_lifespan(runtime, interval_seconds=1.0),
+        docs_url=None,
+        redoc_url=None,
+    )
+    app.state.runtime = runtime
+    app.state.runtime_config = runtime.config
+    app.state.runtime_settings = runtime.settings
+    if DOCS_STATIC_DIR.exists():
+        app.mount(
+            "/static-docs",
+            StaticFiles(directory=DOCS_STATIC_DIR),
+            name="static-docs",
+        )
+
+    @app.get("/docs", include_in_schema=False)
+    def swagger_ui_html():
+        return get_swagger_ui_html(
+            openapi_url=app.openapi_url,
+            title=f"{app.title} - Swagger UI",
+            oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
+            swagger_js_url="/static-docs/swagger-ui-bundle.js",
+            swagger_css_url="/static-docs/swagger-ui.css",
+            swagger_favicon_url="/static-docs/favicon-32x32.png",
+            swagger_ui_parameters={
+                "presets": [
+                    "SwaggerUIBundle.presets.apis",
+                    "SwaggerUIStandalonePreset",
+                ],
+            },
+        )
+
+    @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
+    def swagger_ui_redirect():
+        return get_swagger_ui_oauth2_redirect_html()
+
+    app.include_router(build_router(runtime))
+    return app
+
+
+def create_app(
+    *,
+    runtime: LogicFingerprintRuntime | None = None,
+    runtime_kwargs: dict[str, Any] | None = None,
+) -> FastAPI:
+    runtime = runtime or build_production_runtime(**(runtime_kwargs or {}))
+    return _create_app_from_runtime(runtime)
+
+
+def create_demo_app(
+    *,
+    runtime: LogicFingerprintRuntime | None = None,
+    runtime_kwargs: dict[str, Any] | None = None,
+) -> FastAPI:
+    runtime = runtime or build_demo_runtime(**(runtime_kwargs or {}))
+    return _create_app_from_runtime(runtime)
+
+
+app = create_app()
+</file>
+
+<file path="src/logicfp/application/__init__.py">
+from .context_builder import ContextBuilder
+from .metrics import InMemoryMetrics
+from .validator import validate_input, validate_output
+</file>
+
+<file path="src/logicfp/application/context_builder.py">
+from datetime import datetime, timezone
+from uuid import uuid4
+from ..domain.models import HandlerRequest, RequestContext
+
+class ContextBuilder:
+    def __init__(self, default_source: str = "api") -> None:
+        self.default_source = default_source
+    def build_context(self, context: RequestContext | None = None) -> RequestContext:
+        context = context or RequestContext()
+        return RequestContext(
+            request_id=context.request_id or f"req-{uuid4().hex}",
+            trace_id=context.trace_id or f"trace-{uuid4().hex}",
+            user_id=context.user_id,
+            source=context.source or self.default_source,
+            timestamp=context.timestamp or datetime.now(timezone.utc).isoformat(),
+            headers=dict(context.headers),
+            metadata=dict(context.metadata),
+        )
+    def build_request(self, request: HandlerRequest | None = None) -> HandlerRequest:
+        request = request or HandlerRequest()
+        return HandlerRequest(payload=dict(request.payload), context=self.build_context(request.context))
+</file>
+
+<file path="src/logicfp/application/metrics.py">
+from dataclasses import dataclass, asdict
+
+@dataclass(slots=True)
+class InMemoryMetrics:
+    total_requests: int = 0
+    blocked_requests: int = 0
+    probe_requests: int = 0
+    success_requests: int = 0
+    failed_requests: int = 0
+    def record_total(self): self.total_requests += 1
+    def record_blocked(self): self.blocked_requests += 1
+    def record_probe(self): self.probe_requests += 1
+    def record_success(self): self.success_requests += 1
+    def record_failure(self): self.failed_requests += 1
+    def snapshot(self): return asdict(self)
+</file>
+
+<file path="src/logicfp/application/validator.py">
+from dataclasses import asdict, is_dataclass
+from typing import Any
+
+from pydantic import BaseModel, ValidationError
+
+from ..domain.errors import OutputValidationErrorLF, ValidationErrorLF
+from ..infra.logging.event_logger import LogEvent
+
+
+def validate_input(
+    payload: dict[str, Any],
+    model: type[BaseModel] | None,
+    *,
+    event_logger=None,
+    handler: str | None = None,
+    request_id: str | None = None,
+    trace_id: str | None = None,
+) -> dict[str, Any]:
+    if model is None:
+        return payload
+
+    try:
+        parsed = model.model_validate(payload)
+        return parsed.model_dump()
+    except ValidationError as exc:
+        if event_logger is not None:
+            event_logger.emit(LogEvent(
+                event="input_validation_failed",
+                handler=handler,
+                request_id=request_id,
+                trace_id=trace_id,
+                error_code="ERR_VALIDATION",
+                message="Input validation failed.",
+                extra={"errors": exc.errors()},
+            ))
+        raise ValidationErrorLF(
+            "Input validation failed.",
+            details={"errors": exc.errors()},
+        ) from exc
+
+
+def validate_output(
+    result: Any,
+    model: type[BaseModel] | None,
+    *,
+    event_logger=None,
+    handler: str | None = None,
+    request_id: str | None = None,
+    trace_id: str | None = None,
+) -> Any:
+    if model is None:
+        return result
+
+    raw = result
+    if is_dataclass(result):
+        raw = asdict(result)
+
+    try:
+        parsed = model.model_validate(raw)
+        return parsed.model_dump()
+    except ValidationError as exc:
+        if event_logger is not None:
+            event_logger.emit(LogEvent(
+                event="output_validation_failed",
+                handler=handler,
+                request_id=request_id,
+                trace_id=trace_id,
+                error_code="ERR_OUTPUT_VALIDATION",
+                message="Output validation failed.",
+                extra={"errors": exc.errors()},
+            ))
+        raise OutputValidationErrorLF(
+            "Output validation failed.",
+            details={"errors": exc.errors()},
+        ) from exc
+</file>
+
+<file path="src/logicfp/cli.py">
+from __future__ import annotations
+
+import argparse
+import os
+from dataclasses import dataclass, field
+from pathlib import Path
+from typing import Any, Sequence
+
+import uvicorn
+
+from .config import DEFAULT_CONFIG_FILE_NAME
+from .config.yaml_support import load_simple_yaml_file, parse_simple_yaml
+from .engineering import create_app, create_demo_app
+
+
+CLI_CONFIG_FILENAMES = (DEFAULT_CONFIG_FILE_NAME,)
+CONFIG_SECTION_NAMES = ("logicfp", "logic_fingerprint", "logicfingerprint")
+
+RUNTIME_KWARG_KEYS = (
+    "instance_id",
+    "default_source",
+    "backend_type",
+    "handler_registrars",
+    "redis_url",
+    "redis_decode_responses",
+    "redis_key",
+    "redis_key_prefix",
+    "redis_ttl_seconds",
+    "probe_rate",
+    "probe_interval_seconds",
+    "consecutive_success_threshold",
+    "total_nodes",
+    "global_fail_threshold",
+)
+
+
+@dataclass(slots=True)
+class StartConfig:
+    host: str = "0.0.0.0"
+    port: int = 8000
+    demo: bool = False
+    config_path: Path | None = None
+    runtime_kwargs: dict[str, Any] = field(default_factory=dict)
+
+def _iter_project_config_candidates(start_dir: Path) -> list[Path]:
+    candidates: list[Path] = []
+    for directory in (start_dir, *start_dir.parents):
+        for filename in CLI_CONFIG_FILENAMES:
+            candidates.append(directory / "config" / filename)
+        for filename in CLI_CONFIG_FILENAMES:
+            candidates.append(directory / filename)
+    return candidates
+
+
+def _iter_system_config_dirs() -> list[Path]:
+    system_dirs = [
+        Path("/etc/logicfp"),
+        Path("/etc/logic_fingerprint"),
+        Path("/etc/logicfingerprint"),
+    ]
+
+    for env_name in ("PROGRAMDATA", "APPDATA", "LOCALAPPDATA"):
+        value = os.getenv(env_name)
+        if not value:
+            continue
+        base_dir = Path(value)
+        system_dirs.append(base_dir / "logicfp")
+        system_dirs.append(base_dir / "logic_fingerprint")
+        system_dirs.append(base_dir / "logicfingerprint")
+
+    return system_dirs
+
+
+def discover_cli_config_path(
+    explicit_path: str | Path | None = None,
+    *,
+    start_dir: str | Path | None = None,
+    system_dirs: Sequence[Path] | None = None,
+) -> Path | None:
+    if explicit_path is not None:
+        resolved = Path(explicit_path).expanduser()
+        if not resolved.is_absolute():
+            resolved = (Path.cwd() / resolved).resolve()
+        if not resolved.is_file():
+            raise FileNotFoundError(f"CLI config file not found: {resolved}")
+        return resolved
+
+    current_dir = Path(start_dir or Path.cwd()).resolve()
+    for candidate in _iter_project_config_candidates(current_dir):
+        if candidate.is_file():
+            return candidate.resolve()
+
+    for system_dir in system_dirs or _iter_system_config_dirs():
+        if not system_dir.is_dir():
+            continue
+        for filename in CLI_CONFIG_FILENAMES:
+            candidate = system_dir / filename
+            if candidate.is_file():
+                return candidate.resolve()
+
+    return None
+
+
+def load_cli_config(path: Path | None) -> dict[str, Any]:
+    return load_simple_yaml_file(path)
+
+
+def _read_mapping(data: dict[str, Any], key: str) -> dict[str, Any]:
+    value = data.get(key, {})
+    if not isinstance(value, dict):
+        raise ValueError(f"Expected '{key}' to be a mapping in CLI config.")
+    return value
+
+
+def _normalize_runtime_kwargs(data: dict[str, Any]) -> dict[str, Any]:
+    runtime_kwargs: dict[str, Any] = {}
+    logicfp_config: dict[str, Any] = {}
+
+    for section_name in CONFIG_SECTION_NAMES:
+        value = data.get(section_name)
+        if value is None:
+            continue
+        if not isinstance(value, dict):
+            raise ValueError(f"Expected '{section_name}' to be a mapping in CLI config.")
+        logicfp_config = value
+        break
+
+    for key in RUNTIME_KWARG_KEYS:
+        value = logicfp_config.get(key)
+        if value is None and key in data:
+            value = data[key]
+        if value is None:
+            continue
+        if key == "handler_registrars":
+            if isinstance(value, list):
+                value = tuple(str(item) for item in value)
+            elif isinstance(value, str):
+                value = tuple(item.strip() for item in value.split(",") if item.strip())
+        runtime_kwargs[key] = value
+
+    return runtime_kwargs
+
+
+def load_start_config(
+    *,
+    config_path: Path | None,
+    port_override: int | None = None,
+    host_override: str | None = None,
+    demo_override: bool = False,
+) -> StartConfig:
+    data = load_cli_config(config_path)
+    server = _read_mapping(data, "server")
+    app = _read_mapping(data, "app")
+
+    host = host_override or str(server.get("host", "0.0.0.0"))
+    port = port_override if port_override is not None else int(server.get("port", 8000))
+    demo = demo_override or bool(app.get("demo", data.get("demo", False)))
+
+    return StartConfig(
+        host=host,
+        port=port,
+        demo=demo,
+        config_path=config_path,
+        runtime_kwargs={
+            **({"config_file": str(config_path)} if config_path is not None else {}),
+            **_normalize_runtime_kwargs(data),
+        },
+    )
+
+
+def _build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="logicfp")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    start_parser = subparsers.add_parser("start", help="Start the HTTP service.")
+    start_parser.add_argument("--host", help="Bind host. Defaults to config or 0.0.0.0.")
+    start_parser.add_argument(
+        "--port",
+        type=int,
+        help="Bind port. Defaults to config or 8000.",
+    )
+    start_parser.add_argument(
+        "--config",
+        help="Path to CLI YAML config. Explicit path has the highest priority.",
+    )
+    start_parser.add_argument(
+        "--demo",
+        action="store_true",
+        help="Start in demo mode.",
+    )
+    return parser
+
+
+def start_command(args: argparse.Namespace) -> int:
+    config_path = discover_cli_config_path(args.config)
+    start_config = load_start_config(
+        config_path=config_path,
+        port_override=args.port,
+        host_override=args.host,
+        demo_override=args.demo,
+    )
+
+    if start_config.config_path is not None:
+        print(f"Using CLI config: {start_config.config_path}")
+
+    mode = "demo" if start_config.demo else "production"
+    print(
+        f"Starting logicfp HTTP service on "
+        f"{start_config.host}:{start_config.port} ({mode})"
+    )
+
+    app = (
+        create_demo_app(runtime_kwargs=start_config.runtime_kwargs)
+        if start_config.demo
+        else create_app(runtime_kwargs=start_config.runtime_kwargs)
+    )
+    uvicorn.run(app, host=start_config.host, port=start_config.port)
+    return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    parser = _build_parser()
+    args = parser.parse_args(argv)
+
+    if args.command == "start":
+        return start_command(args)
+
+    parser.error(f"Unsupported command: {args.command}")
+    return 2
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
+</file>
+
+<file path="src/logicfp/config/__init__.py">
+from .loader import (
+    API_PROFILE,
+    DECORATOR_PROFILE,
+    DEFAULT_CONFIG_DIR_NAME,
+    DEFAULT_CONFIG_FILE_NAME,
+    build_runtime_config,
+    build_runtime_settings,
+    discover_config_file,
+    load_config_file_values,
+    load_runtime_config_from_env,
+    load_runtime_settings_from_env,
+)
+from .policy_config import PolicyConfig
+from .runtime_config import RuntimeConfig
+from .runtime_settings import RuntimeSettings
+from .strategy_config import StrategyConfig
+
+__all__ = [
+    "API_PROFILE",
+    "DECORATOR_PROFILE",
+    "DEFAULT_CONFIG_DIR_NAME",
+    "DEFAULT_CONFIG_FILE_NAME",
+    "build_runtime_config",
+    "build_runtime_settings",
+    "discover_config_file",
+    "load_config_file_values",
+    "load_runtime_config_from_env",
+    "load_runtime_settings_from_env",
+    "RuntimeConfig",
+    "RuntimeSettings",
+    "StrategyConfig",
+    "PolicyConfig",
+]
+</file>
+
+<file path="src/logicfp/config/loader.py">
+from __future__ import annotations
+
+import os
+from dataclasses import replace
+from pathlib import Path
+from typing import Any, Mapping
+
+from .runtime_config import RuntimeConfig
+from .runtime_settings import RuntimeSettings
+from .yaml_support import load_simple_yaml_file
+
+
+DEFAULT_ENV_PREFIX = "LOGICFP_"
+LEGACY_ENV_PREFIX = "LOGIC_FINGERPRINT_"
+DEFAULT_CONFIG_DIR_NAME = "config"
+DEFAULT_CONFIG_FILE_NAME = "config.yaml"
+API_PROFILE = "api"
+DECORATOR_PROFILE = "decorator"
+
+
+def _resolve_env_value(env_name: str) -> str | None:
+    value = os.getenv(env_name)
+    if value is not None:
+        return value
+    if env_name.startswith(DEFAULT_ENV_PREFIX):
+        legacy_name = LEGACY_ENV_PREFIX + env_name[len(DEFAULT_ENV_PREFIX) :]
+        return os.getenv(legacy_name)
+    return None
+
+
+def _resolve_value(
+    env_name: str,
+    config_key: str,
+    default: Any,
+    *,
+    file_values: Mapping[str, Any],
+) -> Any:
+    value = _resolve_env_value(env_name)
+    if value is None:
+        return file_values.get(config_key, default)
+    return value
+
+
+def _read_float(
+    env_name: str,
+    config_key: str,
+    default: float,
+    *,
+    file_values: Mapping[str, Any],
+) -> float:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    return float(value)
+
+
+def _read_int(
+    env_name: str,
+    config_key: str,
+    default: int,
+    *,
+    file_values: Mapping[str, Any],
+) -> int:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    return int(value)
+
+
+def _read_str(
+    env_name: str,
+    config_key: str,
+    default: str,
+    *,
+    file_values: Mapping[str, Any],
+) -> str:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    if value is None:
+        return default
+    return str(value)
+
+
+def _read_optional_str(
+    env_name: str,
+    config_key: str,
+    default: str | None,
+    *,
+    file_values: Mapping[str, Any],
+) -> str | None:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    if value is None:
+        return default
+    if value == "":
+        return None
+    return str(value)
+
+
+def _read_bool(
+    env_name: str,
+    config_key: str,
+    default: bool,
+    *,
+    file_values: Mapping[str, Any],
+) -> bool:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    if isinstance(value, bool):
+        return value
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def _read_tuple(
+    env_name: str,
+    config_key: str,
+    default: tuple[str, ...],
+    *,
+    file_values: Mapping[str, Any],
+) -> tuple[str, ...]:
+    value = _resolve_value(env_name, config_key, default, file_values=file_values)
+    if value is None:
+        return default
+    if isinstance(value, (list, tuple)):
+        return tuple(str(item) for item in value if str(item).strip())
+    return tuple(item.strip() for item in value.split(",") if item.strip())
+
+
+def _normalize_config_path(path: str | Path) -> Path:
+    normalized = Path(path).expanduser()
+    if normalized.is_absolute():
+        return normalized
+    return (Path.cwd() / normalized).resolve()
+
+
+def _extract_logicfp_values(data: dict[str, Any]) -> dict[str, Any]:
+    for section_name in ("logicfp", "logic_fingerprint", "logicfingerprint"):
+        section = data.get(section_name)
+        if section is None:
+            continue
+        if not isinstance(section, dict):
+            raise ValueError(f"Expected '{section_name}' to be a mapping in config file.")
+        return section
+    return data
+
+
+def discover_config_file(
+    *,
+    config_file: str | Path | None = None,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    start_dir: str | Path | None = None,
+) -> Path | None:
+    if config_file is not None:
+        explicit_path = _normalize_config_path(config_file)
+        if not explicit_path.is_file():
+            raise FileNotFoundError(f"logicfp config file not found: {explicit_path}")
+        return explicit_path
+
+    env_override = _resolve_env_value(f"{prefix}CONFIG_FILE")
+    if env_override is not None:
+        env_override = env_override.strip()
+        if not env_override:
+            return None
+        explicit_path = _normalize_config_path(env_override)
+        if not explicit_path.is_file():
+            raise FileNotFoundError(f"logicfp config file not found: {explicit_path}")
+        return explicit_path
+
+    current_dir = Path(start_dir or Path.cwd()).resolve()
+    for directory in (current_dir, *current_dir.parents):
+        for candidate in (
+            directory / DEFAULT_CONFIG_DIR_NAME / DEFAULT_CONFIG_FILE_NAME,
+            directory / DEFAULT_CONFIG_FILE_NAME,
+        ):
+            if candidate.is_file():
+                return candidate
+    return None
+
+
+def load_config_file_values(
+    *,
+    config_file: str | Path | None = None,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    start_dir: str | Path | None = None,
+) -> dict[str, Any]:
+    path = discover_config_file(
+        config_file=config_file,
+        prefix=prefix,
+        start_dir=start_dir,
+    )
+    if path is None:
+        return {}
+    return _extract_logicfp_values(load_simple_yaml_file(path))
+
+
+def _default_runtime_settings(profile: str) -> RuntimeSettings:
+    if profile == DECORATOR_PROFILE:
+        return RuntimeSettings(instance_id="decorator-node", default_source="decorator")
+    return RuntimeSettings()
+
+
+def load_runtime_config_from_env(
+    *,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    config_file: str | Path | None = None,
+    start_dir: str | Path | None = None,
+) -> RuntimeConfig:
+    defaults = RuntimeConfig()
+    file_values = load_config_file_values(
+        config_file=config_file,
+        prefix=prefix,
+        start_dir=start_dir,
+    )
+    return RuntimeConfig(
+        probe_rate=_read_float(
+            f"{prefix}PROBE_RATE",
+            "probe_rate",
+            defaults.probe_rate,
+            file_values=file_values,
+        ),
+        probe_interval_seconds=_read_float(
+            f"{prefix}PROBE_INTERVAL_SECONDS",
+            "probe_interval_seconds",
+            defaults.probe_interval_seconds,
+            file_values=file_values,
+        ),
+        consecutive_success_threshold=_read_int(
+            f"{prefix}CONSECUTIVE_SUCCESS_THRESHOLD",
+            "consecutive_success_threshold",
+            defaults.consecutive_success_threshold,
+            file_values=file_values,
+        ),
+        total_nodes=_read_int(
+            f"{prefix}TOTAL_NODES",
+            "total_nodes",
+            defaults.total_nodes,
+            file_values=file_values,
+        ),
+        global_fail_threshold=_read_float(
+            f"{prefix}GLOBAL_FAIL_THRESHOLD",
+            "global_fail_threshold",
+            defaults.global_fail_threshold,
+            file_values=file_values,
+        ),
+    )
+
+
+def build_runtime_config(
+    *,
+    probe_rate: float | None = None,
+    probe_interval_seconds: float | None = None,
+    consecutive_success_threshold: int | None = None,
+    total_nodes: int | None = None,
+    global_fail_threshold: float | None = None,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    config_file: str | Path | None = None,
+    start_dir: str | Path | None = None,
+) -> RuntimeConfig:
+    config = load_runtime_config_from_env(
+        prefix=prefix,
+        config_file=config_file,
+        start_dir=start_dir,
+    )
+    overrides: dict[str, float | int] = {}
+
+    if probe_rate is not None:
+        overrides["probe_rate"] = probe_rate
+    if probe_interval_seconds is not None:
+        overrides["probe_interval_seconds"] = probe_interval_seconds
+    if consecutive_success_threshold is not None:
+        overrides["consecutive_success_threshold"] = consecutive_success_threshold
+    if total_nodes is not None:
+        overrides["total_nodes"] = total_nodes
+    if global_fail_threshold is not None:
+        overrides["global_fail_threshold"] = global_fail_threshold
+
+    if not overrides:
+        return config
+    return replace(config, **overrides)
+
+
+def load_runtime_settings_from_env(
+    *,
+    profile: str = API_PROFILE,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    config_file: str | Path | None = None,
+    start_dir: str | Path | None = None,
+) -> RuntimeSettings:
+    defaults = _default_runtime_settings(profile)
+    file_values = load_config_file_values(
+        config_file=config_file,
+        prefix=prefix,
+        start_dir=start_dir,
+    )
+    return RuntimeSettings(
+        instance_id=_read_str(
+            f"{prefix}INSTANCE_ID",
+            "instance_id",
+            defaults.instance_id,
+            file_values=file_values,
+        ),
+        default_source=_read_str(
+            f"{prefix}DEFAULT_SOURCE",
+            "default_source",
+            defaults.default_source,
+            file_values=file_values,
+        ),
+        backend_type=_read_str(
+            f"{prefix}BACKEND_TYPE",
+            "backend_type",
+            defaults.backend_type,
+            file_values=file_values,
+        ),
+        handler_registrars=_read_tuple(
+            f"{prefix}HANDLER_REGISTRARS",
+            "handler_registrars",
+            defaults.handler_registrars,
+            file_values=file_values,
+        ),
+        redis_url=_read_optional_str(
+            f"{prefix}REDIS_URL",
+            "redis_url",
+            defaults.redis_url,
+            file_values=file_values,
+        ),
+        redis_decode_responses=_read_bool(
+            f"{prefix}REDIS_DECODE_RESPONSES",
+            "redis_decode_responses",
+            defaults.redis_decode_responses,
+            file_values=file_values,
+        ),
+        redis_key=_read_str(
+            f"{prefix}REDIS_KEY",
+            "redis_key",
+            defaults.redis_key,
+            file_values=file_values,
+        ),
+        redis_key_prefix=_read_str(
+            f"{prefix}REDIS_KEY_PREFIX",
+            "redis_key_prefix",
+            defaults.redis_key_prefix,
+            file_values=file_values,
+        ),
+        redis_ttl_seconds=_read_int(
+            f"{prefix}REDIS_TTL_SECONDS",
+            "redis_ttl_seconds",
+            defaults.redis_ttl_seconds,
+            file_values=file_values,
+        ),
+    )
+
+
+def build_runtime_settings(
+    *,
+    profile: str = API_PROFILE,
+    instance_id: str | None = None,
+    default_source: str | None = None,
+    backend_type: str | None = None,
+    handler_registrars: tuple[str, ...] | None = None,
+    redis_url: str | None = None,
+    redis_decode_responses: bool | None = None,
+    redis_key: str | None = None,
+    redis_key_prefix: str | None = None,
+    redis_ttl_seconds: int | None = None,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    config_file: str | Path | None = None,
+    start_dir: str | Path | None = None,
+) -> RuntimeSettings:
+    settings = load_runtime_settings_from_env(
+        profile=profile,
+        prefix=prefix,
+        config_file=config_file,
+        start_dir=start_dir,
+    )
+    overrides: dict[str, str | int | bool | tuple[str, ...]] = {}
+
+    if instance_id is not None:
+        overrides["instance_id"] = instance_id
+    if default_source is not None:
+        overrides["default_source"] = default_source
+    if backend_type is not None:
+        overrides["backend_type"] = backend_type
+    if handler_registrars is not None:
+        overrides["handler_registrars"] = handler_registrars
+    if redis_url is not None:
+        overrides["redis_url"] = redis_url
+    if redis_decode_responses is not None:
+        overrides["redis_decode_responses"] = redis_decode_responses
+    if redis_key is not None:
+        overrides["redis_key"] = redis_key
+    if redis_key_prefix is not None:
+        overrides["redis_key_prefix"] = redis_key_prefix
+    if redis_ttl_seconds is not None:
+        overrides["redis_ttl_seconds"] = redis_ttl_seconds
+
+    if not overrides:
+        return settings
+    return replace(settings, **overrides)
+</file>
+
+<file path="src/logicfp/config/policy_config.py">
+from dataclasses import dataclass, field
+
+
+@dataclass(slots=True)
+class PolicyConfig:
+    error_strategies: dict[str, str] = field(default_factory=lambda: {
+        "ERR_TIMEOUT": "retry_once",
+        "ERR_VALIDATION": "fail_fast",
+        "ERR_LOGIC": "fail_fast",
+        "ERR_UNKNOWN": "fail_fast",
+    })
+</file>
+
+<file path="src/logicfp/config/runtime_config.py">
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
+class RuntimeConfig:
+    probe_rate: float = 0.2
+    probe_interval_seconds: float = 5.0
+    consecutive_success_threshold: int = 3
+    total_nodes: int = 1
+    global_fail_threshold: float = 1.0
+</file>
+
+<file path="src/logicfp/config/runtime_settings.py">
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
+class RuntimeSettings:
+    instance_id: str = "node-a"
+    default_source: str = "api"
+    backend_type: str = "memory"
+    handler_registrars: tuple[str, ...] = ()
+    redis_url: str | None = None
+    redis_decode_responses: bool = True
+    redis_key: str = "logicfp:failed_nodes"
+    redis_key_prefix: str = "logicfp:failed_node"
+    redis_ttl_seconds: int = 30
+</file>
+
+<file path="src/logicfp/config/strategy_config.py">
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
+class StrategyConfig:
+    default_strategy: str = "fail_fast"
+
+    # retry策略参数（后面会用）
+    retry_once_max_attempts: int = 1
+</file>
+
+<file path="src/logicfp/config/yaml_support.py">
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Any
+
+
+def _strip_comment(line: str) -> str:
+    in_single_quote = False
+    in_double_quote = False
+    result: list[str] = []
+
+    for char in line:
+        if char == "'" and not in_double_quote:
+            in_single_quote = not in_single_quote
+        elif char == '"' and not in_single_quote:
+            in_double_quote = not in_double_quote
+        elif char == "#" and not in_single_quote and not in_double_quote:
+            break
+        result.append(char)
+
+    return "".join(result).rstrip()
+
+
+def _parse_scalar(value: str) -> Any:
+    stripped = value.strip()
+    if stripped == "":
+        return ""
+    if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {"'", '"'}:
+        return stripped[1:-1]
+
+    lowered = stripped.lower()
+    if lowered in {"true", "yes", "on"}:
+        return True
+    if lowered in {"false", "no", "off"}:
+        return False
+    if lowered in {"null", "none", "~"}:
+        return None
+
+    try:
+        if any(marker in stripped for marker in (".", "e", "E")):
+            return float(stripped)
+        return int(stripped)
+    except ValueError:
+        return stripped
+
+
+def parse_simple_yaml(text: str) -> dict[str, Any]:
+    lines: list[tuple[int, str]] = []
+    for raw_line in text.splitlines():
+        cleaned = _strip_comment(raw_line)
+        if not cleaned.strip():
+            continue
+        indent = len(cleaned) - len(cleaned.lstrip(" "))
+        lines.append((indent, cleaned.strip()))
+
+    root: dict[str, Any] = {}
+    stack: list[tuple[int, Any]] = [(-1, root)]
+
+    for index, (indent, content) in enumerate(lines):
+        while indent <= stack[-1][0]:
+            stack.pop()
+
+        parent = stack[-1][1]
+        if content.startswith("- "):
+            if not isinstance(parent, list):
+                raise ValueError("Invalid YAML structure: list item without list parent.")
+            parent.append(_parse_scalar(content[2:].strip()))
+            continue
+
+        if ":" not in content:
+            raise ValueError(f"Invalid YAML line: {content}")
+
+        key, raw_value = content.split(":", 1)
+        key = key.strip()
+        raw_value = raw_value.strip()
+        if not isinstance(parent, dict):
+            raise ValueError("Invalid YAML structure: mapping entry without dict parent.")
+
+        if raw_value:
+            parent[key] = _parse_scalar(raw_value)
+            continue
+
+        next_container: Any = None
+        for next_indent, next_content in lines[index + 1 :]:
+            if next_indent <= indent:
+                break
+            next_container = [] if next_content.startswith("- ") else {}
+            break
+
+        parent[key] = next_container
+        if next_container is not None:
+            stack.append((indent, next_container))
+
+    return root
+
+
+def load_simple_yaml_file(path: Path | None) -> dict[str, Any]:
+    if path is None:
+        return {}
+    return parse_simple_yaml(path.read_text(encoding="utf-8"))
+</file>
+
+<file path="src/logicfp/domain/__init__.py">
+from .errors import *
+from .executor import LogicFingerprintExecutor
+from .fsm import LogicFingerprintFSM
+from .models import *
+</file>
+
+<file path="src/logicfp/domain/errors.py">
+from enum import Enum
+
+class ErrorCode(str, Enum):
+    ERR_TIMEOUT = "ERR_TIMEOUT"
+    ERR_NULL = "ERR_NULL"
+    ERR_NORM = "ERR_NORM"
+    ERR_LOGIC = "ERR_LOGIC"
+    ERR_EXECUTION_BLOCKED = "ERR_EXECUTION_BLOCKED"
+    ERR_UNKNOWN = "ERR_UNKNOWN"
+    ERR_HANDLER_NOT_FOUND = "ERR_HANDLER_NOT_FOUND"
+    ERR_VALIDATION = "ERR_VALIDATION"
+    ERR_OUTPUT_VALIDATION = "ERR_OUTPUT_VALIDATION"
+
+class LogicFingerprintError(Exception):
+    code: ErrorCode = ErrorCode.ERR_UNKNOWN
+    def __init__(self, message: str = "", details: dict | None = None) -> None:
+        super().__init__(message)
+        self.message = message or self.__class__.__name__
+        self.details = details or {}
+
+class TimeoutErrorLF(LogicFingerprintError):
+    code = ErrorCode.ERR_TIMEOUT
+
+class NullResultError(LogicFingerprintError):
+    code = ErrorCode.ERR_NULL
+
+class NormalizationError(LogicFingerprintError):
+    code = ErrorCode.ERR_NORM
+
+class LogicExecutionError(LogicFingerprintError):
+    code = ErrorCode.ERR_LOGIC
+
+class HandlerNotFoundError(LogicFingerprintError):
+    code = ErrorCode.ERR_HANDLER_NOT_FOUND
+
+class ValidationErrorLF(LogicFingerprintError):
+    code = ErrorCode.ERR_VALIDATION
+
+class OutputValidationErrorLF(LogicFingerprintError):
+    code = ErrorCode.ERR_OUTPUT_VALIDATION
+
+def classify_exception(exc: Exception) -> ErrorCode:
+    if isinstance(exc, LogicFingerprintError):
+        return exc.code
+    if isinstance(exc, TimeoutError):
+        return ErrorCode.ERR_TIMEOUT
+    if isinstance(exc, ValueError):
+        return ErrorCode.ERR_NORM
+    return ErrorCode.ERR_UNKNOWN
+</file>
+
+<file path="src/logicfp/domain/executor.py">
+import inspect
+from dataclasses import dataclass
+from .errors import ErrorCode, NullResultError, classify_exception, LogicFingerprintError
+from .models import ExecutionDecision, ExecutionOutcome, FSMState, ProbeResult
+
+@dataclass(slots=True)
+class LogicFingerprintExecutor:
+    fsm: object
+
+    def _build_decision_from_closed(self):
+        info = self.fsm.before_request()
+        return ExecutionDecision(state=str(info["state"]), allow_request=bool(info["allow_request"]), allow_probe=bool(info["allow_probe"]), global_fail_ratio=float(info["global_fail_ratio"]), external_fail_ratio=float(info["external_fail_ratio"]), is_probe=False)
+    def _build_decision_from_half_open(self, now):
+        info = self.fsm.before_half_open_request(now=now)
+        return ExecutionDecision(state=str(info["state"]), allow_request=bool(info["allow_request"]), allow_probe=bool(info["allow_probe"]), global_fail_ratio=float(info["global_fail_ratio"]), external_fail_ratio=float(info["external_fail_ratio"]), is_probe=bool(info["allow_probe"]))
+    def _blocked_outcome(self, decision):
+        return ExecutionOutcome(decision=decision, executed=False, succeeded=False, state_after=self.fsm.state.value, error_code=ErrorCode.ERR_EXECUTION_BLOCKED.value, error_message="Request blocked by FSM state.")
+    def _success_outcome(self, decision, result):
+        if decision.is_probe:
+            self.fsm.evaluate_probe(ProbeResult(system_success=True, business_success=True))
+        return ExecutionOutcome(decision=decision, executed=True, succeeded=True, state_after=self.fsm.state.value, result=result)
+    def _failure_outcome(self, decision, exc):
+        code = classify_exception(exc)
+        details = exc.details if isinstance(exc, LogicFingerprintError) else {}
+        self.fsm.record_hard_fail(code.value)
+        return ExecutionOutcome(decision=decision, executed=True, succeeded=False, state_after=self.fsm.state.value, error_code=code.value, error_message=str(exc), error_details=details)
+    def execute(self, operation, now=None):
+        decision = self._build_decision_from_half_open(now) if self.fsm.state == FSMState.HALF_OPEN else self._build_decision_from_closed()
+        if not decision.allow_request and not decision.allow_probe:
+            return self._blocked_outcome(decision)
+        try:
+            result = operation()
+            if inspect.isawaitable(result):
+                raise TypeError("Async operation cannot be executed by sync execute(); use execute_async().")
+            if result is None:
+                raise NullResultError("Operation returned None.")
+            return self._success_outcome(decision, result)
+        except Exception as exc:
+            return self._failure_outcome(decision, exc)
+    async def execute_async(self, operation, now=None):
+        decision = self._build_decision_from_half_open(now) if self.fsm.state == FSMState.HALF_OPEN else self._build_decision_from_closed()
+        if not decision.allow_request and not decision.allow_probe:
+            return self._blocked_outcome(decision)
+        try:
+            result = operation()
+            if inspect.isawaitable(result):
+                result = await result
+            if result is None:
+                raise NullResultError("Operation returned None.")
+            return self._success_outcome(decision, result)
+        except Exception as exc:
+            return self._failure_outcome(decision, exc)
+</file>
+
+<file path="src/logicfp/domain/fsm.py">
+from dataclasses import dataclass, field
+from typing import Optional
+import time
+from ..config import RuntimeConfig
+from .models import FSMState, ProbeResult
+
+@dataclass(slots=True)
+class LogicFingerprintFSM:
+    instance_id: str
+    config: RuntimeConfig
+    backend: object
+    state: FSMState = FSMState.CLOSED
+    request_counter: int = 0
+    success_count: int = 0
+    last_probe_time: float = field(default_factory=lambda: 0.0)
+    last_failure_reason: Optional[str] = None
+
+    @property
+    def probe_every_n_requests(self) -> int:
+        return max(1, int(1 / self.config.probe_rate))
+    @property
+    def global_fail_ratio(self) -> float:
+        return self.backend.fail_count() / self.config.total_nodes
+    @property
+    def external_fail_count(self) -> int:
+        return self.backend.fail_count() - int(self.backend.is_failed(self.instance_id))
+    @property
+    def external_fail_ratio(self) -> float:
+        return self.external_fail_count / self.config.total_nodes
+    def should_force_global_open(self) -> bool:
+        return self.external_fail_ratio >= self.config.global_fail_threshold
+    def record_hard_fail(self, reason: str = "HARD_FAIL") -> None:
+        self.state = FSMState.OPEN
+        self.success_count = 0
+        self.last_failure_reason = reason
+        self.backend.mark_failed(self.instance_id)
+    def move_to_half_open(self) -> None:
+        self.state = FSMState.HALF_OPEN
+        self.success_count = 0
+    def close(self) -> None:
+        self.state = FSMState.CLOSED
+        self.success_count = 0
+        self.last_failure_reason = None
+        self.backend.clear_failed(self.instance_id)
+    def should_allow_probe(self, now=None) -> bool:
+        now = time.time() if now is None else now
+        self.request_counter += 1
+        if self.state != FSMState.HALF_OPEN:
+            return False
+        by_request = (self.request_counter % self.probe_every_n_requests) == 0
+        by_time = (now - self.last_probe_time) >= self.config.probe_interval_seconds
+        if by_request or by_time:
+            self.last_probe_time = now
+            return True
+        return False
+    def evaluate_probe(self, result: ProbeResult):
+        if self.state != FSMState.HALF_OPEN:
+            return self.state
+        if result.probe_success:
+            self.success_count += 1
+        else:
+            self.success_count = 0
+            self.record_hard_fail(reason="PROBE_FAILED")
+            return self.state
+        if self.success_count >= self.config.consecutive_success_threshold:
+            self.close()
+        return self.state
+    def before_request(self):
+        if self.should_force_global_open():
+            self.state = FSMState.OPEN
+        return {"state": self.state.value, "allow_request": self.state == FSMState.CLOSED, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+    def before_half_open_request(self, now=None):
+        if self.should_force_global_open():
+            self.state = FSMState.OPEN
+            return {"state": self.state.value, "allow_request": False, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+        allow_probe = self.should_allow_probe(now=now)
+        return {"state": self.state.value, "allow_request": False, "allow_probe": allow_probe, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+</file>
+
+<file path="src/logicfp/domain/models.py">
+from dataclasses import dataclass, field
+from enum import Enum
+from typing import Any
+
+class FSMState(str, Enum):
+    CLOSED = "CLOSED"
+    OPEN = "OPEN"
+    HALF_OPEN = "HALF_OPEN"
+
+@dataclass(slots=True)
+class ProbeResult:
+    system_success: bool
+    business_success: bool
+    @property
+    def probe_success(self) -> bool:
+        return self.system_success and self.business_success
+
+@dataclass(slots=True)
+class ExecutionDecision:
+    state: str
+    allow_request: bool
+    allow_probe: bool
+    global_fail_ratio: float
+    external_fail_ratio: float
+    is_probe: bool
+
+@dataclass(slots=True)
+class ExecutionOutcome:
+    decision: ExecutionDecision
+    executed: bool
+    succeeded: bool
+    state_after: str
+    result: Any = None
+    error_code: str | None = None
+    error_message: str | None = None
+    error_details: dict[str, Any] | None = None
+
+@dataclass(slots=True)
+class RequestContext:
+    request_id: str | None = None
+    trace_id: str | None = None
+    user_id: str | None = None
+    source: str | None = None
+    timestamp: str | None = None
+    headers: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+
+@dataclass(slots=True)
+class HandlerRequest:
+    payload: dict[str, Any] = field(default_factory=dict)
+    context: RequestContext = field(default_factory=RequestContext)
+
+@dataclass(slots=True)
+class HandlerResponse:
+    ok: bool
+    data: Any = None
+    message: str | None = None
+</file>
+
+<file path="src/logicfp/engineering.py">
+from __future__ import annotations
+
+from typing import Any
+
+__all__ = [
+    "assemble_runtime",
+    "build_demo_runtime",
+    "build_production_runtime",
+    "build_runtime",
+    "create_app",
+    "create_demo_app",
+]
+
+
+def assemble_runtime(*args: Any, **kwargs: Any):
+    from .runtime import assemble_runtime as _assemble_runtime
+
+    return _assemble_runtime(*args, **kwargs)
+
+
+def build_demo_runtime(*args: Any, **kwargs: Any):
+    from .runtime import build_demo_runtime as _build_demo_runtime
+
+    return _build_demo_runtime(*args, **kwargs)
+
+
+def build_production_runtime(*args: Any, **kwargs: Any):
+    from .runtime import build_production_runtime as _build_production_runtime
+
+    return _build_production_runtime(*args, **kwargs)
+
+
+def build_runtime(*args: Any, **kwargs: Any):
+    from .runtime import build_runtime as _build_runtime
+
+    return _build_runtime(*args, **kwargs)
+
+
+def create_app(*args: Any, **kwargs: Any):
+    from .app_factory import create_app as _create_app
+
+    return _create_app(*args, **kwargs)
+
+
+def create_demo_app(*args: Any, **kwargs: Any):
+    from .app_factory import create_demo_app as _create_demo_app
+
+    return _create_demo_app(*args, **kwargs)
+</file>
+
+<file path="src/logicfp/handler_registry.py">
+from dataclasses import dataclass, field
+from pydantic import BaseModel
+from .domain.errors import HandlerNotFoundError
+
+@dataclass(slots=True)
+class HandlerDefinition:
+    func: object
+    input_model: type[BaseModel] | None = None
+    output_model: type[BaseModel] | None = None
+
+@dataclass(slots=True)
+class HandlerRegistry:
+    _handlers: dict[str, HandlerDefinition] = field(default_factory=dict)
+    def register(self, name, handler, input_model=None, output_model=None):
+        self._handlers[name] = HandlerDefinition(func=handler, input_model=input_model, output_model=output_model)
+    def register_decorator(self, name, input_model=None, output_model=None):
+        def decorator(handler):
+            self.register(name, handler, input_model=input_model, output_model=output_model)
+            return handler
+        return decorator
+    def get(self, name):
+        if name not in self._handlers:
+            raise HandlerNotFoundError(f"Handler not found: {name}")
+        return self._handlers[name]
+    def names(self):
+        return sorted(self._handlers.keys())
+</file>
+
+<file path="src/logicfp/handlers/__init__.py">
+"""Built-in handler registrations."""
+
+from .demo_handlers import register_demo_handlers
+from .registry import (
+    HandlerRegistrar,
+    compose_handler_registrars,
+    load_handler_registrar,
+    load_handler_registrars,
+    register_builtin_handlers,
+)
+from .schemas import SumNumbersInput, SumNumbersOutput
+
+__all__ = [
+    "HandlerRegistrar",
+    "compose_handler_registrars",
+    "load_handler_registrar",
+    "load_handler_registrars",
+    "register_builtin_handlers",
+    "register_demo_handlers",
+    "SumNumbersInput",
+    "SumNumbersOutput",
+]
+</file>
+
+<file path="src/logicfp/handlers/demo_handlers.py">
+from __future__ import annotations
+
+from ..domain.errors import LogicExecutionError, NormalizationError, TimeoutErrorLF
+from ..domain.models import HandlerRequest, HandlerResponse
+from ..handler_registry import HandlerRegistry
+from .schemas import SumNumbersInput, SumNumbersOutput
+
+
+def _echo_payload(request: HandlerRequest) -> HandlerResponse:
+    return HandlerResponse(
+        ok=True,
+        data={
+            "payload": request.payload,
+            "request_id": request.context.request_id,
+            "trace_id": request.context.trace_id,
+            "source": request.context.source,
+            "timestamp": request.context.timestamp,
+            "headers": request.context.headers,
+            "metadata": request.context.metadata,
+        },
+    )
+
+
+def _sum_numbers(request: HandlerRequest) -> HandlerResponse:
+    return HandlerResponse(ok=True, data={"sum": sum(request.payload.get("numbers", []))})
+
+
+def _demo_timeout(request: HandlerRequest) -> HandlerResponse:
+    raise TimeoutErrorLF("simulated timeout")
+
+
+def _demo_logic_error(request: HandlerRequest) -> HandlerResponse:
+    raise LogicExecutionError("simulated logic failure")
+
+
+def _demo_null(request: HandlerRequest) -> None:
+    return None
+
+
+def _demo_norm_error(request: HandlerRequest) -> HandlerResponse:
+    raise NormalizationError("simulated norm failure")
+
+
+async def _async_echo_payload(request: HandlerRequest) -> HandlerResponse:
+    return HandlerResponse(
+        ok=True,
+        data={
+            "payload": request.payload,
+            "request_id": request.context.request_id,
+            "trace_id": request.context.trace_id,
+            "source": request.context.source,
+            "timestamp": request.context.timestamp,
+            "headers": request.context.headers,
+            "metadata": request.context.metadata,
+            "async": True,
+        },
+    )
+
+
+def register_demo_handlers(handler_registry: HandlerRegistry) -> None:
+    handler_registry.register("echo_payload", _echo_payload)
+    handler_registry.register(
+        "sum_numbers",
+        _sum_numbers,
+        input_model=SumNumbersInput,
+        output_model=SumNumbersOutput,
+    )
+    handler_registry.register("demo_timeout", _demo_timeout)
+    handler_registry.register("demo_logic_error", _demo_logic_error)
+    handler_registry.register("demo_null", _demo_null)
+    handler_registry.register("demo_norm_error", _demo_norm_error)
+    handler_registry.register("async_echo_payload", _async_echo_payload)
+</file>
+
+<file path="src/logicfp/handlers/registry.py">
+from __future__ import annotations
+
+import importlib
+from collections.abc import Callable
+
+from ..handler_registry import HandlerRegistry
+from .demo_handlers import register_demo_handlers
+
+HandlerRegistrar = Callable[[HandlerRegistry], None]
+
+
+def compose_handler_registrars(*registrars: HandlerRegistrar | None) -> HandlerRegistrar:
+    active_registrars = [registrar for registrar in registrars if registrar is not None]
+
+    def register_all(handler_registry: HandlerRegistry) -> None:
+        for registrar in active_registrars:
+            registrar(handler_registry)
+
+    return register_all
+
+
+def load_handler_registrar(spec: str) -> HandlerRegistrar:
+    module_name, separator, attr_name = spec.partition(":")
+    if not module_name:
+        raise ValueError("Handler registrar spec must include a module path.")
+    if not separator:
+        attr_name = "register_handlers"
+
+    module = importlib.import_module(module_name)
+    registrar = getattr(module, attr_name, None)
+    if registrar is None:
+        raise AttributeError(
+            f"Handler registrar '{attr_name}' was not found in module '{module_name}'.",
+        )
+    if not callable(registrar):
+        raise TypeError(
+            f"Handler registrar '{attr_name}' in module '{module_name}' is not callable.",
+        )
+    return registrar
+
+
+def load_handler_registrars(specs: tuple[str, ...] | list[str]) -> HandlerRegistrar | None:
+    if not specs:
+        return None
+    return compose_handler_registrars(*(load_handler_registrar(spec) for spec in specs))
+
+
+def register_builtin_handlers(
+    handler_registry: HandlerRegistry,
+    *,
+    include_demo: bool = False,
+) -> None:
+    if include_demo:
+        register_demo_handlers(handler_registry)
+</file>
+
+<file path="src/logicfp/handlers/schemas.py">
+from pydantic import BaseModel, Field
+
+
+class SumNumbersInput(BaseModel):
+    numbers: list[int] = Field(default_factory=list)
+
+
+class SumNumbersOutput(BaseModel):
+    sum: int
+</file>
+
+<file path="src/logicfp/infra/__init__.py">
+"""Infrastructure adapters and integrations."""
+</file>
+
+<file path="src/logicfp/infra/consensus/__init__.py">
+"""Consensus backends."""
+
+from .client import build_redis_client
+from .factory import build_consensus_backend
+from .heartbeat import HeartbeatService
+from .memory import InMemoryConsensusBackend
+from .redis import RedisConsensusBackend, RedisTTLConsensusBackend
+
+__all__ = [
+    "build_consensus_backend",
+    "build_redis_client",
+    "HeartbeatService",
+    "InMemoryConsensusBackend",
+    "RedisConsensusBackend",
+    "RedisTTLConsensusBackend",
+]
+</file>
+
+<file path="src/logicfp/infra/consensus/client.py">
+from __future__ import annotations
+
+import importlib
+
+from ...config.runtime_settings import RuntimeSettings
+
+
+def build_redis_client(*, settings: RuntimeSettings) -> object:
+    if not settings.redis_url:
+        raise ValueError(
+            "LOGICFP_REDIS_URL is required when using a Redis backend.",
+        )
+
+    try:
+        redis_module = importlib.import_module("redis")
+    except ModuleNotFoundError as exc:
+        raise RuntimeError(
+            "The 'redis' package is required when backend_type is 'redis' or 'redis_ttl'.",
+        ) from exc
+
+    return redis_module.from_url(
+        settings.redis_url,
+        decode_responses=settings.redis_decode_responses,
+    )
+</file>
+
+<file path="src/logicfp/infra/consensus/factory.py">
+from __future__ import annotations
+
+from ...config.runtime_settings import RuntimeSettings
+from .client import build_redis_client
+from .memory import InMemoryConsensusBackend
+from .redis import RedisConsensusBackend, RedisTTLConsensusBackend
+
+
+def build_consensus_backend(
+    *,
+    settings: RuntimeSettings,
+    redis_client: object | None = None,
+) -> object:
+    if settings.backend_type == "memory":
+        return InMemoryConsensusBackend()
+    if redis_client is None:
+        redis_client = build_redis_client(settings=settings)
+    if settings.backend_type == "redis":
+        return RedisConsensusBackend(redis_client=redis_client, key=settings.redis_key)
+    if settings.backend_type == "redis_ttl":
+        return RedisTTLConsensusBackend(
+            redis_client=redis_client,
+            key_prefix=settings.redis_key_prefix,
+            ttl_seconds=settings.redis_ttl_seconds,
+        )
+    raise ValueError(f"Unsupported backend_type: {settings.backend_type}")
+</file>
+
+<file path="src/logicfp/infra/consensus/heartbeat.py">
+from dataclasses import dataclass
+
+@dataclass(slots=True)
+class HeartbeatService:
+    backend: object
+    instance_id: str
+    def beat(self) -> None:
+        heartbeat = getattr(self.backend, "heartbeat", None)
+        if callable(heartbeat):
+            heartbeat(self.instance_id)
+</file>
+
+<file path="src/logicfp/infra/consensus/memory.py">
+class InMemoryConsensusBackend:
+    def __init__(self) -> None:
+        self._failed_nodes: set[str] = set()
+    def mark_failed(self, instance_id: str) -> None:
+        self._failed_nodes.add(instance_id)
+    def clear_failed(self, instance_id: str) -> None:
+        self._failed_nodes.discard(instance_id)
+    def fail_count(self) -> int:
+        return len(self._failed_nodes)
+    def is_failed(self, instance_id: str) -> bool:
+        return instance_id in self._failed_nodes
+</file>
+
+<file path="src/logicfp/infra/consensus/redis.py">
+from __future__ import annotations
+
+from dataclasses import dataclass
+
+
+@dataclass(slots=True)
+class RedisConsensusBackend:
+    redis_client: object
+    key: str = "logicfp:failed_nodes"
+
+    def mark_failed(self, instance_id: str) -> None:
+        self.redis_client.sadd(self.key, instance_id)
+
+    def clear_failed(self, instance_id: str) -> None:
+        self.redis_client.srem(self.key, instance_id)
+
+    def fail_count(self) -> int:
+        return int(self.redis_client.scard(self.key))
+
+    def is_failed(self, instance_id: str) -> bool:
+        return bool(self.redis_client.sismember(self.key, instance_id))
+
+
+@dataclass(slots=True)
+class RedisTTLConsensusBackend:
+    redis_client: object
+    key_prefix: str = "logicfp:failed_node"
+    ttl_seconds: int = 30
+
+    def _node_key(self, instance_id: str) -> str:
+        return f"{self.key_prefix}:{instance_id}"
+
+    def mark_failed(self, instance_id: str) -> None:
+        self.redis_client.set(self._node_key(instance_id), "1", ex=self.ttl_seconds)
+
+    def heartbeat(self, instance_id: str) -> None:
+        if self.is_failed(instance_id):
+            self.redis_client.expire(self._node_key(instance_id), self.ttl_seconds)
+
+    def clear_failed(self, instance_id: str) -> None:
+        self.redis_client.delete(self._node_key(instance_id))
+
+    def fail_count(self) -> int:
+        keys = self.redis_client.keys(f"{self.key_prefix}:*")
+        return len(keys)
+
+    def is_failed(self, instance_id: str) -> bool:
+        return bool(self.redis_client.exists(self._node_key(instance_id)))
+</file>
+
+<file path="src/logicfp/infra/logging/__init__.py">
+"""Logging adapters."""
+
+from .event_logger import EventLogger, LogEvent, NullEventLogger, PrintEventLogger
+
+__all__ = [
+    "EventLogger",
+    "LogEvent",
+    "NullEventLogger",
+    "PrintEventLogger",
+]
+</file>
+
+<file path="src/logicfp/infra/logging/event_logger.py">
+from __future__ import annotations
+
+from dataclasses import dataclass, asdict
+from datetime import datetime, timezone
+from typing import Any
+
+
+@dataclass(slots=True)
+class LogEvent:
+    event: str
+    handler: str | None = None
+    request_id: str | None = None
+    trace_id: str | None = None
+    state: str | None = None
+    strategy: str | None = None
+    error_code: str | None = None
+    message: str | None = None
+    extra: dict[str, Any] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        data = asdict(self)
+        data["timestamp"] = datetime.now(timezone.utc).isoformat()
+        if data["extra"] is None:
+            data["extra"] = {}
+        return data
+
+
+class EventLogger:
+    def emit(self, event: LogEvent) -> None:
+        raise NotImplementedError
+
+
+class NullEventLogger(EventLogger):
+    def emit(self, event: LogEvent) -> None:
+        return
+
+
+class PrintEventLogger(EventLogger):
+    def emit(self, event: LogEvent) -> None:
+        print(event.to_dict())
+</file>
+
+<file path="src/logicfp/infra/metrics/__init__.py">
+"""Metrics adapters."""
+
+from .prometheus import render_prometheus_metrics
+
+__all__ = ["render_prometheus_metrics"]
+</file>
+
+<file path="src/logicfp/infra/metrics/prometheus.py">
+from ...application.metrics import InMemoryMetrics
+from ...domain.fsm import LogicFingerprintFSM
+
+
+def render_prometheus_metrics(metrics: InMemoryMetrics, fsm: LogicFingerprintFSM) -> str:
+    lines = [
+        "# HELP logicfp_total_requests Total execution requests.",
+        "# TYPE logicfp_total_requests counter",
+        f"logicfp_total_requests {metrics.total_requests}",
+        "# HELP logicfp_blocked_requests Blocked requests.",
+        "# TYPE logicfp_blocked_requests counter",
+        f"logicfp_blocked_requests {metrics.blocked_requests}",
+        "# HELP logicfp_probe_requests Probe requests.",
+        "# TYPE logicfp_probe_requests counter",
+        f"logicfp_probe_requests {metrics.probe_requests}",
+        "# HELP logicfp_success_requests Successful requests.",
+        "# TYPE logicfp_success_requests counter",
+        f"logicfp_success_requests {metrics.success_requests}",
+        "# HELP logicfp_failed_requests Failed requests.",
+        "# TYPE logicfp_failed_requests counter",
+        f"logicfp_failed_requests {metrics.failed_requests}",
+        "# HELP logicfp_fsm_state FSM state as labeled gauge.",
+        "# TYPE logicfp_fsm_state gauge",
+        f'logicfp_fsm_state{{state="{fsm.state.value}"}} 1',
+    ]
+    return "\n".join(lines) + "\n"
+</file>
+
+<file path="src/logicfp/lifespan.py">
+import threading
+from contextlib import asynccontextmanager
+
+def build_lifespan(runtime: object, interval_seconds: float = 5.0):
+    @asynccontextmanager
+    async def lifespan(app):
+        stop_event = threading.Event()
+        def loop():
+            while not stop_event.is_set():
+                runtime.heartbeat.beat()
+                stop_event.wait(interval_seconds)
+        thread = threading.Thread(target=loop, daemon=True)
+        thread.start()
+        app.state.heartbeat_stop_event = stop_event
+        app.state.heartbeat_thread = thread
+        try:
+            yield
+        finally:
+            stop_event.set()
+            thread.join(timeout=1.0)
+    return lifespan
+</file>
+
+<file path="src/logicfp/middleware.py">
+from dataclasses import dataclass
+
+from .application.context_builder import ContextBuilder
+from .domain.executor import LogicFingerprintExecutor
+from .handler_registry import HandlerRegistry
+from .application.metrics import InMemoryMetrics
+from .domain.models import ExecutionOutcome, HandlerRequest, HandlerResponse
+from .application.validator import validate_input, validate_output
+
+
+@dataclass(slots=True)
+class LogicFingerprintMiddleware:
+    executor: LogicFingerprintExecutor
+    handler_registry: HandlerRegistry
+    metrics: InMemoryMetrics
+    context_builder: ContextBuilder
+
+    def _record(self, outcome: ExecutionOutcome) -> None:
+        if outcome.decision.is_probe:
+            self.metrics.record_probe()
+        if not outcome.executed:
+            self.metrics.record_blocked()
+        elif outcome.succeeded:
+            self.metrics.record_success()
+        else:
+            self.metrics.record_failure()
+
+    def _validate_result(self, result, definition):
+        if isinstance(result, HandlerResponse):
+            validated = validate_output(result.data, definition.output_model)
+            return HandlerResponse(ok=result.ok, data=validated, message=result.message)
+        return validate_output(result, definition.output_model)
+
+    def execute_handler(self, handler_name: str, request: HandlerRequest | None = None, now: float | None = None) -> ExecutionOutcome:
+        self.metrics.record_total()
+
+        def operation():
+            built_request = self.context_builder.build_request(request)
+            definition = self.handler_registry.get(handler_name)
+            validated_payload = validate_input(built_request.payload, definition.input_model)
+            prepared_request = HandlerRequest(payload=validated_payload, context=built_request.context)
+            result = definition.func(prepared_request)
+            return self._validate_result(result, definition)
+
+        outcome = self.executor.execute(operation, now=now)
+        self._record(outcome)
+        return outcome
+
+    async def execute_handler_async(self, handler_name: str, request: HandlerRequest | None = None, now: float | None = None) -> ExecutionOutcome:
+        self.metrics.record_total()
+
+        def operation():
+            built_request = self.context_builder.build_request(request)
+            definition = self.handler_registry.get(handler_name)
+            validated_payload = validate_input(built_request.payload, definition.input_model)
+            prepared_request = HandlerRequest(payload=validated_payload, context=built_request.context)
+            return definition.func(prepared_request)
+
+        outcome = await self.executor.execute_async(operation, now=now)
+        if outcome.succeeded:
+            built_request = self.context_builder.build_request(request)
+            definition = self.handler_registry.get(handler_name)
+            outcome.result = self._validate_result(outcome.result, definition)
+        self._record(outcome)
+        return outcome
+</file>
+
+<file path="src/logicfp/protect.py">
+from __future__ import annotations
+
+from dataclasses import asdict, is_dataclass
+from functools import wraps
+from pathlib import Path
+from typing import Any, Callable, TypeVar
+import inspect
+
+from pydantic import BaseModel
+
+from .application.context_builder import ContextBuilder
+from .application.metrics import InMemoryMetrics
+from .application.validator import validate_input, validate_output
+from .config import (
+    DECORATOR_PROFILE,
+    RuntimeConfig,
+    RuntimeSettings,
+    build_runtime_config,
+    build_runtime_settings,
+)
+from .domain.executor import LogicFingerprintExecutor
+from .domain.fsm import LogicFingerprintFSM
+from .domain.models import HandlerRequest, RequestContext
+from .infra.consensus import build_consensus_backend
+from .infra.logging import LogEvent, PrintEventLogger
+
+F = TypeVar("F", bound=Callable[..., Any])
+
+
+class ProtectRuntimeError(RuntimeError):
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str | None = None,
+        details: dict[str, Any] | None = None,
+        context: dict[str, Any] | None = None,
+    
+    ) -> None:
+        super().__init__(message)
+        self.code = code
+        self.details = details or {}
+        self.context = context or {}
+        
+
+class Protector:
+    def __init__(
+        self,
+        *,
+        instance_id: str | None = None,
+        probe_rate: float | None = None,
+        probe_interval_seconds: float | None = None,
+        consecutive_success_threshold: int | None = None,
+        total_nodes: int | None = None,
+        global_fail_threshold: float | None = None,
+        default_source: str | None = None,
+        backend_type: str | None = None,
+        redis_url: str | None = None,
+        redis_decode_responses: bool | None = None,
+        redis_key: str | None = None,
+        redis_key_prefix: str | None = None,
+        redis_ttl_seconds: int | None = None,
+        config_file: str | Path | None = None,
+        config: RuntimeConfig | None = None,
+        settings: RuntimeSettings | None = None,
+        backend: object | None = None,
+        redis_client: object | None = None,
+    ) -> None:
+        config = config or build_runtime_config(
+            probe_rate=probe_rate,
+            probe_interval_seconds=probe_interval_seconds,
+            consecutive_success_threshold=consecutive_success_threshold,
+            total_nodes=total_nodes,
+            global_fail_threshold=global_fail_threshold,
+            config_file=config_file,
+        )
+        settings = settings or build_runtime_settings(
+            profile=DECORATOR_PROFILE,
+            instance_id=instance_id,
+            default_source=default_source,
+            backend_type=backend_type,
+            redis_url=redis_url,
+            redis_decode_responses=redis_decode_responses,
+            redis_key=redis_key,
+            redis_key_prefix=redis_key_prefix,
+            redis_ttl_seconds=redis_ttl_seconds,
+            config_file=config_file,
+        )
+        backend = backend or build_consensus_backend(
+            settings=settings,
+            redis_client=redis_client,
+        )
+        fsm = LogicFingerprintFSM(
+            instance_id=settings.instance_id,
+            config=config,
+            backend=backend,
+        )
+
+        self.config = config
+        self.settings = settings
+        self.backend = backend
+        self.fsm = fsm
+        self.executor = LogicFingerprintExecutor(fsm)
+        self.metrics = InMemoryMetrics()
+        self.context_builder = ContextBuilder(default_source=settings.default_source)
+        self.event_logger = PrintEventLogger()
+    def _success_response(
+        self,
+        validated_output: Any,
+        context_dict: dict[str, Any],
+        *,
+        simple: bool,
+    ) -> Any:
+        if simple:
+            return validated_output
+        return {
+            "ok": True,
+            "result": validated_output,
+            "context": context_dict,
+        }
+
+    def _error_response(
+        self,
+        *,
+        error_code: str | None,
+        error_message: str | None,
+        error_details: dict[str, Any] | None,
+        context_dict: dict[str, Any],
+        simple: bool,
+    ) -> Any:
+        if simple:
+            raise ProtectRuntimeError(
+                error_message or "Protected call failed.",
+                code=error_code,
+                details=error_details or {},
+                context=context_dict,
+            )
+
+        return {
+            "ok": False,
+            "error": {
+                "code": error_code,
+                "message": error_message,
+                "details": error_details or {},
+            },
+            "context": context_dict,
+        }
+
+    def protect(
+        self,
+        *,
+        input_model: type[BaseModel] | None = None,
+        output_model: type[BaseModel] | None = None,
+        simple: bool = True,
+    ) -> Callable[[F], F]:
+        def decorator(func: F) -> F:
+            if inspect.iscoroutinefunction(func):
+
+                @wraps(func)
+                async def async_wrapper(
+                    payload: dict[str, Any] | None = None,
+                    *,
+                    context: RequestContext | None = None,
+                    now: float | None = None,
+                ) -> Any:
+                    self.metrics.record_total()
+
+                    built_request = self.context_builder.build_request(
+                        HandlerRequest(
+                            payload=payload or {},
+                            context=context or RequestContext(),
+                        )
+                    )
+                    context_dict = asdict(built_request.context)
+
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_started",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    ))
+
+                    validated_payload = validate_input(
+                        built_request.payload,
+                        input_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
+                    prepared_request = HandlerRequest(
+                        payload=validated_payload,
+                        context=built_request.context,
+                    )
+
+                    def operation() -> Any:
+                        validated_payload = validate_input(
+                            built_request.payload,
+                            input_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                        prepared_request = HandlerRequest(
+                            payload=validated_payload,
+                            context=built_request.context,
+                        )
+                        return func(prepared_request)
+
+                    outcome = await self.executor.execute_async(operation, now=now)
+
+                    if outcome.decision.is_probe:
+                        self.metrics.record_probe()
+
+                    if not outcome.executed:
+                        self.metrics.record_blocked()
+                    elif outcome.succeeded:
+                        self.metrics.record_success()
+                    else:
+                        self.metrics.record_failure()
+
+                    if outcome.succeeded:
+                        result = outcome.result
+                        validated_output = validate_output(
+                            result,
+                            output_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                        self.event_logger.emit(LogEvent(
+                            event="protect_call_succeeded",
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        ))
+                        if is_dataclass(validated_output):
+                            validated_output = asdict(validated_output)
+
+                        return self._success_response(
+                            validated_output,
+                            context_dict,
+                            simple=simple,
+                        )
+                    
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_failed",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                        error_code=outcome.error_code,
+                        message=outcome.error_message,
+                    ))
+
+                    return self._error_response(
+                        error_code=outcome.error_code,
+                        error_message=outcome.error_message,
+                        error_details=outcome.error_details,
+                        context_dict=context_dict,
+                        simple=simple,
+                    )
+
+                return async_wrapper  # type: ignore[return-value]
+
+            @wraps(func)
+            def sync_wrapper(
+                payload: dict[str, Any] | None = None,
+                *,
+                context: RequestContext | None = None,
+                now: float | None = None,
+            ) -> Any:
+                self.metrics.record_total()
+
+                built_request = self.context_builder.build_request(
+                    HandlerRequest(
+                        payload=payload or {},
+                        context=context or RequestContext(),
+                    )
+                )
+                context_dict = asdict(built_request.context)
+
+                self.event_logger.emit(LogEvent(
+                    event="protect_call_started",
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
+                ))
+
+                validated_payload = validate_input(
+                    built_request.payload,
+                    input_model,
+                    event_logger=self.event_logger,
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
+                )
+                prepared_request = HandlerRequest(
+                    payload=validated_payload,
+                    context=built_request.context,
+                )
+
+                def operation() -> Any:
+                    validated_payload = validate_input(
+                        built_request.payload,
+                        input_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
+                    prepared_request = HandlerRequest(
+                        payload=validated_payload,
+                        context=built_request.context,
+                    )
+                    return func(prepared_request)
+
+                outcome = self.executor.execute(operation, now=now)
+
+                if outcome.decision.is_probe:
+                    self.metrics.record_probe()
+
+                if not outcome.executed:
+                    self.metrics.record_blocked()
+                elif outcome.succeeded:
+                    self.metrics.record_success()
+                else:
+                    self.metrics.record_failure()
+
+                if outcome.succeeded:
+                    result = outcome.result
+                    validated_output = validate_output(
+                        result,
+                        output_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
+
+                    if is_dataclass(validated_output):
+                        validated_output = asdict(validated_output)
+                    
+                    self.event_logger.emit(LogEvent(
+                        event="protect_call_succeeded",
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    ))
+
+                    return self._success_response(
+                        validated_output,
+                        context_dict,
+                        simple=simple,
+                    )
+
+                self.event_logger.emit(LogEvent(
+                    event="protect_call_failed",
+                    handler=func.__name__,
+                    request_id=context_dict.get("request_id"),
+                    trace_id=context_dict.get("trace_id"),
+                    error_code=outcome.error_code,
+                    message=outcome.error_message,
+                ))
+
+                return self._error_response(
+                    error_code=outcome.error_code,
+                    error_message=outcome.error_message,
+                    error_details=outcome.error_details,
+                    context_dict=context_dict,
+                    simple=simple,
+                )
+
+            return sync_wrapper  # type: ignore[return-value]
+
+        return decorator
+
+
+_default_protector: Protector | None = None
+
+
+def _get_default_protector() -> Protector:
+    global _default_protector
+    if _default_protector is None:
+        _default_protector = Protector()
+    return _default_protector
+
+
+def create_protector(**kwargs: Any) -> Protector:
+    return Protector(**kwargs)
+
+
+def protect(
+    *,
+    input_model: type[BaseModel] | None = None,
+    output_model: type[BaseModel] | None = None,
+    simple: bool = True,
+) -> Callable[[F], F]:
+    return _get_default_protector().protect(
+        input_model=input_model,
+        output_model=output_model,
+        simple=simple,
+    )
+</file>
+
+<file path="src/logicfp/router.py">
+from dataclasses import asdict, is_dataclass
+from fastapi import APIRouter, Response
+
+from .domain.models import HandlerRequest, RequestContext
+from .infra.metrics import render_prometheus_metrics
+from .schemas import ExecuteHandlerRequest, ForceFailRequest
+
+
+def build_router(runtime: object) -> APIRouter:
+    router = APIRouter()
+    fsm = runtime.fsm
+    metrics = runtime.metrics
+    @router.get("/")
+    def root():
+        return {"service": "logic-fingerprint", "state": fsm.state.value, "docs": "/docs"}
+    @router.get("/favicon.ico")
+    def favicon():
+        return Response(status_code=204)
+    @router.get("/healthz")
+    def healthz():
+        return {"ok": True, "state": fsm.state.value}
+    @router.get("/handlers")
+    def handlers():
+        return {"handlers": runtime.handler_registry.names()}
+    @router.get("/metrics")
+    def metrics_view():
+        return metrics.snapshot()
+    @router.get("/metrics.prom")
+    def metrics_prom():
+        return Response(content=render_prometheus_metrics(metrics, fsm), media_type="text/plain; version=0.0.4")
+    @router.post("/force_fail")
+    def force_fail(payload: ForceFailRequest):
+        fsm.record_hard_fail(payload.reason)
+        return {"state": fsm.state.value, "reason": payload.reason}
+    @router.post("/move_half_open")
+    def move_half_open():
+        fsm.move_to_half_open()
+        return {"state": fsm.state.value}
+    @router.post("/execute_handler")
+    async def execute_handler(payload: ExecuteHandlerRequest):
+        request = HandlerRequest(
+            payload=payload.payload,
+            context=RequestContext(
+                request_id=payload.context.request_id,
+                trace_id=payload.context.trace_id,
+                user_id=payload.context.user_id,
+                source=payload.context.source,
+                timestamp=payload.context.timestamp,
+                headers=payload.context.headers,
+                metadata=payload.context.metadata,
+            ),
+        )
+        outcome = await runtime.middleware.execute_handler_async(payload.handler, request=request, now=payload.now)
+        if outcome.succeeded:
+            result = outcome.result
+            if is_dataclass(result):
+                result = asdict(result)
+            return {"ok": True, "result": result}
+        return {"ok": False, "error": {"code": outcome.error_code, "message": outcome.error_message, "details": outcome.error_details or {}}}
+    return router
+</file>
+
+<file path="src/logicfp/runtime.py">
+from __future__ import annotations
+
+from collections.abc import Callable
+from dataclasses import dataclass
+from pathlib import Path
+
+from .application.context_builder import ContextBuilder
+from .application.metrics import InMemoryMetrics
+from .config import RuntimeConfig, RuntimeSettings, build_runtime_config, build_runtime_settings
+from .domain.executor import LogicFingerprintExecutor
+from .domain.fsm import LogicFingerprintFSM
+from .handler_registry import HandlerRegistry
+from .handlers import (
+    compose_handler_registrars,
+    load_handler_registrars,
+    register_builtin_handlers,
+)
+from .infra.consensus import HeartbeatService, build_consensus_backend
+from .middleware import LogicFingerprintMiddleware
+
+@dataclass(slots=True)
+class LogicFingerprintRuntime:
+    config: RuntimeConfig
+    settings: RuntimeSettings
+    backend: object
+    fsm: object
+    executor: object
+    metrics: object
+    handler_registry: object
+    middleware: object
+    heartbeat: object
+    context_builder: object
+
+    @property
+    def instance_id(self) -> str:
+        return self.settings.instance_id
+
+    @property
+    def default_source(self) -> str:
+        return self.settings.default_source
+
+def assemble_runtime(
+    *,
+    config: RuntimeConfig,
+    settings: RuntimeSettings,
+    backend: object,
+    handler_registry: HandlerRegistry | None = None,
+    metrics: InMemoryMetrics | None = None,
+    context_builder: ContextBuilder | None = None,
+    register_handlers: Callable[[HandlerRegistry], None] | None = None,
+) -> LogicFingerprintRuntime:
+    fsm = LogicFingerprintFSM(
+        instance_id=settings.instance_id,
+        config=config,
+        backend=backend,
+    )
+    executor = LogicFingerprintExecutor(fsm)
+    metrics = metrics or InMemoryMetrics()
+    handler_registry = handler_registry or HandlerRegistry()
+    heartbeat = HeartbeatService(backend=backend, instance_id=settings.instance_id)
+    context_builder = context_builder or ContextBuilder(
+        default_source=settings.default_source,
+    )
+    middleware = LogicFingerprintMiddleware(
+        executor=executor,
+        handler_registry=handler_registry,
+        metrics=metrics,
+        context_builder=context_builder,
+    )
+    if register_handlers is not None:
+        register_handlers(handler_registry)
+
+    return LogicFingerprintRuntime(
+        config=config,
+        settings=settings,
+        backend=backend,
+        fsm=fsm,
+        executor=executor,
+        metrics=metrics,
+        handler_registry=handler_registry,
+        middleware=middleware,
+        heartbeat=heartbeat,
+        context_builder=context_builder,
+    )
+
+
+def build_demo_runtime(
+    *,
+    config: RuntimeConfig | None = None,
+    settings: RuntimeSettings | None = None,
+    backend: object | None = None,
+    redis_client: object | None = None,
+    instance_id: str | None = None,
+    default_source: str | None = None,
+    backend_type: str | None = None,
+    handler_registrars: tuple[str, ...] | None = None,
+    redis_url: str | None = None,
+    redis_decode_responses: bool | None = None,
+    redis_key: str | None = None,
+    redis_key_prefix: str | None = None,
+    redis_ttl_seconds: int | None = None,
+    config_file: str | Path | None = None,
+    register_handlers: Callable[[HandlerRegistry], None] | None = None,
+) -> LogicFingerprintRuntime:
+    config = config or build_runtime_config(config_file=config_file)
+    settings = settings or build_runtime_settings(
+        instance_id=instance_id,
+        default_source=default_source,
+        backend_type=backend_type,
+        handler_registrars=handler_registrars,
+        redis_url=redis_url,
+        redis_decode_responses=redis_decode_responses,
+        redis_key=redis_key,
+        redis_key_prefix=redis_key_prefix,
+        redis_ttl_seconds=redis_ttl_seconds,
+        config_file=config_file,
+    )
+    backend = backend or build_consensus_backend(
+        settings=settings,
+        redis_client=redis_client,
+    )
+    return assemble_runtime(
+        config=config,
+        settings=settings,
+        backend=backend,
+        register_handlers=compose_handler_registrars(
+            lambda handler_registry: register_builtin_handlers(
+                handler_registry,
+                include_demo=True,
+            ),
+            load_handler_registrars(settings.handler_registrars),
+            register_handlers,
+        ),
+    )
+
+
+def build_production_runtime(
+    *,
+    config: RuntimeConfig | None = None,
+    settings: RuntimeSettings | None = None,
+    backend: object | None = None,
+    redis_client: object | None = None,
+    instance_id: str | None = None,
+    default_source: str | None = None,
+    backend_type: str | None = None,
+    handler_registrars: tuple[str, ...] | None = None,
+    redis_url: str | None = None,
+    redis_decode_responses: bool | None = None,
+    redis_key: str | None = None,
+    redis_key_prefix: str | None = None,
+    redis_ttl_seconds: int | None = None,
+    config_file: str | Path | None = None,
+    register_handlers: Callable[[HandlerRegistry], None] | None = None,
+) -> LogicFingerprintRuntime:
+    config = config or build_runtime_config(config_file=config_file)
+    settings = settings or build_runtime_settings(
+        instance_id=instance_id,
+        default_source=default_source,
+        backend_type=backend_type,
+        handler_registrars=handler_registrars,
+        redis_url=redis_url,
+        redis_decode_responses=redis_decode_responses,
+        redis_key=redis_key,
+        redis_key_prefix=redis_key_prefix,
+        redis_ttl_seconds=redis_ttl_seconds,
+        config_file=config_file,
+    )
+    backend = backend or build_consensus_backend(
+        settings=settings,
+        redis_client=redis_client,
+    )
+    return assemble_runtime(
+        config=config,
+        settings=settings,
+        backend=backend,
+        register_handlers=compose_handler_registrars(
+            register_builtin_handlers,
+            load_handler_registrars(settings.handler_registrars),
+            register_handlers,
+        ),
+    )
+
+
+def build_runtime(**kwargs: object) -> LogicFingerprintRuntime:
+    return build_demo_runtime(**kwargs)
+</file>
+
+<file path="src/logicfp/schemas.py">
+from pydantic import BaseModel, Field
+class ForceFailRequest(BaseModel):
+    reason: str = "MANUAL_FAIL"
+class ExecuteHandlerContextModel(BaseModel):
+    request_id: str | None = None
+    trace_id: str | None = None
+    user_id: str | None = None
+    source: str | None = None
+    timestamp: str | None = None
+    headers: dict = Field(default_factory=dict)
+    metadata: dict = Field(default_factory=dict)
+class ExecuteHandlerRequest(BaseModel):
+    handler: str
+    payload: dict = Field(default_factory=dict)
+    context: ExecuteHandlerContextModel = Field(default_factory=ExecuteHandlerContextModel)
+    now: float | None = None
+</file>
+
+<file path="src/logicfp/service.py">
+from dataclasses import dataclass
+
+from .domain.executor import LogicFingerprintExecutor
+from .domain.fsm import LogicFingerprintFSM
+
+
+@dataclass(slots=True)
+class LogicFingerprintService:
+    fsm: LogicFingerprintFSM
+
+    def build_executor(self) -> LogicFingerprintExecutor:
+        return LogicFingerprintExecutor(self.fsm)
+</file>
+
+<file path=".gitignore">
+# 忽略所有 .env 文件 (通常包含环境变量和密钥)
+.env
+.env.local
+.env.production
+config/config.yaml
+
+# 忽略所有 pem 或 key 后缀的证书文件
+*.pem
+*.key
+
+# 忽略压缩文件
+*.zip
+*.rar
+*.tar.gz
+*.7z
+
+# 忽略 IDE 或系统产生的临时文件
+.DS_Store
+*.log
+
+analysis/
+design/
+.vscode/
+/.pytest_cache/
+**/.pytest_cache/
+__pycache__/
+**/__pycache__/
+*.sqlite
+*.egg-info
+*.egg-info/
+build/
+dist/
+pip-wheel-metadata/
+.pytest_tmp*/
+/.pytest_tmp*/
+
+/.dist/
+**/.dist/
+
+# 忽略所有 .pyc 文件 (Python 编译文件)
+*.pyc
+</file>
+
+<file path="config/config.yaml.example">
+server:
+  host: 0.0.0.0
+  port: 8000
+
+app:
+  demo: false
+
+logic_fingerprint:
+  instance_id: api-node-a
+  default_source: api
+  backend_type: memory
+  probe_rate: 0.2
+  probe_interval_seconds: 5
+  consecutive_success_threshold: 3
+  total_nodes: 1
+  global_fail_threshold: 1.0
+  handler_registrars:
+    - your_real_package.handlers.register
+  # redis_url: redis://127.0.0.1:6379/0
+  # redis_decode_responses: true
+  # redis_key: logic_fingerprint:failed_nodes
+  # redis_key_prefix: logic_fingerprint:failed_node
+  # redis_ttl_seconds: 30
+</file>
+
+<file path="demo_protect.py">
+from logic_fingerprint import protect
+
+
+@protect()
+def hello(request):
+    return {"msg": "hello world"}
+
+
+if __name__ == "__main__":
+    print(hello({}))
+</file>
+
 <file path="MANIFEST.in">
 prune analysis
 prune demo
 prune documents
 prune examples
-prune src/logic_fingerprint.egg-info
+prune src/logicfp.egg-info
 prune static
 prune tests
 
@@ -1166,7 +3793,8 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "logicfp"
 dynamic = ["version"]
-description = "Logic Fingerprint protection runtime and HTTP service"
+description = "logicfp protection runtime and HTTP service"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "fastapi==0.135.2",
@@ -1175,7 +3803,7 @@ dependencies = [
 ]
 
 [project.scripts]
-logicfingerprint = "logic_fingerprint.cli:main"
+logicfp = "logicfp.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -1183,10 +3811,10 @@ include-package-data = false
 
 [tool.setuptools.packages.find]
 where = ["src"]
-include = ["logic_fingerprint*"]
+include = ["logicfp*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "logic_fingerprint._version.__version__"}
+version = {attr = "logicfp._version.__version__"}
 </file>
 
 <file path="requirements.txt">
@@ -1594,2610 +4222,6 @@ uvicorn==0.42.0 \
     --hash=sha256:96c30f5c7abe6f74ae8900a70e92b85ad6613b745d4879eb9b16ccad15645359 \
     --hash=sha256:9b1f190ce15a2dd22e7758651d9b6d12df09a13d51ba5bf4fc33c383a48e1775
     # via logic-fingerprint
-</file>
-
-<file path="src/logic_fingerprint/__init__.py">
-from __future__ import annotations
-
-from typing import Any
-
-from ._version import __version__
-
-__all__ = [
-    "protect",
-    "create_protector",
-]
-
-_ENGINEERING_EXPORTS = {
-    "assemble_runtime",
-    "build_demo_runtime",
-    "build_production_runtime",
-    "build_runtime",
-    "create_app",
-    "create_demo_app",
-}
-
-
-def protect(*args: Any, **kwargs: Any):
-    from .protect import protect as _protect
-
-    return _protect(*args, **kwargs)
-
-
-def create_protector(*args: Any, **kwargs: Any):
-    from .protect import create_protector as _create_protector
-
-    return _create_protector(*args, **kwargs)
-
-
-def __getattr__(name: str):
-    if name in _ENGINEERING_EXPORTS:
-        raise AttributeError(
-            f"'logic_fingerprint.{name}' is not exported from the package root. "
-            "Import it from 'logic_fingerprint.engineering' instead."
-        )
-    raise AttributeError(f"module 'logic_fingerprint' has no attribute '{name}'")
-</file>
-
-<file path="src/logic_fingerprint/_version.py">
-from __future__ import annotations
-
-__version__ = "1.1.0"
-</file>
-
-<file path="src/logic_fingerprint/app_factory.py">
-from __future__ import annotations
-
-from pathlib import Path
-from typing import Any
-
-from fastapi import FastAPI
-from fastapi.openapi.docs import (
-    get_swagger_ui_html,
-    get_swagger_ui_oauth2_redirect_html,
-)
-from fastapi.staticfiles import StaticFiles
-
-from ._version import __version__
-from .router import build_router
-from .lifespan import build_lifespan
-from .runtime import (
-    LogicFingerprintRuntime,
-    build_demo_runtime,
-    build_production_runtime,
-)
-
-
-DOCS_STATIC_DIR = Path(__file__).resolve().parents[2] / "static" / "dist"
-
-
-def _create_app_from_runtime(runtime: LogicFingerprintRuntime) -> FastAPI:
-    app = FastAPI(
-        title="Logic Fingerprint System",
-        version=__version__,
-        lifespan=build_lifespan(runtime, interval_seconds=1.0),
-        docs_url=None,
-        redoc_url=None,
-    )
-    app.state.runtime = runtime
-    app.state.runtime_config = runtime.config
-    app.state.runtime_settings = runtime.settings
-    if DOCS_STATIC_DIR.exists():
-        app.mount(
-            "/static-docs",
-            StaticFiles(directory=DOCS_STATIC_DIR),
-            name="static-docs",
-        )
-
-    @app.get("/docs", include_in_schema=False)
-    def swagger_ui_html():
-        return get_swagger_ui_html(
-            openapi_url=app.openapi_url,
-            title=f"{app.title} - Swagger UI",
-            oauth2_redirect_url=app.swagger_ui_oauth2_redirect_url,
-            swagger_js_url="/static-docs/swagger-ui-bundle.js",
-            swagger_css_url="/static-docs/swagger-ui.css",
-            swagger_favicon_url="/static-docs/favicon-32x32.png",
-            swagger_ui_parameters={
-                "presets": [
-                    "SwaggerUIBundle.presets.apis",
-                    "SwaggerUIStandalonePreset",
-                ],
-            },
-        )
-
-    @app.get(app.swagger_ui_oauth2_redirect_url, include_in_schema=False)
-    def swagger_ui_redirect():
-        return get_swagger_ui_oauth2_redirect_html()
-
-    app.include_router(build_router(runtime))
-    return app
-
-
-def create_app(
-    *,
-    runtime: LogicFingerprintRuntime | None = None,
-    runtime_kwargs: dict[str, Any] | None = None,
-) -> FastAPI:
-    runtime = runtime or build_production_runtime(**(runtime_kwargs or {}))
-    return _create_app_from_runtime(runtime)
-
-
-def create_demo_app(
-    *,
-    runtime: LogicFingerprintRuntime | None = None,
-    runtime_kwargs: dict[str, Any] | None = None,
-) -> FastAPI:
-    runtime = runtime or build_demo_runtime(**(runtime_kwargs or {}))
-    return _create_app_from_runtime(runtime)
-
-
-app = create_app()
-</file>
-
-<file path="src/logic_fingerprint/application/__init__.py">
-from .context_builder import ContextBuilder
-from .metrics import InMemoryMetrics
-from .validator import validate_input, validate_output
-</file>
-
-<file path="src/logic_fingerprint/application/context_builder.py">
-from datetime import datetime, timezone
-from uuid import uuid4
-from ..domain.models import HandlerRequest, RequestContext
-
-class ContextBuilder:
-    def __init__(self, default_source: str = "api") -> None:
-        self.default_source = default_source
-    def build_context(self, context: RequestContext | None = None) -> RequestContext:
-        context = context or RequestContext()
-        return RequestContext(
-            request_id=context.request_id or f"req-{uuid4().hex}",
-            trace_id=context.trace_id or f"trace-{uuid4().hex}",
-            user_id=context.user_id,
-            source=context.source or self.default_source,
-            timestamp=context.timestamp or datetime.now(timezone.utc).isoformat(),
-            headers=dict(context.headers),
-            metadata=dict(context.metadata),
-        )
-    def build_request(self, request: HandlerRequest | None = None) -> HandlerRequest:
-        request = request or HandlerRequest()
-        return HandlerRequest(payload=dict(request.payload), context=self.build_context(request.context))
-</file>
-
-<file path="src/logic_fingerprint/application/metrics.py">
-from dataclasses import dataclass, asdict
-
-@dataclass(slots=True)
-class InMemoryMetrics:
-    total_requests: int = 0
-    blocked_requests: int = 0
-    probe_requests: int = 0
-    success_requests: int = 0
-    failed_requests: int = 0
-    def record_total(self): self.total_requests += 1
-    def record_blocked(self): self.blocked_requests += 1
-    def record_probe(self): self.probe_requests += 1
-    def record_success(self): self.success_requests += 1
-    def record_failure(self): self.failed_requests += 1
-    def snapshot(self): return asdict(self)
-</file>
-
-<file path="src/logic_fingerprint/application/validator.py">
-from dataclasses import asdict, is_dataclass
-from typing import Any
-
-from pydantic import BaseModel, ValidationError
-
-from ..domain.errors import OutputValidationErrorLF, ValidationErrorLF
-from ..infra.logging.event_logger import LogEvent
-
-
-def validate_input(
-    payload: dict[str, Any],
-    model: type[BaseModel] | None,
-    *,
-    event_logger=None,
-    handler: str | None = None,
-    request_id: str | None = None,
-    trace_id: str | None = None,
-) -> dict[str, Any]:
-    if model is None:
-        return payload
-
-    try:
-        parsed = model.model_validate(payload)
-        return parsed.model_dump()
-    except ValidationError as exc:
-        if event_logger is not None:
-            event_logger.emit(LogEvent(
-                event="input_validation_failed",
-                handler=handler,
-                request_id=request_id,
-                trace_id=trace_id,
-                error_code="ERR_VALIDATION",
-                message="Input validation failed.",
-                extra={"errors": exc.errors()},
-            ))
-        raise ValidationErrorLF(
-            "Input validation failed.",
-            details={"errors": exc.errors()},
-        ) from exc
-
-
-def validate_output(
-    result: Any,
-    model: type[BaseModel] | None,
-    *,
-    event_logger=None,
-    handler: str | None = None,
-    request_id: str | None = None,
-    trace_id: str | None = None,
-) -> Any:
-    if model is None:
-        return result
-
-    raw = result
-    if is_dataclass(result):
-        raw = asdict(result)
-
-    try:
-        parsed = model.model_validate(raw)
-        return parsed.model_dump()
-    except ValidationError as exc:
-        if event_logger is not None:
-            event_logger.emit(LogEvent(
-                event="output_validation_failed",
-                handler=handler,
-                request_id=request_id,
-                trace_id=trace_id,
-                error_code="ERR_OUTPUT_VALIDATION",
-                message="Output validation failed.",
-                extra={"errors": exc.errors()},
-            ))
-        raise OutputValidationErrorLF(
-            "Output validation failed.",
-            details={"errors": exc.errors()},
-        ) from exc
-</file>
-
-<file path="src/logic_fingerprint/cli.py">
-from __future__ import annotations
-
-import argparse
-import os
-from dataclasses import dataclass, field
-from pathlib import Path
-from typing import Any, Sequence
-
-import uvicorn
-
-from .config import DEFAULT_CONFIG_FILE_NAME
-from .config.yaml_support import load_simple_yaml_file, parse_simple_yaml
-from .engineering import create_app, create_demo_app
-
-
-CLI_CONFIG_FILENAMES = (DEFAULT_CONFIG_FILE_NAME,)
-
-RUNTIME_KWARG_KEYS = (
-    "instance_id",
-    "default_source",
-    "backend_type",
-    "handler_registrars",
-    "redis_url",
-    "redis_decode_responses",
-    "redis_key",
-    "redis_key_prefix",
-    "redis_ttl_seconds",
-    "probe_rate",
-    "probe_interval_seconds",
-    "consecutive_success_threshold",
-    "total_nodes",
-    "global_fail_threshold",
-)
-
-
-@dataclass(slots=True)
-class StartConfig:
-    host: str = "0.0.0.0"
-    port: int = 8000
-    demo: bool = False
-    config_path: Path | None = None
-    runtime_kwargs: dict[str, Any] = field(default_factory=dict)
-
-def _iter_project_config_candidates(start_dir: Path) -> list[Path]:
-    candidates: list[Path] = []
-    for directory in (start_dir, *start_dir.parents):
-        for filename in CLI_CONFIG_FILENAMES:
-            candidates.append(directory / "config" / filename)
-        for filename in CLI_CONFIG_FILENAMES:
-            candidates.append(directory / filename)
-    return candidates
-
-
-def _iter_system_config_dirs() -> list[Path]:
-    system_dirs = [
-        Path("/etc/logic_fingerprint"),
-        Path("/etc/logicfingerprint"),
-    ]
-
-    for env_name in ("PROGRAMDATA", "APPDATA", "LOCALAPPDATA"):
-        value = os.getenv(env_name)
-        if not value:
-            continue
-        base_dir = Path(value)
-        system_dirs.append(base_dir / "logic_fingerprint")
-        system_dirs.append(base_dir / "logicfingerprint")
-
-    return system_dirs
-
-
-def discover_cli_config_path(
-    explicit_path: str | Path | None = None,
-    *,
-    start_dir: str | Path | None = None,
-    system_dirs: Sequence[Path] | None = None,
-) -> Path | None:
-    if explicit_path is not None:
-        resolved = Path(explicit_path).expanduser()
-        if not resolved.is_absolute():
-            resolved = (Path.cwd() / resolved).resolve()
-        if not resolved.is_file():
-            raise FileNotFoundError(f"CLI config file not found: {resolved}")
-        return resolved
-
-    current_dir = Path(start_dir or Path.cwd()).resolve()
-    for candidate in _iter_project_config_candidates(current_dir):
-        if candidate.is_file():
-            return candidate.resolve()
-
-    for system_dir in system_dirs or _iter_system_config_dirs():
-        if not system_dir.is_dir():
-            continue
-        for filename in CLI_CONFIG_FILENAMES:
-            candidate = system_dir / filename
-            if candidate.is_file():
-                return candidate.resolve()
-
-    return None
-
-
-def load_cli_config(path: Path | None) -> dict[str, Any]:
-    return load_simple_yaml_file(path)
-
-
-def _read_mapping(data: dict[str, Any], key: str) -> dict[str, Any]:
-    value = data.get(key, {})
-    if not isinstance(value, dict):
-        raise ValueError(f"Expected '{key}' to be a mapping in CLI config.")
-    return value
-
-
-def _normalize_runtime_kwargs(data: dict[str, Any]) -> dict[str, Any]:
-    runtime_kwargs: dict[str, Any] = {}
-    logic_fingerprint = _read_mapping(data, "logic_fingerprint")
-
-    for key in RUNTIME_KWARG_KEYS:
-        value = logic_fingerprint.get(key)
-        if value is None and key in data:
-            value = data[key]
-        if value is None:
-            continue
-        if key == "handler_registrars":
-            if isinstance(value, list):
-                value = tuple(str(item) for item in value)
-            elif isinstance(value, str):
-                value = tuple(item.strip() for item in value.split(",") if item.strip())
-        runtime_kwargs[key] = value
-
-    return runtime_kwargs
-
-
-def load_start_config(
-    *,
-    config_path: Path | None,
-    port_override: int | None = None,
-    host_override: str | None = None,
-    demo_override: bool = False,
-) -> StartConfig:
-    data = load_cli_config(config_path)
-    server = _read_mapping(data, "server")
-    app = _read_mapping(data, "app")
-
-    host = host_override or str(server.get("host", "0.0.0.0"))
-    port = port_override if port_override is not None else int(server.get("port", 8000))
-    demo = demo_override or bool(app.get("demo", data.get("demo", False)))
-
-    return StartConfig(
-        host=host,
-        port=port,
-        demo=demo,
-        config_path=config_path,
-        runtime_kwargs={
-            **({"config_file": str(config_path)} if config_path is not None else {}),
-            **_normalize_runtime_kwargs(data),
-        },
-    )
-
-
-def _build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="logicfingerprint")
-    subparsers = parser.add_subparsers(dest="command", required=True)
-
-    start_parser = subparsers.add_parser("start", help="Start the HTTP service.")
-    start_parser.add_argument("--host", help="Bind host. Defaults to config or 0.0.0.0.")
-    start_parser.add_argument(
-        "--port",
-        type=int,
-        help="Bind port. Defaults to config or 8000.",
-    )
-    start_parser.add_argument(
-        "--config",
-        help="Path to CLI YAML config. Explicit path has the highest priority.",
-    )
-    start_parser.add_argument(
-        "--demo",
-        action="store_true",
-        help="Start in demo mode.",
-    )
-    return parser
-
-
-def start_command(args: argparse.Namespace) -> int:
-    config_path = discover_cli_config_path(args.config)
-    start_config = load_start_config(
-        config_path=config_path,
-        port_override=args.port,
-        host_override=args.host,
-        demo_override=args.demo,
-    )
-
-    if start_config.config_path is not None:
-        print(f"Using CLI config: {start_config.config_path}")
-
-    mode = "demo" if start_config.demo else "production"
-    print(
-        f"Starting Logic Fingerprint HTTP service on "
-        f"{start_config.host}:{start_config.port} ({mode})"
-    )
-
-    app = (
-        create_demo_app(runtime_kwargs=start_config.runtime_kwargs)
-        if start_config.demo
-        else create_app(runtime_kwargs=start_config.runtime_kwargs)
-    )
-    uvicorn.run(app, host=start_config.host, port=start_config.port)
-    return 0
-
-
-def main(argv: Sequence[str] | None = None) -> int:
-    parser = _build_parser()
-    args = parser.parse_args(argv)
-
-    if args.command == "start":
-        return start_command(args)
-
-    parser.error(f"Unsupported command: {args.command}")
-    return 2
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
-</file>
-
-<file path="src/logic_fingerprint/config/__init__.py">
-from .loader import (
-    API_PROFILE,
-    DECORATOR_PROFILE,
-    DEFAULT_CONFIG_DIR_NAME,
-    DEFAULT_CONFIG_FILE_NAME,
-    build_runtime_config,
-    build_runtime_settings,
-    discover_config_file,
-    load_config_file_values,
-    load_runtime_config_from_env,
-    load_runtime_settings_from_env,
-)
-from .policy_config import PolicyConfig
-from .runtime_config import RuntimeConfig
-from .runtime_settings import RuntimeSettings
-from .strategy_config import StrategyConfig
-
-__all__ = [
-    "API_PROFILE",
-    "DECORATOR_PROFILE",
-    "DEFAULT_CONFIG_DIR_NAME",
-    "DEFAULT_CONFIG_FILE_NAME",
-    "build_runtime_config",
-    "build_runtime_settings",
-    "discover_config_file",
-    "load_config_file_values",
-    "load_runtime_config_from_env",
-    "load_runtime_settings_from_env",
-    "RuntimeConfig",
-    "RuntimeSettings",
-    "StrategyConfig",
-    "PolicyConfig",
-]
-</file>
-
-<file path="src/logic_fingerprint/config/loader.py">
-from __future__ import annotations
-
-import os
-from dataclasses import replace
-from pathlib import Path
-from typing import Any, Mapping
-
-from .runtime_config import RuntimeConfig
-from .runtime_settings import RuntimeSettings
-from .yaml_support import load_simple_yaml_file
-
-
-DEFAULT_ENV_PREFIX = "LOGIC_FINGERPRINT_"
-DEFAULT_CONFIG_DIR_NAME = "config"
-DEFAULT_CONFIG_FILE_NAME = "config.yaml"
-API_PROFILE = "api"
-DECORATOR_PROFILE = "decorator"
-
-
-def _resolve_value(
-    env_name: str,
-    config_key: str,
-    default: Any,
-    *,
-    file_values: Mapping[str, Any],
-) -> Any:
-    value = os.getenv(env_name)
-    if value is None:
-        return file_values.get(config_key, default)
-    return value
-
-
-def _read_float(
-    env_name: str,
-    config_key: str,
-    default: float,
-    *,
-    file_values: Mapping[str, Any],
-) -> float:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    return float(value)
-
-
-def _read_int(
-    env_name: str,
-    config_key: str,
-    default: int,
-    *,
-    file_values: Mapping[str, Any],
-) -> int:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    return int(value)
-
-
-def _read_str(
-    env_name: str,
-    config_key: str,
-    default: str,
-    *,
-    file_values: Mapping[str, Any],
-) -> str:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    if value is None:
-        return default
-    return str(value)
-
-
-def _read_optional_str(
-    env_name: str,
-    config_key: str,
-    default: str | None,
-    *,
-    file_values: Mapping[str, Any],
-) -> str | None:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    if value is None:
-        return default
-    if value == "":
-        return None
-    return str(value)
-
-
-def _read_bool(
-    env_name: str,
-    config_key: str,
-    default: bool,
-    *,
-    file_values: Mapping[str, Any],
-) -> bool:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    if isinstance(value, bool):
-        return value
-    return str(value).strip().lower() in {"1", "true", "yes", "on"}
-
-
-def _read_tuple(
-    env_name: str,
-    config_key: str,
-    default: tuple[str, ...],
-    *,
-    file_values: Mapping[str, Any],
-) -> tuple[str, ...]:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    if value is None:
-        return default
-    if isinstance(value, (list, tuple)):
-        return tuple(str(item) for item in value if str(item).strip())
-    return tuple(item.strip() for item in value.split(",") if item.strip())
-
-
-def _normalize_config_path(path: str | Path) -> Path:
-    normalized = Path(path).expanduser()
-    if normalized.is_absolute():
-        return normalized
-    return (Path.cwd() / normalized).resolve()
-
-
-def _extract_logic_fingerprint_values(data: dict[str, Any]) -> dict[str, Any]:
-    for section_name in ("logic_fingerprint", "logicfingerprint"):
-        section = data.get(section_name)
-        if section is None:
-            continue
-        if not isinstance(section, dict):
-            raise ValueError(f"Expected '{section_name}' to be a mapping in config file.")
-        return section
-    return data
-
-
-def discover_config_file(
-    *,
-    config_file: str | Path | None = None,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    start_dir: str | Path | None = None,
-) -> Path | None:
-    if config_file is not None:
-        explicit_path = _normalize_config_path(config_file)
-        if not explicit_path.is_file():
-            raise FileNotFoundError(f"Logic Fingerprint config file not found: {explicit_path}")
-        return explicit_path
-
-    env_override = os.getenv(f"{prefix}CONFIG_FILE")
-    if env_override is not None:
-        env_override = env_override.strip()
-        if not env_override:
-            return None
-        explicit_path = _normalize_config_path(env_override)
-        if not explicit_path.is_file():
-            raise FileNotFoundError(f"Logic Fingerprint config file not found: {explicit_path}")
-        return explicit_path
-
-    current_dir = Path(start_dir or Path.cwd()).resolve()
-    for directory in (current_dir, *current_dir.parents):
-        for candidate in (
-            directory / DEFAULT_CONFIG_DIR_NAME / DEFAULT_CONFIG_FILE_NAME,
-            directory / DEFAULT_CONFIG_FILE_NAME,
-        ):
-            if candidate.is_file():
-                return candidate
-    return None
-
-
-def load_config_file_values(
-    *,
-    config_file: str | Path | None = None,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    start_dir: str | Path | None = None,
-) -> dict[str, Any]:
-    path = discover_config_file(
-        config_file=config_file,
-        prefix=prefix,
-        start_dir=start_dir,
-    )
-    if path is None:
-        return {}
-    return _extract_logic_fingerprint_values(load_simple_yaml_file(path))
-
-
-def _default_runtime_settings(profile: str) -> RuntimeSettings:
-    if profile == DECORATOR_PROFILE:
-        return RuntimeSettings(instance_id="decorator-node", default_source="decorator")
-    return RuntimeSettings()
-
-
-def load_runtime_config_from_env(
-    *,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    config_file: str | Path | None = None,
-    start_dir: str | Path | None = None,
-) -> RuntimeConfig:
-    defaults = RuntimeConfig()
-    file_values = load_config_file_values(
-        config_file=config_file,
-        prefix=prefix,
-        start_dir=start_dir,
-    )
-    return RuntimeConfig(
-        probe_rate=_read_float(
-            f"{prefix}PROBE_RATE",
-            "probe_rate",
-            defaults.probe_rate,
-            file_values=file_values,
-        ),
-        probe_interval_seconds=_read_float(
-            f"{prefix}PROBE_INTERVAL_SECONDS",
-            "probe_interval_seconds",
-            defaults.probe_interval_seconds,
-            file_values=file_values,
-        ),
-        consecutive_success_threshold=_read_int(
-            f"{prefix}CONSECUTIVE_SUCCESS_THRESHOLD",
-            "consecutive_success_threshold",
-            defaults.consecutive_success_threshold,
-            file_values=file_values,
-        ),
-        total_nodes=_read_int(
-            f"{prefix}TOTAL_NODES",
-            "total_nodes",
-            defaults.total_nodes,
-            file_values=file_values,
-        ),
-        global_fail_threshold=_read_float(
-            f"{prefix}GLOBAL_FAIL_THRESHOLD",
-            "global_fail_threshold",
-            defaults.global_fail_threshold,
-            file_values=file_values,
-        ),
-    )
-
-
-def build_runtime_config(
-    *,
-    probe_rate: float | None = None,
-    probe_interval_seconds: float | None = None,
-    consecutive_success_threshold: int | None = None,
-    total_nodes: int | None = None,
-    global_fail_threshold: float | None = None,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    config_file: str | Path | None = None,
-    start_dir: str | Path | None = None,
-) -> RuntimeConfig:
-    config = load_runtime_config_from_env(
-        prefix=prefix,
-        config_file=config_file,
-        start_dir=start_dir,
-    )
-    overrides: dict[str, float | int] = {}
-
-    if probe_rate is not None:
-        overrides["probe_rate"] = probe_rate
-    if probe_interval_seconds is not None:
-        overrides["probe_interval_seconds"] = probe_interval_seconds
-    if consecutive_success_threshold is not None:
-        overrides["consecutive_success_threshold"] = consecutive_success_threshold
-    if total_nodes is not None:
-        overrides["total_nodes"] = total_nodes
-    if global_fail_threshold is not None:
-        overrides["global_fail_threshold"] = global_fail_threshold
-
-    if not overrides:
-        return config
-    return replace(config, **overrides)
-
-
-def load_runtime_settings_from_env(
-    *,
-    profile: str = API_PROFILE,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    config_file: str | Path | None = None,
-    start_dir: str | Path | None = None,
-) -> RuntimeSettings:
-    defaults = _default_runtime_settings(profile)
-    file_values = load_config_file_values(
-        config_file=config_file,
-        prefix=prefix,
-        start_dir=start_dir,
-    )
-    return RuntimeSettings(
-        instance_id=_read_str(
-            f"{prefix}INSTANCE_ID",
-            "instance_id",
-            defaults.instance_id,
-            file_values=file_values,
-        ),
-        default_source=_read_str(
-            f"{prefix}DEFAULT_SOURCE",
-            "default_source",
-            defaults.default_source,
-            file_values=file_values,
-        ),
-        backend_type=_read_str(
-            f"{prefix}BACKEND_TYPE",
-            "backend_type",
-            defaults.backend_type,
-            file_values=file_values,
-        ),
-        handler_registrars=_read_tuple(
-            f"{prefix}HANDLER_REGISTRARS",
-            "handler_registrars",
-            defaults.handler_registrars,
-            file_values=file_values,
-        ),
-        redis_url=_read_optional_str(
-            f"{prefix}REDIS_URL",
-            "redis_url",
-            defaults.redis_url,
-            file_values=file_values,
-        ),
-        redis_decode_responses=_read_bool(
-            f"{prefix}REDIS_DECODE_RESPONSES",
-            "redis_decode_responses",
-            defaults.redis_decode_responses,
-            file_values=file_values,
-        ),
-        redis_key=_read_str(
-            f"{prefix}REDIS_KEY",
-            "redis_key",
-            defaults.redis_key,
-            file_values=file_values,
-        ),
-        redis_key_prefix=_read_str(
-            f"{prefix}REDIS_KEY_PREFIX",
-            "redis_key_prefix",
-            defaults.redis_key_prefix,
-            file_values=file_values,
-        ),
-        redis_ttl_seconds=_read_int(
-            f"{prefix}REDIS_TTL_SECONDS",
-            "redis_ttl_seconds",
-            defaults.redis_ttl_seconds,
-            file_values=file_values,
-        ),
-    )
-
-
-def build_runtime_settings(
-    *,
-    profile: str = API_PROFILE,
-    instance_id: str | None = None,
-    default_source: str | None = None,
-    backend_type: str | None = None,
-    handler_registrars: tuple[str, ...] | None = None,
-    redis_url: str | None = None,
-    redis_decode_responses: bool | None = None,
-    redis_key: str | None = None,
-    redis_key_prefix: str | None = None,
-    redis_ttl_seconds: int | None = None,
-    prefix: str = DEFAULT_ENV_PREFIX,
-    config_file: str | Path | None = None,
-    start_dir: str | Path | None = None,
-) -> RuntimeSettings:
-    settings = load_runtime_settings_from_env(
-        profile=profile,
-        prefix=prefix,
-        config_file=config_file,
-        start_dir=start_dir,
-    )
-    overrides: dict[str, str | int | bool | tuple[str, ...]] = {}
-
-    if instance_id is not None:
-        overrides["instance_id"] = instance_id
-    if default_source is not None:
-        overrides["default_source"] = default_source
-    if backend_type is not None:
-        overrides["backend_type"] = backend_type
-    if handler_registrars is not None:
-        overrides["handler_registrars"] = handler_registrars
-    if redis_url is not None:
-        overrides["redis_url"] = redis_url
-    if redis_decode_responses is not None:
-        overrides["redis_decode_responses"] = redis_decode_responses
-    if redis_key is not None:
-        overrides["redis_key"] = redis_key
-    if redis_key_prefix is not None:
-        overrides["redis_key_prefix"] = redis_key_prefix
-    if redis_ttl_seconds is not None:
-        overrides["redis_ttl_seconds"] = redis_ttl_seconds
-
-    if not overrides:
-        return settings
-    return replace(settings, **overrides)
-</file>
-
-<file path="src/logic_fingerprint/config/policy_config.py">
-from dataclasses import dataclass, field
-
-
-@dataclass(slots=True)
-class PolicyConfig:
-    error_strategies: dict[str, str] = field(default_factory=lambda: {
-        "ERR_TIMEOUT": "retry_once",
-        "ERR_VALIDATION": "fail_fast",
-        "ERR_LOGIC": "fail_fast",
-        "ERR_UNKNOWN": "fail_fast",
-    })
-</file>
-
-<file path="src/logic_fingerprint/config/runtime_config.py">
-from dataclasses import dataclass
-
-
-@dataclass(slots=True)
-class RuntimeConfig:
-    probe_rate: float = 0.2
-    probe_interval_seconds: float = 5.0
-    consecutive_success_threshold: int = 3
-    total_nodes: int = 1
-    global_fail_threshold: float = 1.0
-</file>
-
-<file path="src/logic_fingerprint/config/runtime_settings.py">
-from dataclasses import dataclass
-
-
-@dataclass(slots=True)
-class RuntimeSettings:
-    instance_id: str = "node-a"
-    default_source: str = "api"
-    backend_type: str = "memory"
-    handler_registrars: tuple[str, ...] = ()
-    redis_url: str | None = None
-    redis_decode_responses: bool = True
-    redis_key: str = "logic_fingerprint:failed_nodes"
-    redis_key_prefix: str = "logic_fingerprint:failed_node"
-    redis_ttl_seconds: int = 30
-</file>
-
-<file path="src/logic_fingerprint/config/strategy_config.py">
-from dataclasses import dataclass
-
-
-@dataclass(slots=True)
-class StrategyConfig:
-    default_strategy: str = "fail_fast"
-
-    # retry策略参数（后面会用）
-    retry_once_max_attempts: int = 1
-</file>
-
-<file path="src/logic_fingerprint/config/yaml_support.py">
-from __future__ import annotations
-
-from pathlib import Path
-from typing import Any
-
-
-def _strip_comment(line: str) -> str:
-    in_single_quote = False
-    in_double_quote = False
-    result: list[str] = []
-
-    for char in line:
-        if char == "'" and not in_double_quote:
-            in_single_quote = not in_single_quote
-        elif char == '"' and not in_single_quote:
-            in_double_quote = not in_double_quote
-        elif char == "#" and not in_single_quote and not in_double_quote:
-            break
-        result.append(char)
-
-    return "".join(result).rstrip()
-
-
-def _parse_scalar(value: str) -> Any:
-    stripped = value.strip()
-    if stripped == "":
-        return ""
-    if len(stripped) >= 2 and stripped[0] == stripped[-1] and stripped[0] in {"'", '"'}:
-        return stripped[1:-1]
-
-    lowered = stripped.lower()
-    if lowered in {"true", "yes", "on"}:
-        return True
-    if lowered in {"false", "no", "off"}:
-        return False
-    if lowered in {"null", "none", "~"}:
-        return None
-
-    try:
-        if any(marker in stripped for marker in (".", "e", "E")):
-            return float(stripped)
-        return int(stripped)
-    except ValueError:
-        return stripped
-
-
-def parse_simple_yaml(text: str) -> dict[str, Any]:
-    lines: list[tuple[int, str]] = []
-    for raw_line in text.splitlines():
-        cleaned = _strip_comment(raw_line)
-        if not cleaned.strip():
-            continue
-        indent = len(cleaned) - len(cleaned.lstrip(" "))
-        lines.append((indent, cleaned.strip()))
-
-    root: dict[str, Any] = {}
-    stack: list[tuple[int, Any]] = [(-1, root)]
-
-    for index, (indent, content) in enumerate(lines):
-        while indent <= stack[-1][0]:
-            stack.pop()
-
-        parent = stack[-1][1]
-        if content.startswith("- "):
-            if not isinstance(parent, list):
-                raise ValueError("Invalid YAML structure: list item without list parent.")
-            parent.append(_parse_scalar(content[2:].strip()))
-            continue
-
-        if ":" not in content:
-            raise ValueError(f"Invalid YAML line: {content}")
-
-        key, raw_value = content.split(":", 1)
-        key = key.strip()
-        raw_value = raw_value.strip()
-        if not isinstance(parent, dict):
-            raise ValueError("Invalid YAML structure: mapping entry without dict parent.")
-
-        if raw_value:
-            parent[key] = _parse_scalar(raw_value)
-            continue
-
-        next_container: Any = None
-        for next_indent, next_content in lines[index + 1 :]:
-            if next_indent <= indent:
-                break
-            next_container = [] if next_content.startswith("- ") else {}
-            break
-
-        parent[key] = next_container
-        if next_container is not None:
-            stack.append((indent, next_container))
-
-    return root
-
-
-def load_simple_yaml_file(path: Path | None) -> dict[str, Any]:
-    if path is None:
-        return {}
-    return parse_simple_yaml(path.read_text(encoding="utf-8"))
-</file>
-
-<file path="src/logic_fingerprint/domain/__init__.py">
-from .errors import *
-from .executor import LogicFingerprintExecutor
-from .fsm import LogicFingerprintFSM
-from .models import *
-</file>
-
-<file path="src/logic_fingerprint/domain/errors.py">
-from enum import Enum
-
-class ErrorCode(str, Enum):
-    ERR_TIMEOUT = "ERR_TIMEOUT"
-    ERR_NULL = "ERR_NULL"
-    ERR_NORM = "ERR_NORM"
-    ERR_LOGIC = "ERR_LOGIC"
-    ERR_EXECUTION_BLOCKED = "ERR_EXECUTION_BLOCKED"
-    ERR_UNKNOWN = "ERR_UNKNOWN"
-    ERR_HANDLER_NOT_FOUND = "ERR_HANDLER_NOT_FOUND"
-    ERR_VALIDATION = "ERR_VALIDATION"
-    ERR_OUTPUT_VALIDATION = "ERR_OUTPUT_VALIDATION"
-
-class LogicFingerprintError(Exception):
-    code: ErrorCode = ErrorCode.ERR_UNKNOWN
-    def __init__(self, message: str = "", details: dict | None = None) -> None:
-        super().__init__(message)
-        self.message = message or self.__class__.__name__
-        self.details = details or {}
-
-class TimeoutErrorLF(LogicFingerprintError):
-    code = ErrorCode.ERR_TIMEOUT
-
-class NullResultError(LogicFingerprintError):
-    code = ErrorCode.ERR_NULL
-
-class NormalizationError(LogicFingerprintError):
-    code = ErrorCode.ERR_NORM
-
-class LogicExecutionError(LogicFingerprintError):
-    code = ErrorCode.ERR_LOGIC
-
-class HandlerNotFoundError(LogicFingerprintError):
-    code = ErrorCode.ERR_HANDLER_NOT_FOUND
-
-class ValidationErrorLF(LogicFingerprintError):
-    code = ErrorCode.ERR_VALIDATION
-
-class OutputValidationErrorLF(LogicFingerprintError):
-    code = ErrorCode.ERR_OUTPUT_VALIDATION
-
-def classify_exception(exc: Exception) -> ErrorCode:
-    if isinstance(exc, LogicFingerprintError):
-        return exc.code
-    if isinstance(exc, TimeoutError):
-        return ErrorCode.ERR_TIMEOUT
-    if isinstance(exc, ValueError):
-        return ErrorCode.ERR_NORM
-    return ErrorCode.ERR_UNKNOWN
-</file>
-
-<file path="src/logic_fingerprint/domain/executor.py">
-import inspect
-from dataclasses import dataclass
-from .errors import ErrorCode, NullResultError, classify_exception, LogicFingerprintError
-from .models import ExecutionDecision, ExecutionOutcome, FSMState, ProbeResult
-
-@dataclass(slots=True)
-class LogicFingerprintExecutor:
-    fsm: object
-
-    def _build_decision_from_closed(self):
-        info = self.fsm.before_request()
-        return ExecutionDecision(state=str(info["state"]), allow_request=bool(info["allow_request"]), allow_probe=bool(info["allow_probe"]), global_fail_ratio=float(info["global_fail_ratio"]), external_fail_ratio=float(info["external_fail_ratio"]), is_probe=False)
-    def _build_decision_from_half_open(self, now):
-        info = self.fsm.before_half_open_request(now=now)
-        return ExecutionDecision(state=str(info["state"]), allow_request=bool(info["allow_request"]), allow_probe=bool(info["allow_probe"]), global_fail_ratio=float(info["global_fail_ratio"]), external_fail_ratio=float(info["external_fail_ratio"]), is_probe=bool(info["allow_probe"]))
-    def _blocked_outcome(self, decision):
-        return ExecutionOutcome(decision=decision, executed=False, succeeded=False, state_after=self.fsm.state.value, error_code=ErrorCode.ERR_EXECUTION_BLOCKED.value, error_message="Request blocked by FSM state.")
-    def _success_outcome(self, decision, result):
-        if decision.is_probe:
-            self.fsm.evaluate_probe(ProbeResult(system_success=True, business_success=True))
-        return ExecutionOutcome(decision=decision, executed=True, succeeded=True, state_after=self.fsm.state.value, result=result)
-    def _failure_outcome(self, decision, exc):
-        code = classify_exception(exc)
-        details = exc.details if isinstance(exc, LogicFingerprintError) else {}
-        self.fsm.record_hard_fail(code.value)
-        return ExecutionOutcome(decision=decision, executed=True, succeeded=False, state_after=self.fsm.state.value, error_code=code.value, error_message=str(exc), error_details=details)
-    def execute(self, operation, now=None):
-        decision = self._build_decision_from_half_open(now) if self.fsm.state == FSMState.HALF_OPEN else self._build_decision_from_closed()
-        if not decision.allow_request and not decision.allow_probe:
-            return self._blocked_outcome(decision)
-        try:
-            result = operation()
-            if inspect.isawaitable(result):
-                raise TypeError("Async operation cannot be executed by sync execute(); use execute_async().")
-            if result is None:
-                raise NullResultError("Operation returned None.")
-            return self._success_outcome(decision, result)
-        except Exception as exc:
-            return self._failure_outcome(decision, exc)
-    async def execute_async(self, operation, now=None):
-        decision = self._build_decision_from_half_open(now) if self.fsm.state == FSMState.HALF_OPEN else self._build_decision_from_closed()
-        if not decision.allow_request and not decision.allow_probe:
-            return self._blocked_outcome(decision)
-        try:
-            result = operation()
-            if inspect.isawaitable(result):
-                result = await result
-            if result is None:
-                raise NullResultError("Operation returned None.")
-            return self._success_outcome(decision, result)
-        except Exception as exc:
-            return self._failure_outcome(decision, exc)
-</file>
-
-<file path="src/logic_fingerprint/domain/fsm.py">
-from dataclasses import dataclass, field
-from typing import Optional
-import time
-from ..config import RuntimeConfig
-from .models import FSMState, ProbeResult
-
-@dataclass(slots=True)
-class LogicFingerprintFSM:
-    instance_id: str
-    config: RuntimeConfig
-    backend: object
-    state: FSMState = FSMState.CLOSED
-    request_counter: int = 0
-    success_count: int = 0
-    last_probe_time: float = field(default_factory=lambda: 0.0)
-    last_failure_reason: Optional[str] = None
-
-    @property
-    def probe_every_n_requests(self) -> int:
-        return max(1, int(1 / self.config.probe_rate))
-    @property
-    def global_fail_ratio(self) -> float:
-        return self.backend.fail_count() / self.config.total_nodes
-    @property
-    def external_fail_count(self) -> int:
-        return self.backend.fail_count() - int(self.backend.is_failed(self.instance_id))
-    @property
-    def external_fail_ratio(self) -> float:
-        return self.external_fail_count / self.config.total_nodes
-    def should_force_global_open(self) -> bool:
-        return self.external_fail_ratio >= self.config.global_fail_threshold
-    def record_hard_fail(self, reason: str = "HARD_FAIL") -> None:
-        self.state = FSMState.OPEN
-        self.success_count = 0
-        self.last_failure_reason = reason
-        self.backend.mark_failed(self.instance_id)
-    def move_to_half_open(self) -> None:
-        self.state = FSMState.HALF_OPEN
-        self.success_count = 0
-    def close(self) -> None:
-        self.state = FSMState.CLOSED
-        self.success_count = 0
-        self.last_failure_reason = None
-        self.backend.clear_failed(self.instance_id)
-    def should_allow_probe(self, now=None) -> bool:
-        now = time.time() if now is None else now
-        self.request_counter += 1
-        if self.state != FSMState.HALF_OPEN:
-            return False
-        by_request = (self.request_counter % self.probe_every_n_requests) == 0
-        by_time = (now - self.last_probe_time) >= self.config.probe_interval_seconds
-        if by_request or by_time:
-            self.last_probe_time = now
-            return True
-        return False
-    def evaluate_probe(self, result: ProbeResult):
-        if self.state != FSMState.HALF_OPEN:
-            return self.state
-        if result.probe_success:
-            self.success_count += 1
-        else:
-            self.success_count = 0
-            self.record_hard_fail(reason="PROBE_FAILED")
-            return self.state
-        if self.success_count >= self.config.consecutive_success_threshold:
-            self.close()
-        return self.state
-    def before_request(self):
-        if self.should_force_global_open():
-            self.state = FSMState.OPEN
-        return {"state": self.state.value, "allow_request": self.state == FSMState.CLOSED, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
-    def before_half_open_request(self, now=None):
-        if self.should_force_global_open():
-            self.state = FSMState.OPEN
-            return {"state": self.state.value, "allow_request": False, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
-        allow_probe = self.should_allow_probe(now=now)
-        return {"state": self.state.value, "allow_request": False, "allow_probe": allow_probe, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
-</file>
-
-<file path="src/logic_fingerprint/domain/models.py">
-from dataclasses import dataclass, field
-from enum import Enum
-from typing import Any
-
-class FSMState(str, Enum):
-    CLOSED = "CLOSED"
-    OPEN = "OPEN"
-    HALF_OPEN = "HALF_OPEN"
-
-@dataclass(slots=True)
-class ProbeResult:
-    system_success: bool
-    business_success: bool
-    @property
-    def probe_success(self) -> bool:
-        return self.system_success and self.business_success
-
-@dataclass(slots=True)
-class ExecutionDecision:
-    state: str
-    allow_request: bool
-    allow_probe: bool
-    global_fail_ratio: float
-    external_fail_ratio: float
-    is_probe: bool
-
-@dataclass(slots=True)
-class ExecutionOutcome:
-    decision: ExecutionDecision
-    executed: bool
-    succeeded: bool
-    state_after: str
-    result: Any = None
-    error_code: str | None = None
-    error_message: str | None = None
-    error_details: dict[str, Any] | None = None
-
-@dataclass(slots=True)
-class RequestContext:
-    request_id: str | None = None
-    trace_id: str | None = None
-    user_id: str | None = None
-    source: str | None = None
-    timestamp: str | None = None
-    headers: dict[str, Any] = field(default_factory=dict)
-    metadata: dict[str, Any] = field(default_factory=dict)
-
-@dataclass(slots=True)
-class HandlerRequest:
-    payload: dict[str, Any] = field(default_factory=dict)
-    context: RequestContext = field(default_factory=RequestContext)
-
-@dataclass(slots=True)
-class HandlerResponse:
-    ok: bool
-    data: Any = None
-    message: str | None = None
-</file>
-
-<file path="src/logic_fingerprint/engineering.py">
-from __future__ import annotations
-
-from typing import Any
-
-__all__ = [
-    "assemble_runtime",
-    "build_demo_runtime",
-    "build_production_runtime",
-    "build_runtime",
-    "create_app",
-    "create_demo_app",
-]
-
-
-def assemble_runtime(*args: Any, **kwargs: Any):
-    from .runtime import assemble_runtime as _assemble_runtime
-
-    return _assemble_runtime(*args, **kwargs)
-
-
-def build_demo_runtime(*args: Any, **kwargs: Any):
-    from .runtime import build_demo_runtime as _build_demo_runtime
-
-    return _build_demo_runtime(*args, **kwargs)
-
-
-def build_production_runtime(*args: Any, **kwargs: Any):
-    from .runtime import build_production_runtime as _build_production_runtime
-
-    return _build_production_runtime(*args, **kwargs)
-
-
-def build_runtime(*args: Any, **kwargs: Any):
-    from .runtime import build_runtime as _build_runtime
-
-    return _build_runtime(*args, **kwargs)
-
-
-def create_app(*args: Any, **kwargs: Any):
-    from .app_factory import create_app as _create_app
-
-    return _create_app(*args, **kwargs)
-
-
-def create_demo_app(*args: Any, **kwargs: Any):
-    from .app_factory import create_demo_app as _create_demo_app
-
-    return _create_demo_app(*args, **kwargs)
-</file>
-
-<file path="src/logic_fingerprint/handler_registry.py">
-from dataclasses import dataclass, field
-from pydantic import BaseModel
-from .domain.errors import HandlerNotFoundError
-
-@dataclass(slots=True)
-class HandlerDefinition:
-    func: object
-    input_model: type[BaseModel] | None = None
-    output_model: type[BaseModel] | None = None
-
-@dataclass(slots=True)
-class HandlerRegistry:
-    _handlers: dict[str, HandlerDefinition] = field(default_factory=dict)
-    def register(self, name, handler, input_model=None, output_model=None):
-        self._handlers[name] = HandlerDefinition(func=handler, input_model=input_model, output_model=output_model)
-    def register_decorator(self, name, input_model=None, output_model=None):
-        def decorator(handler):
-            self.register(name, handler, input_model=input_model, output_model=output_model)
-            return handler
-        return decorator
-    def get(self, name):
-        if name not in self._handlers:
-            raise HandlerNotFoundError(f"Handler not found: {name}")
-        return self._handlers[name]
-    def names(self):
-        return sorted(self._handlers.keys())
-</file>
-
-<file path="src/logic_fingerprint/handlers/__init__.py">
-"""Built-in handler registrations."""
-
-from .demo_handlers import register_demo_handlers
-from .registry import (
-    HandlerRegistrar,
-    compose_handler_registrars,
-    load_handler_registrar,
-    load_handler_registrars,
-    register_builtin_handlers,
-)
-from .schemas import SumNumbersInput, SumNumbersOutput
-
-__all__ = [
-    "HandlerRegistrar",
-    "compose_handler_registrars",
-    "load_handler_registrar",
-    "load_handler_registrars",
-    "register_builtin_handlers",
-    "register_demo_handlers",
-    "SumNumbersInput",
-    "SumNumbersOutput",
-]
-</file>
-
-<file path="src/logic_fingerprint/handlers/demo_handlers.py">
-from __future__ import annotations
-
-from ..domain.errors import LogicExecutionError, NormalizationError, TimeoutErrorLF
-from ..domain.models import HandlerRequest, HandlerResponse
-from ..handler_registry import HandlerRegistry
-from .schemas import SumNumbersInput, SumNumbersOutput
-
-
-def _echo_payload(request: HandlerRequest) -> HandlerResponse:
-    return HandlerResponse(
-        ok=True,
-        data={
-            "payload": request.payload,
-            "request_id": request.context.request_id,
-            "trace_id": request.context.trace_id,
-            "source": request.context.source,
-            "timestamp": request.context.timestamp,
-            "headers": request.context.headers,
-            "metadata": request.context.metadata,
-        },
-    )
-
-
-def _sum_numbers(request: HandlerRequest) -> HandlerResponse:
-    return HandlerResponse(ok=True, data={"sum": sum(request.payload.get("numbers", []))})
-
-
-def _demo_timeout(request: HandlerRequest) -> HandlerResponse:
-    raise TimeoutErrorLF("simulated timeout")
-
-
-def _demo_logic_error(request: HandlerRequest) -> HandlerResponse:
-    raise LogicExecutionError("simulated logic failure")
-
-
-def _demo_null(request: HandlerRequest) -> None:
-    return None
-
-
-def _demo_norm_error(request: HandlerRequest) -> HandlerResponse:
-    raise NormalizationError("simulated norm failure")
-
-
-async def _async_echo_payload(request: HandlerRequest) -> HandlerResponse:
-    return HandlerResponse(
-        ok=True,
-        data={
-            "payload": request.payload,
-            "request_id": request.context.request_id,
-            "trace_id": request.context.trace_id,
-            "source": request.context.source,
-            "timestamp": request.context.timestamp,
-            "headers": request.context.headers,
-            "metadata": request.context.metadata,
-            "async": True,
-        },
-    )
-
-
-def register_demo_handlers(handler_registry: HandlerRegistry) -> None:
-    handler_registry.register("echo_payload", _echo_payload)
-    handler_registry.register(
-        "sum_numbers",
-        _sum_numbers,
-        input_model=SumNumbersInput,
-        output_model=SumNumbersOutput,
-    )
-    handler_registry.register("demo_timeout", _demo_timeout)
-    handler_registry.register("demo_logic_error", _demo_logic_error)
-    handler_registry.register("demo_null", _demo_null)
-    handler_registry.register("demo_norm_error", _demo_norm_error)
-    handler_registry.register("async_echo_payload", _async_echo_payload)
-</file>
-
-<file path="src/logic_fingerprint/handlers/registry.py">
-from __future__ import annotations
-
-import importlib
-from collections.abc import Callable
-
-from ..handler_registry import HandlerRegistry
-from .demo_handlers import register_demo_handlers
-
-HandlerRegistrar = Callable[[HandlerRegistry], None]
-
-
-def compose_handler_registrars(*registrars: HandlerRegistrar | None) -> HandlerRegistrar:
-    active_registrars = [registrar for registrar in registrars if registrar is not None]
-
-    def register_all(handler_registry: HandlerRegistry) -> None:
-        for registrar in active_registrars:
-            registrar(handler_registry)
-
-    return register_all
-
-
-def load_handler_registrar(spec: str) -> HandlerRegistrar:
-    module_name, separator, attr_name = spec.partition(":")
-    if not module_name:
-        raise ValueError("Handler registrar spec must include a module path.")
-    if not separator:
-        attr_name = "register_handlers"
-
-    module = importlib.import_module(module_name)
-    registrar = getattr(module, attr_name, None)
-    if registrar is None:
-        raise AttributeError(
-            f"Handler registrar '{attr_name}' was not found in module '{module_name}'.",
-        )
-    if not callable(registrar):
-        raise TypeError(
-            f"Handler registrar '{attr_name}' in module '{module_name}' is not callable.",
-        )
-    return registrar
-
-
-def load_handler_registrars(specs: tuple[str, ...] | list[str]) -> HandlerRegistrar | None:
-    if not specs:
-        return None
-    return compose_handler_registrars(*(load_handler_registrar(spec) for spec in specs))
-
-
-def register_builtin_handlers(
-    handler_registry: HandlerRegistry,
-    *,
-    include_demo: bool = False,
-) -> None:
-    if include_demo:
-        register_demo_handlers(handler_registry)
-</file>
-
-<file path="src/logic_fingerprint/handlers/schemas.py">
-from pydantic import BaseModel, Field
-
-
-class SumNumbersInput(BaseModel):
-    numbers: list[int] = Field(default_factory=list)
-
-
-class SumNumbersOutput(BaseModel):
-    sum: int
-</file>
-
-<file path="src/logic_fingerprint/infra/__init__.py">
-"""Infrastructure adapters and integrations."""
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/__init__.py">
-"""Consensus backends."""
-
-from .client import build_redis_client
-from .factory import build_consensus_backend
-from .heartbeat import HeartbeatService
-from .memory import InMemoryConsensusBackend
-from .redis import RedisConsensusBackend, RedisTTLConsensusBackend
-
-__all__ = [
-    "build_consensus_backend",
-    "build_redis_client",
-    "HeartbeatService",
-    "InMemoryConsensusBackend",
-    "RedisConsensusBackend",
-    "RedisTTLConsensusBackend",
-]
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/client.py">
-from __future__ import annotations
-
-import importlib
-
-from ...config.runtime_settings import RuntimeSettings
-
-
-def build_redis_client(*, settings: RuntimeSettings) -> object:
-    if not settings.redis_url:
-        raise ValueError(
-            "LOGIC_FINGERPRINT_REDIS_URL is required when using a Redis backend.",
-        )
-
-    try:
-        redis_module = importlib.import_module("redis")
-    except ModuleNotFoundError as exc:
-        raise RuntimeError(
-            "The 'redis' package is required when backend_type is 'redis' or 'redis_ttl'.",
-        ) from exc
-
-    return redis_module.from_url(
-        settings.redis_url,
-        decode_responses=settings.redis_decode_responses,
-    )
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/factory.py">
-from __future__ import annotations
-
-from ...config.runtime_settings import RuntimeSettings
-from .client import build_redis_client
-from .memory import InMemoryConsensusBackend
-from .redis import RedisConsensusBackend, RedisTTLConsensusBackend
-
-
-def build_consensus_backend(
-    *,
-    settings: RuntimeSettings,
-    redis_client: object | None = None,
-) -> object:
-    if settings.backend_type == "memory":
-        return InMemoryConsensusBackend()
-    if redis_client is None:
-        redis_client = build_redis_client(settings=settings)
-    if settings.backend_type == "redis":
-        return RedisConsensusBackend(redis_client=redis_client, key=settings.redis_key)
-    if settings.backend_type == "redis_ttl":
-        return RedisTTLConsensusBackend(
-            redis_client=redis_client,
-            key_prefix=settings.redis_key_prefix,
-            ttl_seconds=settings.redis_ttl_seconds,
-        )
-    raise ValueError(f"Unsupported backend_type: {settings.backend_type}")
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/heartbeat.py">
-from dataclasses import dataclass
-
-@dataclass(slots=True)
-class HeartbeatService:
-    backend: object
-    instance_id: str
-    def beat(self) -> None:
-        heartbeat = getattr(self.backend, "heartbeat", None)
-        if callable(heartbeat):
-            heartbeat(self.instance_id)
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/memory.py">
-class InMemoryConsensusBackend:
-    def __init__(self) -> None:
-        self._failed_nodes: set[str] = set()
-    def mark_failed(self, instance_id: str) -> None:
-        self._failed_nodes.add(instance_id)
-    def clear_failed(self, instance_id: str) -> None:
-        self._failed_nodes.discard(instance_id)
-    def fail_count(self) -> int:
-        return len(self._failed_nodes)
-    def is_failed(self, instance_id: str) -> bool:
-        return instance_id in self._failed_nodes
-</file>
-
-<file path="src/logic_fingerprint/infra/consensus/redis.py">
-from __future__ import annotations
-
-from dataclasses import dataclass
-
-
-@dataclass(slots=True)
-class RedisConsensusBackend:
-    redis_client: object
-    key: str = "logic_fingerprint:failed_nodes"
-
-    def mark_failed(self, instance_id: str) -> None:
-        self.redis_client.sadd(self.key, instance_id)
-
-    def clear_failed(self, instance_id: str) -> None:
-        self.redis_client.srem(self.key, instance_id)
-
-    def fail_count(self) -> int:
-        return int(self.redis_client.scard(self.key))
-
-    def is_failed(self, instance_id: str) -> bool:
-        return bool(self.redis_client.sismember(self.key, instance_id))
-
-
-@dataclass(slots=True)
-class RedisTTLConsensusBackend:
-    redis_client: object
-    key_prefix: str = "logic_fingerprint:failed_node"
-    ttl_seconds: int = 30
-
-    def _node_key(self, instance_id: str) -> str:
-        return f"{self.key_prefix}:{instance_id}"
-
-    def mark_failed(self, instance_id: str) -> None:
-        self.redis_client.set(self._node_key(instance_id), "1", ex=self.ttl_seconds)
-
-    def heartbeat(self, instance_id: str) -> None:
-        if self.is_failed(instance_id):
-            self.redis_client.expire(self._node_key(instance_id), self.ttl_seconds)
-
-    def clear_failed(self, instance_id: str) -> None:
-        self.redis_client.delete(self._node_key(instance_id))
-
-    def fail_count(self) -> int:
-        keys = self.redis_client.keys(f"{self.key_prefix}:*")
-        return len(keys)
-
-    def is_failed(self, instance_id: str) -> bool:
-        return bool(self.redis_client.exists(self._node_key(instance_id)))
-</file>
-
-<file path="src/logic_fingerprint/infra/logging/__init__.py">
-"""Logging adapters."""
-
-from .event_logger import EventLogger, LogEvent, NullEventLogger, PrintEventLogger
-
-__all__ = [
-    "EventLogger",
-    "LogEvent",
-    "NullEventLogger",
-    "PrintEventLogger",
-]
-</file>
-
-<file path="src/logic_fingerprint/infra/logging/event_logger.py">
-from __future__ import annotations
-
-from dataclasses import dataclass, asdict
-from datetime import datetime, timezone
-from typing import Any
-
-
-@dataclass(slots=True)
-class LogEvent:
-    event: str
-    handler: str | None = None
-    request_id: str | None = None
-    trace_id: str | None = None
-    state: str | None = None
-    strategy: str | None = None
-    error_code: str | None = None
-    message: str | None = None
-    extra: dict[str, Any] | None = None
-
-    def to_dict(self) -> dict[str, Any]:
-        data = asdict(self)
-        data["timestamp"] = datetime.now(timezone.utc).isoformat()
-        if data["extra"] is None:
-            data["extra"] = {}
-        return data
-
-
-class EventLogger:
-    def emit(self, event: LogEvent) -> None:
-        raise NotImplementedError
-
-
-class NullEventLogger(EventLogger):
-    def emit(self, event: LogEvent) -> None:
-        return
-
-
-class PrintEventLogger(EventLogger):
-    def emit(self, event: LogEvent) -> None:
-        print(event.to_dict())
-</file>
-
-<file path="src/logic_fingerprint/infra/metrics/__init__.py">
-"""Metrics adapters."""
-
-from .prometheus import render_prometheus_metrics
-
-__all__ = ["render_prometheus_metrics"]
-</file>
-
-<file path="src/logic_fingerprint/infra/metrics/prometheus.py">
-from ...application.metrics import InMemoryMetrics
-from ...domain.fsm import LogicFingerprintFSM
-
-
-def render_prometheus_metrics(metrics: InMemoryMetrics, fsm: LogicFingerprintFSM) -> str:
-    lines = [
-        "# HELP logic_fingerprint_total_requests Total execution requests.",
-        "# TYPE logic_fingerprint_total_requests counter",
-        f"logic_fingerprint_total_requests {metrics.total_requests}",
-        "# HELP logic_fingerprint_blocked_requests Blocked requests.",
-        "# TYPE logic_fingerprint_blocked_requests counter",
-        f"logic_fingerprint_blocked_requests {metrics.blocked_requests}",
-        "# HELP logic_fingerprint_probe_requests Probe requests.",
-        "# TYPE logic_fingerprint_probe_requests counter",
-        f"logic_fingerprint_probe_requests {metrics.probe_requests}",
-        "# HELP logic_fingerprint_success_requests Successful requests.",
-        "# TYPE logic_fingerprint_success_requests counter",
-        f"logic_fingerprint_success_requests {metrics.success_requests}",
-        "# HELP logic_fingerprint_failed_requests Failed requests.",
-        "# TYPE logic_fingerprint_failed_requests counter",
-        f"logic_fingerprint_failed_requests {metrics.failed_requests}",
-        "# HELP logic_fingerprint_fsm_state FSM state as labeled gauge.",
-        "# TYPE logic_fingerprint_fsm_state gauge",
-        f'logic_fingerprint_fsm_state{{state="{fsm.state.value}"}} 1',
-    ]
-    return "\n".join(lines) + "\n"
-</file>
-
-<file path="src/logic_fingerprint/lifespan.py">
-import threading
-from contextlib import asynccontextmanager
-
-def build_lifespan(runtime: object, interval_seconds: float = 5.0):
-    @asynccontextmanager
-    async def lifespan(app):
-        stop_event = threading.Event()
-        def loop():
-            while not stop_event.is_set():
-                runtime.heartbeat.beat()
-                stop_event.wait(interval_seconds)
-        thread = threading.Thread(target=loop, daemon=True)
-        thread.start()
-        app.state.heartbeat_stop_event = stop_event
-        app.state.heartbeat_thread = thread
-        try:
-            yield
-        finally:
-            stop_event.set()
-            thread.join(timeout=1.0)
-    return lifespan
-</file>
-
-<file path="src/logic_fingerprint/middleware.py">
-from dataclasses import dataclass
-
-from .application.context_builder import ContextBuilder
-from .domain.executor import LogicFingerprintExecutor
-from .handler_registry import HandlerRegistry
-from .application.metrics import InMemoryMetrics
-from .domain.models import ExecutionOutcome, HandlerRequest, HandlerResponse
-from .application.validator import validate_input, validate_output
-
-
-@dataclass(slots=True)
-class LogicFingerprintMiddleware:
-    executor: LogicFingerprintExecutor
-    handler_registry: HandlerRegistry
-    metrics: InMemoryMetrics
-    context_builder: ContextBuilder
-
-    def _record(self, outcome: ExecutionOutcome) -> None:
-        if outcome.decision.is_probe:
-            self.metrics.record_probe()
-        if not outcome.executed:
-            self.metrics.record_blocked()
-        elif outcome.succeeded:
-            self.metrics.record_success()
-        else:
-            self.metrics.record_failure()
-
-    def _validate_result(self, result, definition):
-        if isinstance(result, HandlerResponse):
-            validated = validate_output(result.data, definition.output_model)
-            return HandlerResponse(ok=result.ok, data=validated, message=result.message)
-        return validate_output(result, definition.output_model)
-
-    def execute_handler(self, handler_name: str, request: HandlerRequest | None = None, now: float | None = None) -> ExecutionOutcome:
-        self.metrics.record_total()
-
-        def operation():
-            built_request = self.context_builder.build_request(request)
-            definition = self.handler_registry.get(handler_name)
-            validated_payload = validate_input(built_request.payload, definition.input_model)
-            prepared_request = HandlerRequest(payload=validated_payload, context=built_request.context)
-            result = definition.func(prepared_request)
-            return self._validate_result(result, definition)
-
-        outcome = self.executor.execute(operation, now=now)
-        self._record(outcome)
-        return outcome
-
-    async def execute_handler_async(self, handler_name: str, request: HandlerRequest | None = None, now: float | None = None) -> ExecutionOutcome:
-        self.metrics.record_total()
-
-        def operation():
-            built_request = self.context_builder.build_request(request)
-            definition = self.handler_registry.get(handler_name)
-            validated_payload = validate_input(built_request.payload, definition.input_model)
-            prepared_request = HandlerRequest(payload=validated_payload, context=built_request.context)
-            return definition.func(prepared_request)
-
-        outcome = await self.executor.execute_async(operation, now=now)
-        if outcome.succeeded:
-            built_request = self.context_builder.build_request(request)
-            definition = self.handler_registry.get(handler_name)
-            outcome.result = self._validate_result(outcome.result, definition)
-        self._record(outcome)
-        return outcome
-</file>
-
-<file path="src/logic_fingerprint/protect.py">
-from __future__ import annotations
-
-from dataclasses import asdict, is_dataclass
-from functools import wraps
-from pathlib import Path
-from typing import Any, Callable, TypeVar
-import inspect
-
-from pydantic import BaseModel
-
-from .application.context_builder import ContextBuilder
-from .application.metrics import InMemoryMetrics
-from .application.validator import validate_input, validate_output
-from .config import (
-    DECORATOR_PROFILE,
-    RuntimeConfig,
-    RuntimeSettings,
-    build_runtime_config,
-    build_runtime_settings,
-)
-from .domain.executor import LogicFingerprintExecutor
-from .domain.fsm import LogicFingerprintFSM
-from .domain.models import HandlerRequest, RequestContext
-from .infra.consensus import build_consensus_backend
-from .infra.logging import LogEvent, PrintEventLogger
-
-F = TypeVar("F", bound=Callable[..., Any])
-
-
-class ProtectRuntimeError(RuntimeError):
-    def __init__(
-        self,
-        message: str,
-        *,
-        code: str | None = None,
-        details: dict[str, Any] | None = None,
-        context: dict[str, Any] | None = None,
-    
-    ) -> None:
-        super().__init__(message)
-        self.code = code
-        self.details = details or {}
-        self.context = context or {}
-        
-
-class Protector:
-    def __init__(
-        self,
-        *,
-        instance_id: str | None = None,
-        probe_rate: float | None = None,
-        probe_interval_seconds: float | None = None,
-        consecutive_success_threshold: int | None = None,
-        total_nodes: int | None = None,
-        global_fail_threshold: float | None = None,
-        default_source: str | None = None,
-        backend_type: str | None = None,
-        redis_url: str | None = None,
-        redis_decode_responses: bool | None = None,
-        redis_key: str | None = None,
-        redis_key_prefix: str | None = None,
-        redis_ttl_seconds: int | None = None,
-        config_file: str | Path | None = None,
-        config: RuntimeConfig | None = None,
-        settings: RuntimeSettings | None = None,
-        backend: object | None = None,
-        redis_client: object | None = None,
-    ) -> None:
-        config = config or build_runtime_config(
-            probe_rate=probe_rate,
-            probe_interval_seconds=probe_interval_seconds,
-            consecutive_success_threshold=consecutive_success_threshold,
-            total_nodes=total_nodes,
-            global_fail_threshold=global_fail_threshold,
-            config_file=config_file,
-        )
-        settings = settings or build_runtime_settings(
-            profile=DECORATOR_PROFILE,
-            instance_id=instance_id,
-            default_source=default_source,
-            backend_type=backend_type,
-            redis_url=redis_url,
-            redis_decode_responses=redis_decode_responses,
-            redis_key=redis_key,
-            redis_key_prefix=redis_key_prefix,
-            redis_ttl_seconds=redis_ttl_seconds,
-            config_file=config_file,
-        )
-        backend = backend or build_consensus_backend(
-            settings=settings,
-            redis_client=redis_client,
-        )
-        fsm = LogicFingerprintFSM(
-            instance_id=settings.instance_id,
-            config=config,
-            backend=backend,
-        )
-
-        self.config = config
-        self.settings = settings
-        self.backend = backend
-        self.fsm = fsm
-        self.executor = LogicFingerprintExecutor(fsm)
-        self.metrics = InMemoryMetrics()
-        self.context_builder = ContextBuilder(default_source=settings.default_source)
-        self.event_logger = PrintEventLogger()
-    def _success_response(
-        self,
-        validated_output: Any,
-        context_dict: dict[str, Any],
-        *,
-        simple: bool,
-    ) -> Any:
-        if simple:
-            return validated_output
-        return {
-            "ok": True,
-            "result": validated_output,
-            "context": context_dict,
-        }
-
-    def _error_response(
-        self,
-        *,
-        error_code: str | None,
-        error_message: str | None,
-        error_details: dict[str, Any] | None,
-        context_dict: dict[str, Any],
-        simple: bool,
-    ) -> Any:
-        if simple:
-            raise ProtectRuntimeError(
-                error_message or "Protected call failed.",
-                code=error_code,
-                details=error_details or {},
-                context=context_dict,
-            )
-
-        return {
-            "ok": False,
-            "error": {
-                "code": error_code,
-                "message": error_message,
-                "details": error_details or {},
-            },
-            "context": context_dict,
-        }
-
-    def protect(
-        self,
-        *,
-        input_model: type[BaseModel] | None = None,
-        output_model: type[BaseModel] | None = None,
-        simple: bool = True,
-    ) -> Callable[[F], F]:
-        def decorator(func: F) -> F:
-            if inspect.iscoroutinefunction(func):
-
-                @wraps(func)
-                async def async_wrapper(
-                    payload: dict[str, Any] | None = None,
-                    *,
-                    context: RequestContext | None = None,
-                    now: float | None = None,
-                ) -> Any:
-                    self.metrics.record_total()
-
-                    built_request = self.context_builder.build_request(
-                        HandlerRequest(
-                            payload=payload or {},
-                            context=context or RequestContext(),
-                        )
-                    )
-                    context_dict = asdict(built_request.context)
-
-                    self.event_logger.emit(LogEvent(
-                        event="protect_call_started",
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    ))
-
-                    validated_payload = validate_input(
-                        built_request.payload,
-                        input_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
-                    prepared_request = HandlerRequest(
-                        payload=validated_payload,
-                        context=built_request.context,
-                    )
-
-                    def operation() -> Any:
-                        validated_payload = validate_input(
-                            built_request.payload,
-                            input_model,
-                            event_logger=self.event_logger,
-                            handler=func.__name__,
-                            request_id=context_dict.get("request_id"),
-                            trace_id=context_dict.get("trace_id"),
-                        )
-                        prepared_request = HandlerRequest(
-                            payload=validated_payload,
-                            context=built_request.context,
-                        )
-                        return func(prepared_request)
-
-                    outcome = await self.executor.execute_async(operation, now=now)
-
-                    if outcome.decision.is_probe:
-                        self.metrics.record_probe()
-
-                    if not outcome.executed:
-                        self.metrics.record_blocked()
-                    elif outcome.succeeded:
-                        self.metrics.record_success()
-                    else:
-                        self.metrics.record_failure()
-
-                    if outcome.succeeded:
-                        result = outcome.result
-                        validated_output = validate_output(
-                            result,
-                            output_model,
-                            event_logger=self.event_logger,
-                            handler=func.__name__,
-                            request_id=context_dict.get("request_id"),
-                            trace_id=context_dict.get("trace_id"),
-                        )
-                        self.event_logger.emit(LogEvent(
-                            event="protect_call_succeeded",
-                            handler=func.__name__,
-                            request_id=context_dict.get("request_id"),
-                            trace_id=context_dict.get("trace_id"),
-                        ))
-                        if is_dataclass(validated_output):
-                            validated_output = asdict(validated_output)
-
-                        return self._success_response(
-                            validated_output,
-                            context_dict,
-                            simple=simple,
-                        )
-                    
-                    self.event_logger.emit(LogEvent(
-                        event="protect_call_failed",
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                        error_code=outcome.error_code,
-                        message=outcome.error_message,
-                    ))
-
-                    return self._error_response(
-                        error_code=outcome.error_code,
-                        error_message=outcome.error_message,
-                        error_details=outcome.error_details,
-                        context_dict=context_dict,
-                        simple=simple,
-                    )
-
-                return async_wrapper  # type: ignore[return-value]
-
-            @wraps(func)
-            def sync_wrapper(
-                payload: dict[str, Any] | None = None,
-                *,
-                context: RequestContext | None = None,
-                now: float | None = None,
-            ) -> Any:
-                self.metrics.record_total()
-
-                built_request = self.context_builder.build_request(
-                    HandlerRequest(
-                        payload=payload or {},
-                        context=context or RequestContext(),
-                    )
-                )
-                context_dict = asdict(built_request.context)
-
-                self.event_logger.emit(LogEvent(
-                    event="protect_call_started",
-                    handler=func.__name__,
-                    request_id=context_dict.get("request_id"),
-                    trace_id=context_dict.get("trace_id"),
-                ))
-
-                validated_payload = validate_input(
-                    built_request.payload,
-                    input_model,
-                    event_logger=self.event_logger,
-                    handler=func.__name__,
-                    request_id=context_dict.get("request_id"),
-                    trace_id=context_dict.get("trace_id"),
-                )
-                prepared_request = HandlerRequest(
-                    payload=validated_payload,
-                    context=built_request.context,
-                )
-
-                def operation() -> Any:
-                    validated_payload = validate_input(
-                        built_request.payload,
-                        input_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
-                    prepared_request = HandlerRequest(
-                        payload=validated_payload,
-                        context=built_request.context,
-                    )
-                    return func(prepared_request)
-
-                outcome = self.executor.execute(operation, now=now)
-
-                if outcome.decision.is_probe:
-                    self.metrics.record_probe()
-
-                if not outcome.executed:
-                    self.metrics.record_blocked()
-                elif outcome.succeeded:
-                    self.metrics.record_success()
-                else:
-                    self.metrics.record_failure()
-
-                if outcome.succeeded:
-                    result = outcome.result
-                    validated_output = validate_output(
-                        result,
-                        output_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
-
-                    if is_dataclass(validated_output):
-                        validated_output = asdict(validated_output)
-                    
-                    self.event_logger.emit(LogEvent(
-                        event="protect_call_succeeded",
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    ))
-
-                    return self._success_response(
-                        validated_output,
-                        context_dict,
-                        simple=simple,
-                    )
-
-                self.event_logger.emit(LogEvent(
-                    event="protect_call_failed",
-                    handler=func.__name__,
-                    request_id=context_dict.get("request_id"),
-                    trace_id=context_dict.get("trace_id"),
-                    error_code=outcome.error_code,
-                    message=outcome.error_message,
-                ))
-
-                return self._error_response(
-                    error_code=outcome.error_code,
-                    error_message=outcome.error_message,
-                    error_details=outcome.error_details,
-                    context_dict=context_dict,
-                    simple=simple,
-                )
-
-            return sync_wrapper  # type: ignore[return-value]
-
-        return decorator
-
-
-_default_protector: Protector | None = None
-
-
-def _get_default_protector() -> Protector:
-    global _default_protector
-    if _default_protector is None:
-        _default_protector = Protector()
-    return _default_protector
-
-
-def create_protector(**kwargs: Any) -> Protector:
-    return Protector(**kwargs)
-
-
-def protect(
-    *,
-    input_model: type[BaseModel] | None = None,
-    output_model: type[BaseModel] | None = None,
-    simple: bool = True,
-) -> Callable[[F], F]:
-    return _get_default_protector().protect(
-        input_model=input_model,
-        output_model=output_model,
-        simple=simple,
-    )
-</file>
-
-<file path="src/logic_fingerprint/router.py">
-from dataclasses import asdict, is_dataclass
-from fastapi import APIRouter, Response
-
-from .domain.models import HandlerRequest, RequestContext
-from .infra.metrics import render_prometheus_metrics
-from .schemas import ExecuteHandlerRequest, ForceFailRequest
-
-
-def build_router(runtime: object) -> APIRouter:
-    router = APIRouter()
-    fsm = runtime.fsm
-    metrics = runtime.metrics
-    @router.get("/")
-    def root():
-        return {"service": "logic-fingerprint", "state": fsm.state.value, "docs": "/docs"}
-    @router.get("/favicon.ico")
-    def favicon():
-        return Response(status_code=204)
-    @router.get("/healthz")
-    def healthz():
-        return {"ok": True, "state": fsm.state.value}
-    @router.get("/handlers")
-    def handlers():
-        return {"handlers": runtime.handler_registry.names()}
-    @router.get("/metrics")
-    def metrics_view():
-        return metrics.snapshot()
-    @router.get("/metrics.prom")
-    def metrics_prom():
-        return Response(content=render_prometheus_metrics(metrics, fsm), media_type="text/plain; version=0.0.4")
-    @router.post("/force_fail")
-    def force_fail(payload: ForceFailRequest):
-        fsm.record_hard_fail(payload.reason)
-        return {"state": fsm.state.value, "reason": payload.reason}
-    @router.post("/move_half_open")
-    def move_half_open():
-        fsm.move_to_half_open()
-        return {"state": fsm.state.value}
-    @router.post("/execute_handler")
-    async def execute_handler(payload: ExecuteHandlerRequest):
-        request = HandlerRequest(
-            payload=payload.payload,
-            context=RequestContext(
-                request_id=payload.context.request_id,
-                trace_id=payload.context.trace_id,
-                user_id=payload.context.user_id,
-                source=payload.context.source,
-                timestamp=payload.context.timestamp,
-                headers=payload.context.headers,
-                metadata=payload.context.metadata,
-            ),
-        )
-        outcome = await runtime.middleware.execute_handler_async(payload.handler, request=request, now=payload.now)
-        if outcome.succeeded:
-            result = outcome.result
-            if is_dataclass(result):
-                result = asdict(result)
-            return {"ok": True, "result": result}
-        return {"ok": False, "error": {"code": outcome.error_code, "message": outcome.error_message, "details": outcome.error_details or {}}}
-    return router
-</file>
-
-<file path="src/logic_fingerprint/runtime.py">
-from __future__ import annotations
-
-from collections.abc import Callable
-from dataclasses import dataclass
-from pathlib import Path
-
-from .application.context_builder import ContextBuilder
-from .application.metrics import InMemoryMetrics
-from .config import RuntimeConfig, RuntimeSettings, build_runtime_config, build_runtime_settings
-from .domain.executor import LogicFingerprintExecutor
-from .domain.fsm import LogicFingerprintFSM
-from .handler_registry import HandlerRegistry
-from .handlers import (
-    compose_handler_registrars,
-    load_handler_registrars,
-    register_builtin_handlers,
-)
-from .infra.consensus import HeartbeatService, build_consensus_backend
-from .middleware import LogicFingerprintMiddleware
-
-@dataclass(slots=True)
-class LogicFingerprintRuntime:
-    config: RuntimeConfig
-    settings: RuntimeSettings
-    backend: object
-    fsm: object
-    executor: object
-    metrics: object
-    handler_registry: object
-    middleware: object
-    heartbeat: object
-    context_builder: object
-
-    @property
-    def instance_id(self) -> str:
-        return self.settings.instance_id
-
-    @property
-    def default_source(self) -> str:
-        return self.settings.default_source
-
-def assemble_runtime(
-    *,
-    config: RuntimeConfig,
-    settings: RuntimeSettings,
-    backend: object,
-    handler_registry: HandlerRegistry | None = None,
-    metrics: InMemoryMetrics | None = None,
-    context_builder: ContextBuilder | None = None,
-    register_handlers: Callable[[HandlerRegistry], None] | None = None,
-) -> LogicFingerprintRuntime:
-    fsm = LogicFingerprintFSM(
-        instance_id=settings.instance_id,
-        config=config,
-        backend=backend,
-    )
-    executor = LogicFingerprintExecutor(fsm)
-    metrics = metrics or InMemoryMetrics()
-    handler_registry = handler_registry or HandlerRegistry()
-    heartbeat = HeartbeatService(backend=backend, instance_id=settings.instance_id)
-    context_builder = context_builder or ContextBuilder(
-        default_source=settings.default_source,
-    )
-    middleware = LogicFingerprintMiddleware(
-        executor=executor,
-        handler_registry=handler_registry,
-        metrics=metrics,
-        context_builder=context_builder,
-    )
-    if register_handlers is not None:
-        register_handlers(handler_registry)
-
-    return LogicFingerprintRuntime(
-        config=config,
-        settings=settings,
-        backend=backend,
-        fsm=fsm,
-        executor=executor,
-        metrics=metrics,
-        handler_registry=handler_registry,
-        middleware=middleware,
-        heartbeat=heartbeat,
-        context_builder=context_builder,
-    )
-
-
-def build_demo_runtime(
-    *,
-    config: RuntimeConfig | None = None,
-    settings: RuntimeSettings | None = None,
-    backend: object | None = None,
-    redis_client: object | None = None,
-    instance_id: str | None = None,
-    default_source: str | None = None,
-    backend_type: str | None = None,
-    handler_registrars: tuple[str, ...] | None = None,
-    redis_url: str | None = None,
-    redis_decode_responses: bool | None = None,
-    redis_key: str | None = None,
-    redis_key_prefix: str | None = None,
-    redis_ttl_seconds: int | None = None,
-    config_file: str | Path | None = None,
-    register_handlers: Callable[[HandlerRegistry], None] | None = None,
-) -> LogicFingerprintRuntime:
-    config = config or build_runtime_config(config_file=config_file)
-    settings = settings or build_runtime_settings(
-        instance_id=instance_id,
-        default_source=default_source,
-        backend_type=backend_type,
-        handler_registrars=handler_registrars,
-        redis_url=redis_url,
-        redis_decode_responses=redis_decode_responses,
-        redis_key=redis_key,
-        redis_key_prefix=redis_key_prefix,
-        redis_ttl_seconds=redis_ttl_seconds,
-        config_file=config_file,
-    )
-    backend = backend or build_consensus_backend(
-        settings=settings,
-        redis_client=redis_client,
-    )
-    return assemble_runtime(
-        config=config,
-        settings=settings,
-        backend=backend,
-        register_handlers=compose_handler_registrars(
-            lambda handler_registry: register_builtin_handlers(
-                handler_registry,
-                include_demo=True,
-            ),
-            load_handler_registrars(settings.handler_registrars),
-            register_handlers,
-        ),
-    )
-
-
-def build_production_runtime(
-    *,
-    config: RuntimeConfig | None = None,
-    settings: RuntimeSettings | None = None,
-    backend: object | None = None,
-    redis_client: object | None = None,
-    instance_id: str | None = None,
-    default_source: str | None = None,
-    backend_type: str | None = None,
-    handler_registrars: tuple[str, ...] | None = None,
-    redis_url: str | None = None,
-    redis_decode_responses: bool | None = None,
-    redis_key: str | None = None,
-    redis_key_prefix: str | None = None,
-    redis_ttl_seconds: int | None = None,
-    config_file: str | Path | None = None,
-    register_handlers: Callable[[HandlerRegistry], None] | None = None,
-) -> LogicFingerprintRuntime:
-    config = config or build_runtime_config(config_file=config_file)
-    settings = settings or build_runtime_settings(
-        instance_id=instance_id,
-        default_source=default_source,
-        backend_type=backend_type,
-        handler_registrars=handler_registrars,
-        redis_url=redis_url,
-        redis_decode_responses=redis_decode_responses,
-        redis_key=redis_key,
-        redis_key_prefix=redis_key_prefix,
-        redis_ttl_seconds=redis_ttl_seconds,
-        config_file=config_file,
-    )
-    backend = backend or build_consensus_backend(
-        settings=settings,
-        redis_client=redis_client,
-    )
-    return assemble_runtime(
-        config=config,
-        settings=settings,
-        backend=backend,
-        register_handlers=compose_handler_registrars(
-            register_builtin_handlers,
-            load_handler_registrars(settings.handler_registrars),
-            register_handlers,
-        ),
-    )
-
-
-def build_runtime(**kwargs: object) -> LogicFingerprintRuntime:
-    return build_demo_runtime(**kwargs)
-</file>
-
-<file path="src/logic_fingerprint/schemas.py">
-from pydantic import BaseModel, Field
-class ForceFailRequest(BaseModel):
-    reason: str = "MANUAL_FAIL"
-class ExecuteHandlerContextModel(BaseModel):
-    request_id: str | None = None
-    trace_id: str | None = None
-    user_id: str | None = None
-    source: str | None = None
-    timestamp: str | None = None
-    headers: dict = Field(default_factory=dict)
-    metadata: dict = Field(default_factory=dict)
-class ExecuteHandlerRequest(BaseModel):
-    handler: str
-    payload: dict = Field(default_factory=dict)
-    context: ExecuteHandlerContextModel = Field(default_factory=ExecuteHandlerContextModel)
-    now: float | None = None
-</file>
-
-<file path="src/logic_fingerprint/service.py">
-from dataclasses import dataclass
-
-from .domain.executor import LogicFingerprintExecutor
-from .domain.fsm import LogicFingerprintFSM
-
-
-@dataclass(slots=True)
-class LogicFingerprintService:
-    fsm: LogicFingerprintFSM
-
-    def build_executor(self) -> LogicFingerprintExecutor:
-        return LogicFingerprintExecutor(self.fsm)
 </file>
 
 </files>

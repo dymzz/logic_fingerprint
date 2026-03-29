@@ -2,7 +2,7 @@ prune analysis
 prune demo
 prune documents
 prune examples
-prune src/logic_fingerprint.egg-info
+prune src/logicfp.egg-info
 prune static
 prune tests
 

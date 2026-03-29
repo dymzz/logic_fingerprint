@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, Field
 
-from logic_fingerprint.domain.models import HandlerRequest, HandlerResponse
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.domain.models import HandlerRequest, HandlerResponse
+from logicfp.handler_registry import HandlerRegistry
 
 from ..repositories import InventoryRepository
 from ..services import InventoryService, PricingService

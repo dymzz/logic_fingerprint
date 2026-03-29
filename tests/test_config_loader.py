@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.config import (
+from logicfp.config import (
     build_runtime_config,
     discover_config_file,
     load_runtime_config_from_env,
@@ -14,12 +14,12 @@ from logic_fingerprint.config import (
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-config-", dir=Path.cwd()))
+    return Path(tempfile.mkdtemp(prefix="logicfp-config-", dir=Path.cwd()))
 
 
 def test_build_runtime_config_uses_defaults_without_env(monkeypatch):
-    monkeypatch.delenv("LOGIC_FINGERPRINT_PROBE_RATE", raising=False)
-    monkeypatch.delenv("LOGIC_FINGERPRINT_TOTAL_NODES", raising=False)
+    monkeypatch.delenv("LOGICFP_PROBE_RATE", raising=False)
+    monkeypatch.delenv("LOGICFP_TOTAL_NODES", raising=False)
 
     config = build_runtime_config()
 
@@ -28,8 +28,8 @@ def test_build_runtime_config_uses_defaults_without_env(monkeypatch):
 
 
 def test_load_runtime_config_from_env_reads_environment(monkeypatch):
-    monkeypatch.setenv("LOGIC_FINGERPRINT_PROBE_RATE", "0.45")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_TOTAL_NODES", "5")
+    monkeypatch.setenv("LOGICFP_PROBE_RATE", "0.45")
+    monkeypatch.setenv("LOGICFP_TOTAL_NODES", "5")
 
     config = load_runtime_config_from_env()
 
@@ -38,8 +38,8 @@ def test_load_runtime_config_from_env_reads_environment(monkeypatch):
 
 
 def test_build_runtime_config_explicit_args_override_environment(monkeypatch):
-    monkeypatch.setenv("LOGIC_FINGERPRINT_PROBE_RATE", "0.45")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_TOTAL_NODES", "5")
+    monkeypatch.setenv("LOGICFP_PROBE_RATE", "0.45")
+    monkeypatch.setenv("LOGICFP_TOTAL_NODES", "5")
 
     config = build_runtime_config(probe_rate=0.9, total_nodes=2)
 
@@ -55,7 +55,7 @@ def test_load_runtime_config_reads_project_yaml_config_file(monkeypatch):
         config_path = config_dir / "config.yaml"
         config_path.write_text(
             """
-logic_fingerprint:
+logicfp:
   probe_rate: 0.35
   total_nodes: 4
 """.strip()
@@ -63,9 +63,9 @@ logic_fingerprint:
             encoding="utf-8",
         )
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_PROBE_RATE", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_TOTAL_NODES", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_PROBE_RATE", raising=False)
+        monkeypatch.delenv("LOGICFP_TOTAL_NODES", raising=False)
 
         config = load_runtime_config_from_env()
 
@@ -82,13 +82,13 @@ def test_discover_config_file_walks_up_from_nested_directory(monkeypatch):
         config_dir.mkdir()
         config_path = config_dir / "config.yaml"
         config_path.write_text(
-            "logic_fingerprint:\n  probe_rate: 0.25\n",
+            "logicfp:\n  probe_rate: 0.25\n",
             encoding="utf-8",
         )
         nested_dir = workspace / "src" / "app"
         nested_dir.mkdir(parents=True)
         monkeypatch.chdir(nested_dir)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
 
         discovered = discover_config_file()
 
@@ -103,12 +103,12 @@ def test_environment_overrides_project_yaml_config_file(monkeypatch):
         config_dir = workspace / "config"
         config_dir.mkdir()
         (config_dir / "config.yaml").write_text(
-            "logic_fingerprint:\n  probe_rate: 0.35\n",
+            "logicfp:\n  probe_rate: 0.35\n",
             encoding="utf-8",
         )
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
-        monkeypatch.setenv("LOGIC_FINGERPRINT_PROBE_RATE", "0.55")
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+        monkeypatch.setenv("LOGICFP_PROBE_RATE", "0.55")
 
         config = load_runtime_config_from_env()
 

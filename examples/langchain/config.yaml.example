@@ -1,4 +1,4 @@
-logic_fingerprint:
+logicfp:
   instance_id: langchain-node
   default_source: langchain
   backend_type: memory

@@ -1,9 +1,9 @@
 import asyncio
 import pytest
-from logic_fingerprint.domain.models import HandlerRequest
+from logicfp.domain.models import HandlerRequest
 
 pytest.importorskip("pydantic")
-from logic_fingerprint.runtime import build_runtime
+from logicfp.runtime import build_runtime
 
 def test_middleware_autofills_context_for_sync_handler():
     runtime = build_runtime()

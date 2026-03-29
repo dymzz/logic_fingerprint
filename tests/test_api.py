@@ -4,8 +4,8 @@ pytest.importorskip("fastapi")
 pytest.importorskip("httpx")
 
 from fastapi.testclient import TestClient
-from logic_fingerprint.app_factory import create_app, create_demo_app
-from logic_fingerprint.runtime import build_demo_runtime
+from logicfp.app_factory import create_app, create_demo_app
+from logicfp.runtime import build_demo_runtime
 
 def test_execute_handler_success_envelope():
     client = TestClient(create_demo_app())
@@ -32,9 +32,9 @@ def test_execute_handler_autofills_context():
 
 
 def test_create_app_uses_environment_driven_runtime(monkeypatch):
-    monkeypatch.setenv("LOGIC_FINGERPRINT_INSTANCE_ID", "api-node")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_DEFAULT_SOURCE", "gateway")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_BACKEND_TYPE", "memory")
+    monkeypatch.setenv("LOGICFP_INSTANCE_ID", "api-node")
+    monkeypatch.setenv("LOGICFP_DEFAULT_SOURCE", "gateway")
+    monkeypatch.setenv("LOGICFP_BACKEND_TYPE", "memory")
 
     app = create_app()
 

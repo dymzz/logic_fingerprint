@@ -6,7 +6,7 @@ import pytest
 
 pytest.importorskip("pydantic")
 
-from logic_fingerprint.config import (
+from logicfp.config import (
     API_PROFILE,
     DECORATOR_PROFILE,
     build_runtime_settings,
@@ -15,8 +15,8 @@ from logic_fingerprint.config import (
 
 
 def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfingerprint-settings-", dir=Path.cwd()))
-from logic_fingerprint.infra.consensus import (
+    return Path(tempfile.mkdtemp(prefix="logicfp-settings-", dir=Path.cwd()))
+from logicfp.infra.consensus import (
     InMemoryConsensusBackend,
     build_consensus_backend,
     build_redis_client,
@@ -34,15 +34,15 @@ def test_build_runtime_settings_uses_profile_defaults():
 
 
 def test_load_runtime_settings_from_env_reads_backend_fields(monkeypatch):
-    monkeypatch.setenv("LOGIC_FINGERPRINT_INSTANCE_ID", "node-b")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_DEFAULT_SOURCE", "gateway")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_BACKEND_TYPE", "memory")
+    monkeypatch.setenv("LOGICFP_INSTANCE_ID", "node-b")
+    monkeypatch.setenv("LOGICFP_DEFAULT_SOURCE", "gateway")
+    monkeypatch.setenv("LOGICFP_BACKEND_TYPE", "memory")
     monkeypatch.setenv(
-        "LOGIC_FINGERPRINT_HANDLER_REGISTRARS",
+        "LOGICFP_HANDLER_REGISTRARS",
         "tests.sample_handlers:register_handlers, tests.more_handlers",
     )
-    monkeypatch.setenv("LOGIC_FINGERPRINT_REDIS_URL", "redis://localhost:6379/0")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_REDIS_TTL_SECONDS", "45")
+    monkeypatch.setenv("LOGICFP_REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("LOGICFP_REDIS_TTL_SECONDS", "45")
 
     settings = load_runtime_settings_from_env()
 
@@ -58,10 +58,10 @@ def test_load_runtime_settings_from_env_reads_backend_fields(monkeypatch):
 
 
 def test_build_runtime_settings_explicit_args_override_environment(monkeypatch):
-    monkeypatch.setenv("LOGIC_FINGERPRINT_INSTANCE_ID", "node-b")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_DEFAULT_SOURCE", "gateway")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_HANDLER_REGISTRARS", "tests.sample_handlers")
-    monkeypatch.setenv("LOGIC_FINGERPRINT_REDIS_URL", "redis://localhost:6379/0")
+    monkeypatch.setenv("LOGICFP_INSTANCE_ID", "node-b")
+    monkeypatch.setenv("LOGICFP_DEFAULT_SOURCE", "gateway")
+    monkeypatch.setenv("LOGICFP_HANDLER_REGISTRARS", "tests.sample_handlers")
+    monkeypatch.setenv("LOGICFP_REDIS_URL", "redis://localhost:6379/0")
 
     settings = build_runtime_settings(
         instance_id="node-c",
@@ -83,7 +83,7 @@ def test_load_runtime_settings_reads_project_yaml_config_file(monkeypatch):
         config_dir.mkdir()
         (config_dir / "config.yaml").write_text(
             """
-logic_fingerprint:
+logicfp:
   instance_id: project-node
   default_source: langchain
   backend_type: memory
@@ -94,11 +94,11 @@ logic_fingerprint:
             encoding="utf-8",
         )
         monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_INSTANCE_ID", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_DEFAULT_SOURCE", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_BACKEND_TYPE", raising=False)
-        monkeypatch.delenv("LOGIC_FINGERPRINT_HANDLER_REGISTRARS", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_INSTANCE_ID", raising=False)
+        monkeypatch.delenv("LOGICFP_DEFAULT_SOURCE", raising=False)
+        monkeypatch.delenv("LOGICFP_BACKEND_TYPE", raising=False)
+        monkeypatch.delenv("LOGICFP_HANDLER_REGISTRARS", raising=False)
 
         settings = load_runtime_settings_from_env()
 
@@ -116,14 +116,14 @@ def test_build_runtime_settings_supports_explicit_yaml_config_file(monkeypatch):
         config_path = workspace / "custom.yaml"
         config_path.write_text(
             """
-logic_fingerprint:
+logicfp:
   instance_id: file-node
   default_source: file-source
 """.strip()
             + "\n",
             encoding="utf-8",
         )
-        monkeypatch.delenv("LOGIC_FINGERPRINT_CONFIG_FILE", raising=False)
+        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
 
         settings = build_runtime_settings(config_file=config_path)
 

@@ -25,7 +25,7 @@ DOCS_STATIC_DIR = Path(__file__).resolve().parents[2] / "static" / "dist"
 
 def _create_app_from_runtime(runtime: LogicFingerprintRuntime) -> FastAPI:
     app = FastAPI(
-        title="Logic Fingerprint System",
+        title="logicfp",
         version=__version__,
         lifespan=build_lifespan(runtime, interval_seconds=1.0),
         docs_url=None,

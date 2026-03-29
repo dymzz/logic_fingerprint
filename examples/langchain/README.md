@@ -39,7 +39,7 @@ $env:LANGCHAIN_MODEL="gpt-5"
 
 ## User Project Config
 
-If you use `@protect()` inside your own project, put Logic Fingerprint config here:
+If you use `@protect()` inside your own project, put logicfp config here:
 
 ```text
 your_project/config/config.yaml

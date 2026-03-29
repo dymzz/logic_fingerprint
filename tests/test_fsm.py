@@ -1,6 +1,6 @@
-from logic_fingerprint.config import RuntimeConfig
-from logic_fingerprint.infra.consensus import InMemoryConsensusBackend
-from logic_fingerprint.domain.fsm import LogicFingerprintFSM
+from logicfp.config import RuntimeConfig
+from logicfp.infra.consensus import InMemoryConsensusBackend
+from logicfp.domain.fsm import LogicFingerprintFSM
 
 
 def build_fsm(**kwargs) -> LogicFingerprintFSM:

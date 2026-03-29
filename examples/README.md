@@ -30,7 +30,7 @@
 
 ## 工程模式
 
-工程模式的主入口是 `logic_fingerprint.engineering` 和 CLI，重点是“保护服务边界，统一注册 handlers”。
+工程模式的主入口是 `logicfp.engineering` 和 CLI，重点是“保护服务边界，统一注册 handlers”。
 
 ### 纯 registrar 模板
 
@@ -86,7 +86,7 @@ PowerShell 启动脚本仍然保留，作用是做仓库内快速演示；复制
 最小模板：
 
 ```python
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.handler_registry import HandlerRegistry
 
 
 def register_handlers(handler_registry: HandlerRegistry) -> None:

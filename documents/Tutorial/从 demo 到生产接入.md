@@ -16,7 +16,7 @@
 这里建议同时记住两个对外模式：
 
 - 用户模式：以 `@protect()` 为主入口
-- 工程模式：以 `logic_fingerprint.engineering` / registrar / runtime 为主入口
+- 工程模式：以 `logicfp.engineering` / registrar / runtime 为主入口
 
 单独教程看这里：
 
@@ -29,12 +29,12 @@
 
 对外推荐导入路径：
 
-- 用户模式：`from logic_fingerprint import protect, create_protector`
-- 工程模式：`from logic_fingerprint.engineering import create_app, build_production_runtime`
+- 用户模式：`from logicfp import protect, create_protector`
+- 工程模式：`from logicfp.engineering import create_app, build_production_runtime`
 
 1. Demo 运行时
    文件：
-   `src/logic_fingerprint/runtime.py`
+   `src/logicfp/runtime.py`
    `build_demo_runtime(...)`
 
    用途：
@@ -42,7 +42,7 @@
 
 2. Production 运行时
    文件：
-   `src/logic_fingerprint/runtime.py`
+   `src/logicfp/runtime.py`
    `build_production_runtime(...)`
 
    用途：
@@ -50,7 +50,7 @@
 
 3. HTTP 启动入口
    文件：
-   `src/logic_fingerprint/app_factory.py`
+   `src/logicfp/app_factory.py`
    `create_app()`
 
    用途：
@@ -84,7 +84,7 @@ src/your_real_package/
 其中最关键的是提供一个 registrar 模块，例如：
 
 ```python
-from logic_fingerprint.handler_registry import HandlerRegistry
+from logicfp.handler_registry import HandlerRegistry
 from your_real_package.handlers.order_handlers import build_order_quote_handler
 from your_real_package.handlers.inventory_handlers import build_inventory_lookup_handler
 from your_real_package.services.pricing_service import PricingService
@@ -113,7 +113,7 @@ def register_handlers(handler_registry: HandlerRegistry) -> None:
 然后通过配置文件或环境变量接进系统：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   handler_registrars:
     - your_real_package.handlers.register
 ```
@@ -168,7 +168,7 @@ def register_handlers(handler_registry: HandlerRegistry) -> None:
 先用：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: memory
 ```
 
@@ -185,20 +185,20 @@ logic_fingerprint:
 当单机逻辑跑稳后，再切共享状态：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis_ttl
   redis_url: redis://127.0.0.1:6379/0
-  redis_key_prefix: logic_fingerprint:failed_node
+  redis_key_prefix: logicfp:failed_node
   redis_ttl_seconds: 30
 ```
 
 如果需要集合型失败节点记录，可以切：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   backend_type: redis
   redis_url: redis://127.0.0.1:6379/0
-  redis_key: logic_fingerprint:failed_nodes
+  redis_key: logicfp:failed_nodes
 ```
 
 ## 4. 生产环境最小配置
@@ -212,7 +212,7 @@ server:
 app:
   demo: false
 
-logic_fingerprint:
+logicfp:
   instance_id: prod-node-a
   default_source: api
   backend_type: memory
@@ -223,7 +223,7 @@ logic_fingerprint:
 推荐补齐的运行参数：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   probe_rate: 0.2
   probe_interval_seconds: 5
   consecutive_success_threshold: 3
@@ -234,7 +234,7 @@ logic_fingerprint:
 如果要切 Redis：
 
 ```yaml
-logic_fingerprint:
+logicfp:
   redis_url: redis://127.0.0.1:6379/0
   redis_decode_responses: true
 ```
@@ -244,7 +244,7 @@ logic_fingerprint:
 推荐直接用 CLI：
 
 ```powershell
-logicfingerprint start --port 8000 --config config/config.yaml
+logicfp start --port 8000 --config config/config.yaml
 ```
 
 如果不传 `--config`，CLI 会先找项目里的：
@@ -255,14 +255,14 @@ config/config.yaml
 
 再去常见系统目录里找，比如：
 
-- `/etc/logic_fingerprint/*.yaml`
-- `%ProgramData%\\logic_fingerprint\\*.yaml`
+- `/etc/logicfp/*.yaml`
+- `%ProgramData%\\logicfp\\*.yaml`
 
 从仓库根目录启动：
 
 ```powershell
 $env:PYTHONPATH=".;src"
-uv run logicfingerprint start --config config/config.yaml --port 8000
+uv run logicfp start --config config/config.yaml --port 8000
 ```
 
 这条启动链会经过：
