@@ -1,0 +1,17 @@
+prune analysis
+prune demo
+prune documents
+prune examples
+prune src/logic_fingerprint.egg-info
+prune static
+prune tests
+
+exclude repomix-output.xml
+exclude requirements.txt
+exclude uv.lock
+
+global-exclude __pycache__
+global-exclude *.py[cod]
+global-exclude *.sqlite
+global-exclude *.egg-info
+global-exclude .pytest_tmp*

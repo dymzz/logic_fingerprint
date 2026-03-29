@@ -1,0 +1,23 @@
+server:
+  host: 0.0.0.0
+  port: 8000
+
+app:
+  demo: false
+
+logic_fingerprint:
+  instance_id: api-node-a
+  default_source: api
+  backend_type: memory
+  probe_rate: 0.2
+  probe_interval_seconds: 5
+  consecutive_success_threshold: 3
+  total_nodes: 1
+  global_fail_threshold: 1.0
+  handler_registrars:
+    - your_real_package.handlers.register
+  # redis_url: redis://127.0.0.1:6379/0
+  # redis_decode_responses: true
+  # redis_key: logic_fingerprint:failed_nodes
+  # redis_key_prefix: logic_fingerprint:failed_node
+  # redis_ttl_seconds: 30

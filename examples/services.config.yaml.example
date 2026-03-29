@@ -1,0 +1,19 @@
+server:
+  host: 127.0.0.1
+  port: 8000
+
+app:
+  demo: false
+
+logic_fingerprint:
+  instance_id: prod-node-a
+  default_source: api
+  backend_type: memory
+  handler_registrars:
+    - examples.production_services
+
+example_services:
+  base_stock: 24
+  discount_rate: 0.10
+  tax_rate: 0.06
+  currency: CNY
