@@ -1,6 +1,6 @@
-from logic_fingerprint.config import RuntimeConfig
-from logic_fingerprint.consensus import InMemoryConsensusBackend
-from logic_fingerprint.core.fsm import LogicFingerprintFSM
+from logicfp.config import RuntimeConfig
+from logicfp.infra.consensus import InMemoryConsensusBackend
+from logicfp.domain.fsm import LogicFingerprintFSM
 
 
 def build_fsm(**kwargs) -> LogicFingerprintFSM:
@@ -26,3 +26,4 @@ def test_time_driven_probe_prevents_low_qps_deadlock():
 
     assert fsm.before_half_open_request(now=0)["allow_probe"] is False
     assert fsm.before_half_open_request(now=11)["allow_probe"] is True
+

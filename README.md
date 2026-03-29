@@ -1,167 +1,53 @@
+# Logic Fingerprint (logicfp)
 
-Add a safety layer to any function.
+`logicfp` is a Python protection library for wrapping function boundaries with circuit-breaker style control.
 
-Logic Fingerprint protects your function/LLM/API calls with:
+Developer documentation lives in [README.developer.md](D:/workspace/python/logic_fingerprint_ai/README.developer.md).
 
-circuit breaker (no retry storms)
-safe recovery (HALF_OPEN probing)
-schema validation (stable outputs)
-unified error handling
+## Install
 
-Works with a single decorator: @protect()
+```bash
+pip install logicfp
+```
 
-## 🧭 How it works
+## Quick Start
+
+```python
+from logicfp import protect
+
+
+@protect(simple=False)
+def call_model(request):
+    return {"answer": request.payload["text"].upper()}
+
+
+result = call_model(payload={"text": "hello"})
+```
+
+Use `@protect()` when you want the simplest user-mode entrypoint.
+Use `create_protector()` when you need more than one protector instance.
+Use `logicfp.user_mode` when you want explicit user-mode types like `ProtectRuntimeError`.
+
+## Minimal Config
+
+Put your project config at:
 
 ```text
-Your Function
-      ↓
-   @protect
-      ↓
-Logic Fingerprint
-  ├─ Circuit Breaker
-  ├─ Probe Recovery
-  ├─ Validation Layer
-  ├─ Error Control
-      ↓
- Safe Execution
-      ↓
-   Result / Error
+your_project/config/config.yaml
 ```
 
-## ⚡ Quick Start
-
-### Install
-
-```bash
-pip install logic-fingerprint
-
-```bash
-pip install -r requirements.txt
-pip install -e .
+```yaml
+logicfp:
+  instance_id: decorator-node
+  default_source: user_function
+  backend_type: memory
 ```
 
-### Protect a real local LLM call
+Use `logicfp:` as the main YAML section name. Older `logic_fingerprint:` configs are still accepted for compatibility.
 
-```python
-from logic_fingerprint import protect
+## Learn More
 
-
-@protect()
-def ask_local_llm(request):
-    import json
-    import urllib.request
-
-    payload = {
-        "model": "llama3.2",
-        "prompt": request.payload["prompt"],
-        "stream": False,
-    }
-
-    req = urllib.request.Request(
-        "http://127.0.0.1:11434/api/generate",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST",
-    )
-
-    with urllib.request.urlopen(req, timeout=60) as resp:
-        body = json.loads(resp.read().decode("utf-8"))
-
-    return {"answer": body["response"].strip()}
-```
-
-### Call it like a normal function
-
-```python
-result = ask_local_llm({
-    "prompt": "Explain circuit breaker in one sentence."
-})
-
-print(result)
-```
-
-Output:
-
-```python
-{'answer': 'A circuit breaker is a safety device that automatically stops an overcurrent flow in an electrical circuit to prevent damage to equipment and potential hazards.'}
-```
-
-### What you get automatically
-
-* circuit breaker protection
-* safe recovery probing
-* controlled failure handling
-* optional schema validation
-* auto request context
-
-
-
-```md
-## 🎬 Demos
-
-Run real examples locally:
-
-### 1. Simple mode (like a normal function)
-
-```bash
-python demo/demo_protect_simple.py
-```
-
----
-
-### 2. Full mode (engineering output)
-
-```bash
-python demo/demo_protect_full.py
-```
-
----
-
-### 3. Error handling (simple mode)
-
-```bash
-python demo/demo_error_simple.py
-```
-
----
-
-### 4. Error handling (full mode)
-
-```bash
-python demo/demo_error_full.py
-```
-
----
-
-### 5. Real LLM demo (Ollama)
-
-```bash
-python demo/demo_protect_ollama_simple.py
-```
-
-👉 Make sure Ollama is running locally before running this demo.
-
-------------------------------------------------------------------------
-
-**Logic Fingerprint — Execution Safety Layer (Python)**
-
-* Designed and implemented a decorator-based execution control layer for functions, APIs, and LLM calls
-* Built circuit breaker with HALF_OPEN recovery, time-driven probing, and consecutive-success gating
-* Added schema validation (Pydantic) and unified error protocol for stable, observable outputs
-* Delivered dual-mode API (`simple` vs `full`) to support both developer-friendly usage and production observability
-* Integrated with local LLM (Ollama) to demonstrate real-world stability against timeouts and malformed outputs
-* Structured demos and documentation to enable 30-second onboarding and clear behavior comparison
-
-
-Logic Fingerprint — 执行安全层（Python）
-
-设计并实现基于装饰器的执行控制层，用于函数 / API / LLM 调用的稳定性保护
-实现熔断机制（CLOSED / OPEN / HALF_OPEN）及时间驱动探测恢复与连续成功判定
-引入输入输出 Schema 校验（Pydantic）与统一错误协议，保证结果结构稳定、可观测
-设计双模式接口（simple / full），兼顾易用性与工程可观测性
-集成本地 LLM（Ollama）进行真实场景验证，解决 timeout、异常输出等问题
-构建分层 demo 与文档体系，实现 30 秒上手与行为对照演示
-
----
-“I built a decorator-based execution safety layer for LLM and API calls.”
-
+- Quick user-mode guide: [documents/Tutorial/用户模式快速接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式快速接入.md)
+- User mode: [documents/Tutorial/用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)
+- Mode guide: [documents/Tutorial/protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)
+- Optional engineering mode: [documents/Tutorial/工程模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/工程模式示例.md)

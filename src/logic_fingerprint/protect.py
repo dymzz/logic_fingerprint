@@ -159,9 +159,21 @@ class Protector:
                     )
 
                     def operation() -> Any:
+                        validated_payload = validate_input(
+                            built_request.payload,
+                            input_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                        prepared_request = HandlerRequest(
+                            payload=validated_payload,
+                            context=built_request.context,
+                        )
                         return func(prepared_request)
 
-                    outcome = await self.executor.execute_async(operation, now=now)
+                    outcome = self.executor.execute(operation, now=now)
 
                     if outcome.decision.is_probe:
                         self.metrics.record_probe()
@@ -255,6 +267,18 @@ class Protector:
                 )
 
                 def operation() -> Any:
+                    validated_payload = validate_input(
+                        built_request.payload,
+                        input_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
+                    prepared_request = HandlerRequest(
+                        payload=validated_payload,
+                        context=built_request.context,
+                    )
                     return func(prepared_request)
 
                 outcome = self.executor.execute(operation, now=now)

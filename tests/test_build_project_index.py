@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import importlib.util
-import sqlite3
+import json
 import sys
 from pathlib import Path
 
@@ -17,15 +17,17 @@ def load_indexer_module():
     return module
 
 
-def test_build_index_creates_sqlite_tables(tmp_path):
+def test_build_index_creates_json_index(tmp_path, monkeypatch):
     indexer = load_indexer_module()
     root = tmp_path / "sample_project"
     source_dir = root / "src" / "sample_pkg"
     tests_dir = root / "tests"
+    demo_dir = root / "demo"
     ignored_dir = root / ".venv"
     static_dir = root / "static"
     source_dir.mkdir(parents=True)
     tests_dir.mkdir(parents=True)
+    demo_dir.mkdir(parents=True)
     ignored_dir.mkdir(parents=True)
     static_dir.mkdir(parents=True)
 
@@ -42,52 +44,68 @@ def test_build_index_creates_sqlite_tables(tmp_path):
         encoding="utf-8",
     )
     (tests_dir / "test_module.py").write_text("def test_add():\n    assert True\n", encoding="utf-8")
+    (demo_dir / "example.py").write_text("print('demo')\n", encoding="utf-8")
     (ignored_dir / "ignored.py").write_text("raise RuntimeError('skip')\n", encoding="utf-8")
     (static_dir / "vendor.js").write_text("console.log('vendor');\n", encoding="utf-8")
 
-    db_path = root / "analysis" / "project_index.sqlite"
-    summary = indexer.build_index(root, db_path)
+    monkeypatch.setattr(
+        indexer,
+        "run_rg_files",
+        lambda root, *, excluded_dirs=None, rg_executable=None: [
+            "README.md",
+            "pyproject.toml",
+            "src/sample_pkg/__init__.py",
+            "src/sample_pkg/module.py",
+            "tests/test_module.py",
+            "demo/example.py",
+            ".venv/ignored.py",
+            "static/vendor.js",
+        ],
+    )
+    monkeypatch.setattr(indexer, "resolve_rg_executable", lambda: Path("rg"))
+
+    index_path = root / "analysis" / "project_index.json"
+    summary = indexer.build_index(root, index_path)
 
     assert summary["file_count"] == 5
     assert summary["python_file_count"] == 3
-    assert db_path.exists()
+    assert index_path.exists()
 
-    connection = sqlite3.connect(db_path)
-    files = {
-        row[0]
-        for row in connection.execute("SELECT relative_path FROM files")
-    }
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    files = {row["relative_path"] for row in payload["files"]}
     assert ".venv/ignored.py" not in files
+    assert "demo/example.py" not in files
     assert "static/vendor.js" not in files
     assert "src/sample_pkg/module.py" in files
 
-    module_row = connection.execute(
-        """
-        SELECT module_name, class_count, function_count
-        FROM python_modules
-        WHERE module_name = 'sample_pkg.module'
-        """
-    ).fetchone()
-    assert module_row == ("sample_pkg.module", 1, 1)
+    module_rows = {
+        row["module_name"]: row
+        for row in payload["python_modules"]
+    }
+    assert module_rows["sample_pkg.module"]["class_count"] == 1
+    assert module_rows["sample_pkg.module"]["function_count"] == 1
 
+    module_file_id = next(
+        item["id"]
+        for item in payload["files"]
+        if item["relative_path"] == "src/sample_pkg/module.py"
+    )
     symbol_names = {
-        row[0]
-        for row in connection.execute(
-            "SELECT qualname FROM symbols WHERE file_id IN (SELECT id FROM files WHERE relative_path = 'src/sample_pkg/module.py')"
-        )
+        row["qualname"]
+        for row in payload["symbols"]
+        if row["file_id"] == module_file_id
     }
     assert "Demo" in symbol_names
     assert "Demo.greet" in symbol_names
     assert "add" in symbol_names
 
     imports = {
-        row[0]
-        for row in connection.execute(
-            "SELECT module FROM imports WHERE file_id IN (SELECT id FROM files WHERE relative_path = 'src/sample_pkg/module.py')"
-        )
+        row["module"]
+        for row in payload["imports"]
+        if row["file_id"] == module_file_id
     }
     assert "json" in imports
 
-    meta = dict(connection.execute("SELECT key, value FROM project_meta"))
-    assert meta["file_count"] == "5"
-    connection.close()
+    metadata = payload["metadata"]
+    assert metadata["file_count"] == 5
+    assert "demo" in metadata["excluded_directories"]

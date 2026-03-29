@@ -1,9 +1,9 @@
 import asyncio
 
-from logic_fingerprint.config import RuntimeConfig
-from logic_fingerprint.consensus import InMemoryConsensusBackend
-from logic_fingerprint.core.executor import LogicFingerprintExecutor
-from logic_fingerprint.core.fsm import LogicFingerprintFSM
+from logicfp.config import RuntimeConfig
+from logicfp.infra.consensus import InMemoryConsensusBackend
+from logicfp.domain.executor import LogicFingerprintExecutor
+from logicfp.domain.fsm import LogicFingerprintFSM
 
 
 def build_executor(**kwargs) -> LogicFingerprintExecutor:
@@ -36,3 +36,4 @@ def test_async_execute_supports_async_handler():
     outcome = asyncio.run(run())
     assert outcome.executed is True
     assert outcome.succeeded is True
+

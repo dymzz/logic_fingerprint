@@ -2,224 +2,236 @@ from __future__ import annotations
 
 import argparse
 import json
-import sqlite3
 import sys
+from dataclasses import dataclass
 from pathlib import Path
 
-DEFAULT_DB_PATH = Path("analysis") / "project_index.sqlite"
+DEFAULT_INDEX_PATH = Path("analysis") / "project_index.json"
 
 
-def escape_like(term: str) -> str:
-    return term.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+@dataclass(slots=True)
+class LoadedIndex:
+    payload: dict[str, object]
+    files_by_id: dict[int, dict[str, object]]
+    module_by_file_id: dict[int, dict[str, object]]
+    symbols_by_file_id: dict[int, list[dict[str, object]]]
 
 
-def connect_database(db_path: Path) -> sqlite3.Connection:
-    if not db_path.exists():
-        raise FileNotFoundError(f"SQLite index not found: {db_path}")
+def load_index(index_path: Path) -> LoadedIndex:
+    if not index_path.exists():
+        raise FileNotFoundError(f"JSON index not found: {index_path}")
 
-    connection = sqlite3.connect(db_path)
-    connection.row_factory = sqlite3.Row
-    required_tables = {"files", "python_modules", "symbols", "imports"}
-    table_names = {
-        row["name"]
-        for row in connection.execute(
-            "SELECT name FROM sqlite_master WHERE type IN ('table', 'view')"
-        )
-    }
-    missing = required_tables - table_names
+    payload = json.loads(index_path.read_text(encoding="utf-8"))
+    required_keys = {"files", "python_modules", "symbols", "imports", "metadata"}
+    missing = required_keys - set(payload)
     if missing:
-        connection.close()
         raise RuntimeError(
-            "SQLite index is missing required tables: "
-            + ", ".join(sorted(missing))
+            "JSON index is missing required keys: " + ", ".join(sorted(missing))
         )
-    return connection
+
+    files = payload["files"]
+    python_modules = payload["python_modules"]
+    symbols = payload["symbols"]
+    if (
+        not isinstance(files, list)
+        or not isinstance(python_modules, list)
+        or not isinstance(symbols, list)
+    ):
+        raise RuntimeError("JSON index has an unexpected structure.")
+
+    files_by_id = {int(item["id"]): item for item in files}
+    module_by_file_id = {
+        int(item["file_id"]): item
+        for item in python_modules
+    }
+    symbols_by_file_id: dict[int, list[dict[str, object]]] = {}
+    for symbol in symbols:
+        file_id = int(symbol["file_id"])
+        symbols_by_file_id.setdefault(file_id, []).append(symbol)
+
+    return LoadedIndex(
+        payload=payload,
+        files_by_id=files_by_id,
+        module_by_file_id=module_by_file_id,
+        symbols_by_file_id=symbols_by_file_id,
+    )
+
+
+def connect_database(index_path: Path) -> LoadedIndex:
+    return load_index(index_path)
+
+
+def build_module_row(index: LoadedIndex, module: dict[str, object]) -> dict[str, object]:
+    file_row = index.files_by_id[int(module["file_id"])]
+    return {
+        "file_id": int(module["file_id"]),
+        "relative_path": file_row["relative_path"],
+        "summary": file_row["summary"],
+        "module_name": module["module_name"],
+        "class_count": int(module["class_count"]),
+        "function_count": int(module["function_count"]),
+        "import_count": int(module["import_count"]),
+        "parse_error": module["parse_error"],
+        "file_name": file_row["file_name"],
+    }
+
+
+def build_symbol_row(index: LoadedIndex, symbol: dict[str, object]) -> dict[str, object]:
+    file_id = int(symbol["file_id"])
+    file_row = index.files_by_id[file_id]
+    module = index.module_by_file_id.get(file_id)
+    return {
+        "id": int(symbol["id"]),
+        "symbol_type": symbol["symbol_type"],
+        "name": symbol["name"],
+        "qualname": symbol["qualname"],
+        "lineno": int(symbol["lineno"]),
+        "end_lineno": symbol["end_lineno"],
+        "signature": symbol["signature"],
+        "docstring": symbol["docstring"],
+        "file_id": file_id,
+        "relative_path": file_row["relative_path"],
+        "module_name": module["module_name"] if module else None,
+    }
 
 
 def search_modules(
-    connection: sqlite3.Connection,
+    index: LoadedIndex,
     query: str,
     *,
     limit: int = 10,
     exact: bool = False,
-) -> list[sqlite3.Row]:
+) -> list[dict[str, object]]:
     lowered = query.lower()
+    rows = [build_module_row(index, module) for module in index.payload["python_modules"]]
+
     if exact:
-        sql = """
-        SELECT
-            files.id AS file_id,
-            files.relative_path,
-            files.summary,
-            python_modules.module_name,
-            python_modules.class_count,
-            python_modules.function_count,
-            python_modules.import_count,
-            python_modules.parse_error
-        FROM python_modules
-        JOIN files ON files.id = python_modules.file_id
-        WHERE LOWER(python_modules.module_name) = ?
-           OR LOWER(files.relative_path) = ?
-        ORDER BY python_modules.module_name, files.relative_path
-        LIMIT ?
-        """
-        params = (lowered, lowered, limit)
-    else:
-        pattern = f"%{escape_like(lowered)}%"
-        prefix = f"{escape_like(lowered)}%"
-        sql = """
-        SELECT
-            files.id AS file_id,
-            files.relative_path,
-            files.summary,
-            python_modules.module_name,
-            python_modules.class_count,
-            python_modules.function_count,
-            python_modules.import_count,
-            python_modules.parse_error
-        FROM python_modules
-        JOIN files ON files.id = python_modules.file_id
-        WHERE LOWER(python_modules.module_name) LIKE ? ESCAPE '\\'
-           OR LOWER(files.relative_path) LIKE ? ESCAPE '\\'
-           OR LOWER(files.file_name) LIKE ? ESCAPE '\\'
-        ORDER BY
-            CASE
-                WHEN LOWER(python_modules.module_name) = ? THEN 0
-                WHEN LOWER(files.relative_path) = ? THEN 1
-                WHEN LOWER(python_modules.module_name) LIKE ? ESCAPE '\\' THEN 2
-                WHEN LOWER(files.relative_path) LIKE ? ESCAPE '\\' THEN 3
-                WHEN LOWER(files.file_name) LIKE ? ESCAPE '\\' THEN 4
-                ELSE 5
-            END,
-            python_modules.import_count DESC,
-            python_modules.function_count DESC,
-            files.relative_path
-        LIMIT ?
-        """
-        params = (
-            pattern,
-            pattern,
-            pattern,
-            lowered,
-            lowered,
-            prefix,
-            prefix,
-            prefix,
-            limit,
+        matches = [
+            row
+            for row in rows
+            if row["module_name"].lower() == lowered
+            or row["relative_path"].lower() == lowered
+        ]
+        matches.sort(key=lambda item: (str(item["module_name"]), str(item["relative_path"])))
+        return matches[:limit]
+
+    def rank(row: dict[str, object]) -> tuple[object, ...]:
+        module_name = str(row["module_name"]).lower()
+        relative_path = str(row["relative_path"]).lower()
+        file_name = str(row["file_name"]).lower()
+        if lowered not in module_name and lowered not in relative_path and lowered not in file_name:
+            return (99,)
+        if module_name == lowered:
+            bucket = 0
+        elif relative_path == lowered:
+            bucket = 1
+        elif module_name.startswith(lowered):
+            bucket = 2
+        elif relative_path.startswith(lowered):
+            bucket = 3
+        elif file_name.startswith(lowered):
+            bucket = 4
+        else:
+            bucket = 5
+        return (
+            bucket,
+            -int(row["import_count"]),
+            -int(row["function_count"]),
+            str(row["relative_path"]),
         )
-    return list(connection.execute(sql, params))
+
+    matches = [row for row in rows if rank(row)[0] != 99]
+    matches.sort(key=rank)
+    return matches[:limit]
 
 
 def search_symbols(
-    connection: sqlite3.Connection,
+    index: LoadedIndex,
     query: str,
     *,
     limit: int = 10,
     exact: bool = False,
-) -> list[sqlite3.Row]:
+) -> list[dict[str, object]]:
     lowered = query.lower()
+    rows = [build_symbol_row(index, symbol) for symbol in index.payload["symbols"]]
+
     if exact:
-        sql = """
-        SELECT
-            symbols.id,
-            symbols.symbol_type,
-            symbols.name,
-            symbols.qualname,
-            symbols.lineno,
-            symbols.end_lineno,
-            symbols.signature,
-            symbols.docstring,
-            files.id AS file_id,
-            files.relative_path,
-            python_modules.module_name
-        FROM symbols
-        JOIN files ON files.id = symbols.file_id
-        LEFT JOIN python_modules ON python_modules.file_id = files.id
-        WHERE LOWER(symbols.name) = ?
-           OR LOWER(symbols.qualname) = ?
-        ORDER BY symbols.qualname, files.relative_path, symbols.lineno
-        LIMIT ?
-        """
-        params = (lowered, lowered, limit)
-    else:
-        pattern = f"%{escape_like(lowered)}%"
-        prefix = f"{escape_like(lowered)}%"
-        sql = """
-        SELECT
-            symbols.id,
-            symbols.symbol_type,
-            symbols.name,
-            symbols.qualname,
-            symbols.lineno,
-            symbols.end_lineno,
-            symbols.signature,
-            symbols.docstring,
-            files.id AS file_id,
-            files.relative_path,
-            python_modules.module_name
-        FROM symbols
-        JOIN files ON files.id = symbols.file_id
-        LEFT JOIN python_modules ON python_modules.file_id = files.id
-        WHERE LOWER(symbols.name) LIKE ? ESCAPE '\\'
-           OR LOWER(symbols.qualname) LIKE ? ESCAPE '\\'
-           OR LOWER(files.relative_path) LIKE ? ESCAPE '\\'
-        ORDER BY
-            CASE
-                WHEN LOWER(symbols.name) = ? THEN 0
-                WHEN LOWER(symbols.qualname) = ? THEN 1
-                WHEN LOWER(symbols.name) LIKE ? ESCAPE '\\' THEN 2
-                WHEN LOWER(symbols.qualname) LIKE ? ESCAPE '\\' THEN 3
-                WHEN LOWER(files.relative_path) LIKE ? ESCAPE '\\' THEN 4
-                ELSE 5
-            END,
-            symbols.name,
-            files.relative_path,
-            symbols.lineno
-        LIMIT ?
-        """
-        params = (
-            pattern,
-            pattern,
-            pattern,
-            lowered,
-            lowered,
-            prefix,
-            prefix,
-            prefix,
-            limit,
+        matches = [
+            row
+            for row in rows
+            if row["name"].lower() == lowered or row["qualname"].lower() == lowered
+        ]
+        matches.sort(
+            key=lambda item: (
+                str(item["qualname"]),
+                str(item["relative_path"]),
+                int(item["lineno"]),
+            )
         )
-    return list(connection.execute(sql, params))
+        return matches[:limit]
+
+    def rank(row: dict[str, object]) -> tuple[object, ...]:
+        name = str(row["name"]).lower()
+        qualname = str(row["qualname"]).lower()
+        relative_path = str(row["relative_path"]).lower()
+        if lowered not in name and lowered not in qualname and lowered not in relative_path:
+            return (99,)
+        if name == lowered:
+            bucket = 0
+        elif qualname == lowered:
+            bucket = 1
+        elif name.startswith(lowered):
+            bucket = 2
+        elif qualname.startswith(lowered):
+            bucket = 3
+        elif relative_path.startswith(lowered):
+            bucket = 4
+        else:
+            bucket = 5
+        return (
+            bucket,
+            str(row["name"]),
+            str(row["relative_path"]),
+            int(row["lineno"]),
+        )
+
+    matches = [row for row in rows if rank(row)[0] != 99]
+    matches.sort(key=rank)
+    return matches[:limit]
 
 
 def load_module_symbols(
-    connection: sqlite3.Connection,
+    index: LoadedIndex,
     file_id: int,
     *,
     limit: int = 10,
-) -> list[sqlite3.Row]:
-    sql = """
-    SELECT
-        symbol_type,
-        name,
-        qualname,
-        lineno,
-        end_lineno,
-        signature
-    FROM symbols
-    WHERE file_id = ?
-    ORDER BY lineno, qualname
-    LIMIT ?
-    """
-    return list(connection.execute(sql, (file_id, limit)))
+) -> list[dict[str, object]]:
+    symbols = [
+        build_symbol_row(index, symbol)
+        for symbol in index.symbols_by_file_id.get(file_id, [])
+    ]
+    symbols.sort(key=lambda item: (int(item["lineno"]), str(item["qualname"])))
+    return [
+        {
+            "symbol_type": item["symbol_type"],
+            "name": item["name"],
+            "qualname": item["qualname"],
+            "lineno": item["lineno"],
+            "end_lineno": item["end_lineno"],
+            "signature": item["signature"],
+        }
+        for item in symbols[:limit]
+    ]
 
 
-def rows_to_dicts(rows: list[sqlite3.Row]) -> list[dict[str, object]]:
+def rows_to_dicts(rows: list[dict[str, object]]) -> list[dict[str, object]]:
     return [dict(row) for row in rows]
 
 
 def format_module_results(
-    rows: list[sqlite3.Row],
+    rows: list[dict[str, object]],
     *,
-    connection: sqlite3.Connection | None = None,
+    connection: LoadedIndex | None = None,
     with_symbols: bool = False,
     symbol_limit: int = 10,
 ) -> str:
@@ -243,7 +255,7 @@ def format_module_results(
         if with_symbols and connection is not None:
             symbols = load_module_symbols(
                 connection,
-                row["file_id"],
+                int(row["file_id"]),
                 limit=symbol_limit,
             )
             if symbols:
@@ -261,7 +273,7 @@ def format_module_results(
     return "\n".join(lines)
 
 
-def format_symbol_results(rows: list[sqlite3.Row]) -> str:
+def format_symbol_results(rows: list[dict[str, object]]) -> str:
     if not rows:
         return "No symbol matches found."
 
@@ -275,7 +287,7 @@ def format_symbol_results(rows: list[sqlite3.Row]) -> str:
         if row["signature"]:
             lines.append(f"    signature: {row['signature']}")
         if row["docstring"]:
-            first_line = row["docstring"].splitlines()[0].strip()
+            first_line = str(row["docstring"]).splitlines()[0].strip()
             if first_line:
                 lines.append(f"    doc: {first_line}")
         if index != len(rows):
@@ -286,9 +298,9 @@ def format_symbol_results(rows: list[sqlite3.Row]) -> str:
 def build_json_payload(
     command: str,
     query: str,
-    rows: list[sqlite3.Row],
+    rows: list[dict[str, object]],
     *,
-    connection: sqlite3.Connection | None = None,
+    connection: LoadedIndex | None = None,
     with_symbols: bool = False,
     symbol_limit: int = 10,
 ) -> dict[str, object]:
@@ -312,13 +324,19 @@ def build_json_payload(
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
-        description="Query the project SQLite index by module or symbol.",
+        description="Query the project JSON index by module or symbol.",
+    )
+    parser.add_argument(
+        "--index",
+        type=Path,
+        default=DEFAULT_INDEX_PATH,
+        help="JSON index path. Defaults to analysis/project_index.json.",
     )
     parser.add_argument(
         "--db",
         type=Path,
-        default=DEFAULT_DB_PATH,
-        help="SQLite index path. Defaults to analysis/project_index.sqlite.",
+        default=None,
+        help=argparse.SUPPRESS,
     )
     parser.add_argument(
         "--json",
@@ -377,48 +395,50 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def run_query(args: argparse.Namespace) -> tuple[str, int]:
-    db_path = args.db.resolve()
-    connection = connect_database(db_path)
-    try:
-        if args.command == "module":
-            rows = search_modules(
-                connection,
-                args.query,
-                limit=args.limit,
-                exact=args.exact,
-            )
-            if args.json:
-                payload = build_json_payload(
-                    "module",
-                    args.query,
-                    rows,
-                    connection=connection,
-                    with_symbols=args.with_symbols,
-                    symbol_limit=args.symbol_limit,
-                )
-                return json.dumps(payload, ensure_ascii=True, indent=2), 0
-            return (
-                format_module_results(
-                    rows,
-                    connection=connection,
-                    with_symbols=args.with_symbols,
-                    symbol_limit=args.symbol_limit,
-                ),
-                0,
-            )
+    if args.db is not None:
+        raise RuntimeError(
+            "SQLite index is disabled. Use --index analysis/project_index.json instead."
+        )
 
-        rows = search_symbols(
+    index_path = args.index.resolve()
+    connection = load_index(index_path)
+    if args.command == "module":
+        rows = search_modules(
             connection,
             args.query,
             limit=args.limit,
             exact=args.exact,
         )
         if args.json:
-            payload = build_json_payload("symbol", args.query, rows)
+            payload = build_json_payload(
+                "module",
+                args.query,
+                rows,
+                connection=connection,
+                with_symbols=args.with_symbols,
+                symbol_limit=args.symbol_limit,
+            )
             return json.dumps(payload, ensure_ascii=True, indent=2), 0
-        return format_symbol_results(rows), 0
-    finally:
-        connection.close()
+        return (
+            format_module_results(
+                rows,
+                connection=connection,
+                with_symbols=args.with_symbols,
+                symbol_limit=args.symbol_limit,
+            ),
+            0,
+        )
+
+    rows = search_symbols(
+        connection,
+        args.query,
+        limit=args.limit,
+        exact=args.exact,
+    )
+    if args.json:
+        payload = build_json_payload("symbol", args.query, rows)
+        return json.dumps(payload, ensure_ascii=True, indent=2), 0
+    return format_symbol_results(rows), 0
 
 
 def main() -> int:
@@ -426,7 +446,7 @@ def main() -> int:
     args = parser.parse_args()
     try:
         output, exit_code = run_query(args)
-    except (FileNotFoundError, RuntimeError, sqlite3.DatabaseError) as exc:
+    except (FileNotFoundError, RuntimeError, json.JSONDecodeError) as exc:
         print(f"Error: {exc}", file=sys.stderr)
         return 1
 

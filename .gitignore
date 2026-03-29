@@ -2,6 +2,7 @@
 .env
 .env.local
 .env.production
+config/config.yaml
 
 # 忽略所有 pem 或 key 后缀的证书文件
 *.pem
@@ -20,11 +21,25 @@
 analysis/
 design/
 .vscode/
+/.uv-cache/
+/.venv/
 /.pytest_cache/
 **/.pytest_cache/
 __pycache__/
 **/__pycache__/
 *.sqlite
+*.egg-info
+*.egg-info/
+build/
+dist/
+dist_test_logicfp/
+pip-wheel-metadata/
+.pytest_tmp*/
+/.pytest_tmp*/
+/logicfp/
+/info/
+/list/
+/logicfp-*/
 
 /.dist/
 **/.dist/

@@ -1,9 +1,9 @@
 import asyncio
 import pytest
-from logic_fingerprint.core.models import HandlerRequest
+from logicfp.domain.models import HandlerRequest
 
 pytest.importorskip("pydantic")
-from logic_fingerprint.runtime import build_runtime
+from logicfp.runtime import build_runtime
 
 def test_middleware_autofills_context_for_sync_handler():
     runtime = build_runtime()
@@ -36,3 +36,4 @@ def test_middleware_autofills_context_for_async_handler():
     assert outcome.executed is True
     assert outcome.succeeded is True
     assert outcome.result.data["request_id"] is not None
+

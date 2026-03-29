@@ -1,4 +1,4 @@
-from logic_fingerprint import protect
+from logicfp import protect
 
 
 @protect(simple=False)

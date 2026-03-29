@@ -16,7 +16,7 @@ def load_script_module(name: str, relative_path: str):
     return module
 
 
-def build_sample_index(tmp_path):
+def build_sample_index(tmp_path, monkeypatch):
     indexer = load_script_module("build_project_index_for_query_test", "scripts/build_project_index.py")
     root = tmp_path / "sample_project"
     source_dir = root / "src" / "sample_pkg"
@@ -37,48 +37,58 @@ def build_sample_index(tmp_path):
     )
     (tests_dir / "test_module.py").write_text("def test_add():\n    assert True\n", encoding="utf-8")
 
-    db_path = root / "analysis" / "project_index.sqlite"
-    indexer.build_index(root, db_path)
-    return db_path
+    monkeypatch.setattr(
+        indexer,
+        "run_rg_files",
+        lambda root, *, excluded_dirs=None, rg_executable=None: [
+            "README.md",
+            "src/sample_pkg/__init__.py",
+            "src/sample_pkg/module.py",
+            "tests/test_module.py",
+        ],
+    )
+    monkeypatch.setattr(indexer, "resolve_rg_executable", lambda: Path("rg"))
+
+    index_path = root / "analysis" / "project_index.json"
+    indexer.build_index(root, index_path)
+    return index_path
 
 
-def test_search_modules_and_symbols(tmp_path):
+def test_search_modules_and_symbols(tmp_path, monkeypatch):
     query_module = load_script_module("query_project_index", "scripts/query_project_index.py")
-    db_path = build_sample_index(tmp_path)
-    connection = query_module.connect_database(db_path)
-    try:
-        modules = query_module.search_modules(connection, "sample_pkg.module", exact=True)
-        assert len(modules) == 1
-        assert modules[0]["relative_path"] == "src/sample_pkg/module.py"
+    index_path = build_sample_index(tmp_path, monkeypatch)
+    connection = query_module.connect_database(index_path)
 
-        symbols = query_module.search_symbols(connection, "greet", exact=True)
-        assert len(symbols) == 1
-        assert symbols[0]["qualname"] == "Demo.greet"
+    modules = query_module.search_modules(connection, "sample_pkg.module", exact=True)
+    assert len(modules) == 1
+    assert modules[0]["relative_path"] == "src/sample_pkg/module.py"
 
-        module_output = query_module.format_module_results(
-            modules,
-            connection=connection,
-            with_symbols=True,
-            symbol_limit=10,
-        )
-        assert "symbols:" in module_output
-        assert "Demo.greet" in module_output
+    symbols = query_module.search_symbols(connection, "greet", exact=True)
+    assert len(symbols) == 1
+    assert symbols[0]["qualname"] == "Demo.greet"
 
-        symbol_output = query_module.format_symbol_results(symbols)
-        assert "src/sample_pkg/module.py:4" in symbol_output
-        assert "type: method" in symbol_output
-    finally:
-        connection.close()
+    module_output = query_module.format_module_results(
+        modules,
+        connection=connection,
+        with_symbols=True,
+        symbol_limit=10,
+    )
+    assert "symbols:" in module_output
+    assert "Demo.greet" in module_output
+
+    symbol_output = query_module.format_symbol_results(symbols)
+    assert "src/sample_pkg/module.py:4" in symbol_output
+    assert "type: method" in symbol_output
 
 
-def test_run_query_json_payload(tmp_path):
+def test_run_query_json_payload(tmp_path, monkeypatch):
     query_module = load_script_module("query_project_index_json", "scripts/query_project_index.py")
-    db_path = build_sample_index(tmp_path)
+    index_path = build_sample_index(tmp_path, monkeypatch)
     parser = query_module.build_parser()
     args = parser.parse_args(
         [
-            "--db",
-            str(db_path),
+            "--index",
+            str(index_path),
             "--json",
             "module",
             "sample_pkg",
