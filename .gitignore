@@ -30,6 +30,7 @@ __pycache__/
 *.egg-info/
 build/
 dist/
+dist_test_logicfp/
 pip-wheel-metadata/
 .pytest_tmp*/
 /.pytest_tmp*/
