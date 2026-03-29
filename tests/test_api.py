@@ -4,7 +4,7 @@ pytest.importorskip("fastapi")
 pytest.importorskip("httpx")
 
 from fastapi.testclient import TestClient
-from logicfp.app_factory import create_app, create_demo_app
+from logicfp.app_factory import create_app, create_demo_app, create_http_app
 from logicfp.runtime import build_demo_runtime
 
 def test_execute_handler_success_envelope():
@@ -57,3 +57,21 @@ def test_create_demo_app_registers_demo_handlers():
     app = create_demo_app()
 
     assert "sum_numbers" in app.state.runtime.handler_registry.names()
+
+
+def test_create_http_app_supports_demo_mode():
+    app = create_http_app(mode="demo")
+
+    assert "sum_numbers" in app.state.runtime.handler_registry.names()
+
+
+def test_create_http_app_rejects_unknown_mode():
+    with pytest.raises(ValueError, match="Unsupported HTTP app mode"):
+        create_http_app(mode="staging")  # type: ignore[arg-type]
+
+
+def test_create_http_app_rejects_runtime_and_runtime_kwargs_together():
+    runtime = build_demo_runtime()
+
+    with pytest.raises(ValueError, match="Pass either 'runtime' or 'runtime_kwargs'"):
+        create_http_app(mode="demo", runtime=runtime, runtime_kwargs={"instance_id": "x"})

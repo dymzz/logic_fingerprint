@@ -2,8 +2,11 @@
 
 这里放的都是可运行示例，不放真实业务代码。
 
+默认推荐先看用户模式。只有当你明确需要服务化、统一注册 handler、或者接平台网关时，再看工程模式。
+
 如果你想先按模式选入口，先看这两页：
 
+- `documents/Tutorial/用户模式快速接入.md`
 - `documents/Tutorial/用户模式示例.md`
 - `documents/Tutorial/工程模式示例.md`
 
@@ -16,11 +19,18 @@
 
 用户模式的主入口是 `@protect()`，重点是“保护函数边界，不手动装 runtime”。
 
+这是默认路线。
+
 从这里开始：
 
 - `examples/langchain/user_mode.py`
 - `examples/langchain/README.md`
 - `examples/langchain/config.yaml.example`
+- `examples/user_mode/README.md`
+- `examples/user_mode/basic_function.py`
+- `examples/user_mode/tool_call.py`
+- `examples/user_mode/exception_handling.py`
+- `examples/user_mode/config_diagnostics.py`
 
 这条路径适合：
 
@@ -31,6 +41,8 @@
 ## 工程模式
 
 工程模式的主入口是 `logicfp.engineering` 和 CLI，重点是“保护服务边界，统一注册 handlers”。
+
+这条路线是高级/可选路线，不是默认接入方式。
 
 ### 纯 registrar 模板
 

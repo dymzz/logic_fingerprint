@@ -14,19 +14,20 @@ _ENGINEERING_EXPORTS = {
     "build_demo_runtime",
     "build_production_runtime",
     "build_runtime",
+    "create_http_app",
     "create_app",
     "create_demo_app",
 }
 
 
 def protect(*args: Any, **kwargs: Any):
-    from .protect import protect as _protect
+    from .decorator import protect as _protect
 
     return _protect(*args, **kwargs)
 
 
 def create_protector(*args: Any, **kwargs: Any):
-    from .protect import create_protector as _create_protector
+    from .decorator import create_protector as _create_protector
 
     return _create_protector(*args, **kwargs)
 

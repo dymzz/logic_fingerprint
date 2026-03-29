@@ -9,6 +9,7 @@ pytest.importorskip("fastapi")
 sys.modules.pop("logicfp", None)
 logicfp = importlib.import_module("logicfp")
 engineering = importlib.import_module("logicfp.engineering")
+user_mode = importlib.import_module("logicfp.user_mode")
 
 from logicfp import create_protector, protect
 from logicfp.engineering import (
@@ -16,9 +17,11 @@ from logicfp.engineering import (
     build_demo_runtime,
     build_production_runtime,
     build_runtime,
+    create_http_app,
     create_app,
     create_demo_app,
 )
+from logicfp.user_mode import ProtectRuntimeError, Protector
 
 
 def test_root_package_exports_user_mode_only():
@@ -32,12 +35,20 @@ def test_root_package_guides_engineering_imports():
         logicfp.build_production_runtime
 
 
+def test_root_package_protect_export_survives_submodule_import():
+    importlib.import_module("logicfp.decorator")
+    from logicfp import protect as exported_protect
+
+    assert callable(exported_protect)
+
+
 def test_engineering_module_exports_service_entrypoints():
     assert engineering.__all__ == [
         "assemble_runtime",
         "build_demo_runtime",
         "build_production_runtime",
         "build_runtime",
+        "create_http_app",
         "create_app",
         "create_demo_app",
     ]
@@ -45,5 +56,19 @@ def test_engineering_module_exports_service_entrypoints():
     assert callable(build_demo_runtime)
     assert callable(build_production_runtime)
     assert callable(build_runtime)
+    assert callable(create_http_app)
     assert callable(create_app)
     assert callable(create_demo_app)
+
+
+def test_user_mode_module_exports_advanced_user_mode_api():
+    assert user_mode.__all__ == [
+        "ProtectRuntimeError",
+        "Protector",
+        "create_protector",
+        "protect",
+    ]
+    assert callable(user_mode.protect)
+    assert callable(user_mode.create_protector)
+    assert ProtectRuntimeError is user_mode.ProtectRuntimeError
+    assert Protector is user_mode.Protector

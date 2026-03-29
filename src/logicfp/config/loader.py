@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import asdict
 import os
 from dataclasses import replace
 from pathlib import Path
@@ -16,6 +17,7 @@ DEFAULT_CONFIG_DIR_NAME = "config"
 DEFAULT_CONFIG_FILE_NAME = "config.yaml"
 API_PROFILE = "api"
 DECORATOR_PROFILE = "decorator"
+CONFIG_SECTION_NAMES = ("logicfp", "logic_fingerprint", "logicfingerprint")
 
 
 def _resolve_env_value(env_name: str) -> str | None:
@@ -127,7 +129,7 @@ def _normalize_config_path(path: str | Path) -> Path:
 
 
 def _extract_logicfp_values(data: dict[str, Any]) -> dict[str, Any]:
-    for section_name in ("logicfp", "logic_fingerprint", "logicfingerprint"):
+    for section_name in CONFIG_SECTION_NAMES:
         section = data.get(section_name)
         if section is None:
             continue
@@ -389,3 +391,37 @@ def build_runtime_settings(
     if not overrides:
         return settings
     return replace(settings, **overrides)
+
+
+def describe_effective_config(
+    *,
+    profile: str = API_PROFILE,
+    prefix: str = DEFAULT_ENV_PREFIX,
+    config_file: str | Path | None = None,
+    start_dir: str | Path | None = None,
+) -> dict[str, Any]:
+    resolved_config_file = discover_config_file(
+        config_file=config_file,
+        prefix=prefix,
+        start_dir=start_dir,
+    )
+    runtime_config = build_runtime_config(
+        prefix=prefix,
+        config_file=resolved_config_file,
+        start_dir=start_dir,
+    )
+    runtime_settings = build_runtime_settings(
+        profile=profile,
+        prefix=prefix,
+        config_file=resolved_config_file,
+        start_dir=start_dir,
+    )
+    return {
+        "profile": profile,
+        "config_file": str(resolved_config_file) if resolved_config_file is not None else None,
+        "config_section_names": list(CONFIG_SECTION_NAMES),
+        "env_prefix": prefix,
+        "legacy_env_prefix": LEGACY_ENV_PREFIX,
+        "runtime_config": asdict(runtime_config),
+        "runtime_settings": asdict(runtime_settings),
+    }

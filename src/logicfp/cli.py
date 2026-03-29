@@ -10,7 +10,7 @@ import uvicorn
 
 from .config import DEFAULT_CONFIG_FILE_NAME
 from .config.yaml_support import load_simple_yaml_file, parse_simple_yaml
-from .engineering import create_app, create_demo_app
+from .engineering import create_http_app
 
 
 CLI_CONFIG_FILENAMES = (DEFAULT_CONFIG_FILE_NAME,)
@@ -209,10 +209,9 @@ def start_command(args: argparse.Namespace) -> int:
         f"{start_config.host}:{start_config.port} ({mode})"
     )
 
-    app = (
-        create_demo_app(runtime_kwargs=start_config.runtime_kwargs)
-        if start_config.demo
-        else create_app(runtime_kwargs=start_config.runtime_kwargs)
+    app = create_http_app(
+        mode="demo" if start_config.demo else "production",
+        runtime_kwargs=start_config.runtime_kwargs,
     )
     uvicorn.run(app, host=start_config.host, port=start_config.port)
     return 0

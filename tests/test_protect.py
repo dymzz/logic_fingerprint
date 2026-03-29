@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import importlib
 import shutil
 import tempfile
 from pathlib import Path
@@ -10,7 +11,7 @@ import pytest
 pytest.importorskip("pydantic")
 
 from logicfp.domain.models import HandlerRequest
-from logicfp.protect import create_protector
+from logicfp import create_protector
 
 
 def _make_temp_dir() -> Path:
@@ -55,3 +56,23 @@ logicfp:
         assert protector.config.probe_rate == 0.33
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
+
+
+def test_root_protect_creates_isolated_default_protectors():
+    root_protect = importlib.import_module("logicfp").__dict__["protect"]
+
+    @root_protect(simple=True)
+    def always_fail(request: HandlerRequest):
+        raise ValueError("boom")
+
+    @root_protect(simple=False)
+    def still_runs(request: HandlerRequest):
+        return {"value": request.payload["value"] * 2}
+
+    with pytest.raises(Exception, match="boom"):
+        always_fail(payload={"value": 1})
+
+    result = still_runs(payload={"value": 21})
+
+    assert result["ok"] is True
+    assert result["result"]["value"] == 42

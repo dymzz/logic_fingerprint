@@ -9,7 +9,9 @@ pytest.importorskip("pydantic")
 
 
 def test_langchain_review_guard_wraps_sync_invoke(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    monkeypatch.syspath_prepend(str(repo_root / "src"))
 
     from examples.langchain.user_mode import build_review_guard
 
@@ -40,7 +42,9 @@ def test_langchain_review_guard_wraps_sync_invoke(monkeypatch):
 
 
 def test_langchain_review_guard_wraps_async_ainvoke(monkeypatch):
-    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    monkeypatch.syspath_prepend(str(repo_root / "src"))
 
     from examples.langchain.user_mode import build_async_review_guard
 

@@ -6,7 +6,9 @@
 
 - 用户模式：默认入口是 `@protect()`
 - 高级用户模式：需要多个保护实例时，用 `create_protector()`
-- 工程模式：服务化接入时，用 `logicfp.engineering`
+- 工程模式：只有服务化接入时，才用 `logicfp.engineering`
+
+如果你没有明确的“单独跑服务”需求，就停在用户模式，不要往工程模式走。
 
 ## 1. 两种模式分别解决什么问题
 
@@ -81,9 +83,9 @@ slow_guard = create_protector(
 最常见写法是：
 
 ```python
-from logicfp.engineering import create_app
+from logicfp.engineering import create_http_app
 
-app = create_app()
+app = create_http_app()
 ```
 
 然后通过配置把你的 registrar 接进去：
@@ -126,6 +128,7 @@ logicfp 现在会按这个顺序找文件：
 - 你不想引入 HTTP 服务
 - 你不需要 handler registrar
 - 你更像是在“用库”
+- 你不想维护 Nginx、鉴权、服务部署这些工程事项
 
 进入工程模式的情况：
 
@@ -138,6 +141,11 @@ logicfp 现在会按这个顺序找文件：
 
 - 保护函数：用户模式
 - 保护服务边界：工程模式
+
+推荐默认判断：
+
+- 没有明确服务化要求：用户模式
+- 只有已经存在稳定平台接入需求：工程模式
 
 ## 4. 用户模式怎么读取配置
 
@@ -158,7 +166,7 @@ logicfp 现在会按这个顺序找文件：
 
 ## 5. 工程模式怎么读取配置
 
-`logicfp.engineering.create_app()` 和
+`logicfp.engineering.create_http_app()` 和
 `logicfp.engineering.build_production_runtime()` 会走工程模式配置链：
 
 1. `build_runtime_config()`

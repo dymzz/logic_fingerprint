@@ -120,27 +120,24 @@ logicfp:
 
         captured: dict[str, object] = {}
 
-        def fake_create_demo_app(*, runtime_kwargs=None):
+        def fake_create_http_app(*, mode, runtime_kwargs=None):
+            captured["mode"] = mode
             captured["runtime_kwargs"] = runtime_kwargs
-            return "demo-app"
-
-        def fake_create_app(*, runtime_kwargs=None):
-            captured["runtime_kwargs"] = runtime_kwargs
-            return "production-app"
+            return "demo-app" if mode == "demo" else "production-app"
 
         def fake_uvicorn_run(app, *, host, port):
             captured["app"] = app
             captured["host"] = host
             captured["port"] = port
 
-        monkeypatch.setattr(cli_module, "create_demo_app", fake_create_demo_app)
-        monkeypatch.setattr(cli_module, "create_app", fake_create_app)
+        monkeypatch.setattr(cli_module, "create_http_app", fake_create_http_app)
         monkeypatch.setattr(cli_module.uvicorn, "run", fake_uvicorn_run)
 
         exit_code = main(["start", "--config", str(config_path), "--port", "9500", "--demo"])
 
         assert exit_code == 0
         assert captured["app"] == "demo-app"
+        assert captured["mode"] == "demo"
         assert captured["host"] == "0.0.0.0"
         assert captured["port"] == 9500
         assert captured["runtime_kwargs"] == {

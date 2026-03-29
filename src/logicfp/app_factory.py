@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import FastAPI
 from fastapi.openapi.docs import (
@@ -21,6 +21,7 @@ from .runtime import (
 
 
 DOCS_STATIC_DIR = Path(__file__).resolve().parents[2] / "static" / "dist"
+HTTPAppMode = Literal["production", "demo"]
 
 
 def _create_app_from_runtime(runtime: LogicFingerprintRuntime) -> FastAPI:
@@ -66,13 +67,39 @@ def _create_app_from_runtime(runtime: LogicFingerprintRuntime) -> FastAPI:
     return app
 
 
+def create_http_app(
+    *,
+    mode: HTTPAppMode = "production",
+    runtime: LogicFingerprintRuntime | None = None,
+    runtime_kwargs: dict[str, Any] | None = None,
+) -> FastAPI:
+    if runtime is not None and runtime_kwargs is not None:
+        raise ValueError("Pass either 'runtime' or 'runtime_kwargs', not both.")
+
+    if runtime is None:
+        runtime_builders = {
+            "production": build_production_runtime,
+            "demo": build_demo_runtime,
+        }
+        try:
+            runtime_builder = runtime_builders[mode]
+        except KeyError as exc:
+            raise ValueError(f"Unsupported HTTP app mode: {mode}") from exc
+        runtime = runtime_builder(**(runtime_kwargs or {}))
+
+    return _create_app_from_runtime(runtime)
+
+
 def create_app(
     *,
     runtime: LogicFingerprintRuntime | None = None,
     runtime_kwargs: dict[str, Any] | None = None,
 ) -> FastAPI:
-    runtime = runtime or build_production_runtime(**(runtime_kwargs or {}))
-    return _create_app_from_runtime(runtime)
+    return create_http_app(
+        mode="production",
+        runtime=runtime,
+        runtime_kwargs=runtime_kwargs,
+    )
 
 
 def create_demo_app(
@@ -80,9 +107,12 @@ def create_demo_app(
     runtime: LogicFingerprintRuntime | None = None,
     runtime_kwargs: dict[str, Any] | None = None,
 ) -> FastAPI:
-    runtime = runtime or build_demo_runtime(**(runtime_kwargs or {}))
-    return _create_app_from_runtime(runtime)
+    return create_http_app(
+        mode="demo",
+        runtime=runtime,
+        runtime_kwargs=runtime_kwargs,
+    )
 
 
-app = create_app()
+app = create_http_app()
 

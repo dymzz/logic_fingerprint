@@ -5,6 +5,7 @@ from functools import wraps
 from pathlib import Path
 from typing import Any, Callable, TypeVar
 import inspect
+import sys
 
 from pydantic import BaseModel
 
@@ -377,16 +378,6 @@ class Protector:
         return decorator
 
 
-_default_protector: Protector | None = None
-
-
-def _get_default_protector() -> Protector:
-    global _default_protector
-    if _default_protector is None:
-        _default_protector = Protector()
-    return _default_protector
-
-
 def create_protector(**kwargs: Any) -> Protector:
     return Protector(**kwargs)
 
@@ -397,8 +388,14 @@ def protect(
     output_model: type[BaseModel] | None = None,
     simple: bool = True,
 ) -> Callable[[F], F]:
-    return _get_default_protector().protect(
+    return Protector().protect(
         input_model=input_model,
         output_model=output_model,
         simple=simple,
     )
+
+
+_package = sys.modules.get(__package__)
+if _package is not None:
+    setattr(_package, "protect", protect)
+    setattr(_package, "create_protector", create_protector)

@@ -13,10 +13,15 @@
 - 可切换 `memory / redis / redis_ttl`
 - 可部署的 HTTP 服务
 
+如果你当前没有“单独跑成服务”的需求，这页可以先不看，直接优先看：
+
+- `documents/Tutorial/用户模式示例.md`
+- `documents/Tutorial/protect 的用户模式与工程模式.md`
+
 这里建议同时记住两个对外模式：
 
-- 用户模式：以 `@protect()` 为主入口
-- 工程模式：以 `logicfp.engineering` / registrar / runtime 为主入口
+- 用户模式：以 `@protect()` 为主入口，默认推荐
+- 工程模式：以 `logicfp.engineering` / registrar / runtime 为主入口，可选
 
 单独教程看这里：
 
@@ -30,7 +35,7 @@
 对外推荐导入路径：
 
 - 用户模式：`from logicfp import protect, create_protector`
-- 工程模式：`from logicfp.engineering import create_app, build_production_runtime`
+- 工程模式：`from logicfp.engineering import create_http_app, build_production_runtime`
 
 1. Demo 运行时
    文件：
@@ -51,10 +56,10 @@
 3. HTTP 启动入口
    文件：
    `src/logicfp/app_factory.py`
-   `create_app()`
+   `create_http_app()`
 
    用途：
-   生产默认入口。模块级 `app = create_app()` 现在默认就是 production 模式。
+   统一 HTTP 构建入口。模块级 `app = create_http_app()` 现在默认就是 production 模式。
 
 补充理解：
 
@@ -144,7 +149,7 @@ config/config.yaml
 
 ### 第二步：把 demo 逻辑替换成真实业务 handler
 
-你的目标不是改 `create_app()`，而是实现自己的：
+你的目标不是改 `create_http_app()`，而是实现自己的：
 
 - `register_handlers(handler_registry)`
 - 输入模型
@@ -267,7 +272,7 @@ uv run logicfp start --config config/config.yaml --port 8000
 
 这条启动链会经过：
 
-1. `create_app()`
+1. `create_http_app()`
 2. `build_production_runtime()`
 3. `build_runtime_settings()`
 4. `load_handler_registrars(...)`

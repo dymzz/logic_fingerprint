@@ -7,6 +7,7 @@ __all__ = [
     "build_demo_runtime",
     "build_production_runtime",
     "build_runtime",
+    "create_http_app",
     "create_app",
     "create_demo_app",
 ]
@@ -34,6 +35,12 @@ def build_runtime(*args: Any, **kwargs: Any):
     from .runtime import build_runtime as _build_runtime
 
     return _build_runtime(*args, **kwargs)
+
+
+def create_http_app(*args: Any, **kwargs: Any):
+    from .app_factory import create_http_app as _create_http_app
+
+    return _create_http_app(*args, **kwargs)
 
 
 def create_app(*args: Any, **kwargs: Any):
