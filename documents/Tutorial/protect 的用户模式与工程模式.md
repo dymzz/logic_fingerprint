@@ -54,15 +54,17 @@ def review_text(request):
 from logicfp import create_protector
 
 fast_guard = create_protector(
-    instance_id="fast-lane",
+    default_source="fast_lane",
     probe_rate=0.1,
 )
 
 slow_guard = create_protector(
-    instance_id="slow-lane",
+    default_source="slow_lane",
     probe_rate=0.3,
 )
 ```
+
+如果你确实需要 `instance_id`、`redis_*` 或直接注入 backend，这属于高级用户模式，建议直接用 `Protector(...)`。
 
 ### 工程模式
 

@@ -44,6 +44,8 @@ def classify_exception(exc: Exception) -> ErrorCode:
         return exc.code
     if isinstance(exc, TimeoutError):
         return ErrorCode.ERR_TIMEOUT
-    if isinstance(exc, ValueError):
+    if isinstance(exc, (ValueError, TypeError, KeyError)):
         return ErrorCode.ERR_NORM
+    if isinstance(exc, (AssertionError, RuntimeError)):
+        return ErrorCode.ERR_LOGIC
     return ErrorCode.ERR_UNKNOWN

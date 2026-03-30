@@ -20,7 +20,6 @@ class QuoteToolOutput(BaseModel):
 
 
 tool_protector = create_protector(
-    instance_id="tool-quote",
     default_source="tool_call",
 )
 

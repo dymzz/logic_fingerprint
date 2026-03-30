@@ -108,10 +108,58 @@ python scripts/release_package.py release --publish --testpypi
 ## 文档分工
 
 - [README.md](D:/workspace/python/logic_fingerprint_ai/README.md)：用户入口说明
+- [logicfp v3 roadmap.md](D:/workspace/python/logic_fingerprint_ai/documents/Product/logicfp%20v3%20roadmap.md)：下个大版本方向
 - [protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)：入口模型说明
 - [从 demo 到生产接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/从%20demo%20到生产接入.md)：接入路径
+- [用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)：`simple=False` 的 envelope contract
 - [用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)：用户模式示例
+- [用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)：用户模式错误码与失败语义
 - [工程模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/工程模式示例.md)：工程模式示例
+
+## v3 用户模式 API freeze 清单
+
+`3.0` 前建议冻结这些用户模式入口：
+
+- `from logicfp.user_mode import ErrorCode`
+- `from logicfp.user_mode import NormalizationError`
+- `from logicfp.user_mode import LogicExecutionError`
+- `from logicfp import protect`
+- `from logicfp import create_protector`
+- `from logicfp.user_mode import protect`
+- `from logicfp.user_mode import create_protector`
+- `from logicfp.user_mode import Protector`
+- `from logicfp.user_mode import ProtectRuntimeError`
+- `from logicfp.config import describe_effective_config`
+
+`protect(...)` 在 `3.0` 前要固定的语义：
+
+- 默认是用户模式主入口
+- 默认每个装饰器实例拥有独立保护器
+- 默认 logger 保持静默
+- `simple=True` 和 `simple=False` 的语义保持稳定
+- sync / async 路径行为一致
+- `simple=False` 的 envelope 结构保持稳定：
+  success=`ok/result/context`，failure=`ok/error/context`
+
+`create_protector(...)` 在 `3.0` 前建议分层：
+
+- 用户模式正式参数：
+  `config_file`、`probe_rate`、`probe_interval_seconds`、`consecutive_success_threshold`、`total_nodes`、`global_fail_threshold`、`default_source`、`backend_type`、`event_logger`
+- 高级/可选参数：
+  `instance_id`、`redis_url`、`redis_decode_responses`、`redis_key`、`redis_key_prefix`、`redis_ttl_seconds`、`redis_client`、`backend`、`config`、`settings`
+
+高级控制优先建议：
+
+- 直接用 `Protector(...)`
+- 或 `create_protector(advanced={...})`
+
+错误与配置心智在 `3.0` 前也建议锁定：
+
+- `ProtectRuntimeError` 的 `message / code / details / context`
+- 用户项目配置路径：`config/config.yaml`
+- 主 section：`logicfp:`
+- 默认 backend：`memory`
+- 环境变量前缀：`LOGICFP_`
 
 ## 发布前检查
 
@@ -121,3 +169,18 @@ python scripts/release_package.py release --publish --testpypi
 - 构建 `sdist` 和 `wheel`
 - 先发 `TestPyPI`，再发正式 `PyPI`
 - 发布后补 Git tag
+
+## 3.0 更新说明
+
+这轮 `3.0` 方向上的主要收口点是：
+
+- 用户模式 contract 开始冻结，公开入口收敛到 `protect / create_protector / ErrorCode / NormalizationError / LogicExecutionError / ProtectRuntimeError / describe_effective_config`
+- `create_protector(...)` 参数面开始收口，正式参数和高级参数开始分层
+- `simple=True` 的失败语义进一步统一，输入校验失败和输出校验失败也统一收进 `ProtectRuntimeError`
+- `simple=False` 的 envelope contract 已锁定为：
+  success=`ok/result/context`，failure=`ok/error/context`
+- 用户模式错误码说明和返回结构说明已经成文档
+
+这意味着当前阶段已经进入：
+
+`3.0 用户模式 contract 收口阶段`

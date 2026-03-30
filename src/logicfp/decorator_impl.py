@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import Any, Callable, TypeVar
 import inspect
 import sys
+import warnings
 
 from pydantic import BaseModel
 
@@ -20,12 +21,25 @@ from .config import (
     build_runtime_settings,
 )
 from .domain.executor import LogicFingerprintExecutor
+from .domain.errors import LogicFingerprintError, classify_exception
 from .domain.fsm import LogicFingerprintFSM
 from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
 from .infra.logging import EventLogger, LogEvent, NullEventLogger
 
 F = TypeVar("F", bound=Callable[..., Any])
+_ADVANCED_PROTECTOR_KWARGS = {
+    "instance_id",
+    "redis_url",
+    "redis_decode_responses",
+    "redis_key",
+    "redis_key_prefix",
+    "redis_ttl_seconds",
+    "config",
+    "settings",
+    "backend",
+    "redis_client",
+}
 
 
 class ProtectRuntimeError(RuntimeError):
@@ -148,6 +162,33 @@ class Protector:
             "context": context_dict,
         }
 
+    def _handle_pre_execution_error(
+        self,
+        exc: Exception,
+        *,
+        handler_name: str,
+        context_dict: dict[str, Any],
+        simple: bool,
+    ) -> Any:
+        error_code = classify_exception(exc).value
+        error_details = exc.details if isinstance(exc, LogicFingerprintError) else {}
+        self.metrics.record_failure()
+        self.event_logger.emit(LogEvent(
+            event="protect_call_failed",
+            handler=handler_name,
+            request_id=context_dict.get("request_id"),
+            trace_id=context_dict.get("trace_id"),
+            error_code=error_code,
+            message=str(exc),
+        ))
+        return self._error_response(
+            error_code=error_code,
+            error_message=str(exc),
+            error_details=error_details,
+            context_dict=context_dict,
+            simple=simple,
+        )
+
     def protect(
         self,
         *,
@@ -182,14 +223,22 @@ class Protector:
                         trace_id=context_dict.get("trace_id"),
                     ))
 
-                    validated_payload = validate_input(
-                        built_request.payload,
-                        input_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
+                    try:
+                        validated_payload = validate_input(
+                            built_request.payload,
+                            input_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                    except Exception as exc:
+                        return self._handle_pre_execution_error(
+                            exc,
+                            handler_name=func.__name__,
+                            context_dict=context_dict,
+                            simple=simple,
+                        )
                     prepared_request = HandlerRequest(
                         payload=validated_payload,
                         context=built_request.context,
@@ -205,27 +254,34 @@ class Protector:
 
                     if not outcome.executed:
                         self.metrics.record_blocked()
-                    elif outcome.succeeded:
-                        self.metrics.record_success()
-                    else:
+                    elif not outcome.succeeded:
                         self.metrics.record_failure()
 
                     if outcome.succeeded:
                         result = outcome.result
-                        validated_output = validate_output(
-                            result,
-                            output_model,
-                            event_logger=self.event_logger,
-                            handler=func.__name__,
-                            request_id=context_dict.get("request_id"),
-                            trace_id=context_dict.get("trace_id"),
-                        )
+                        try:
+                            validated_output = validate_output(
+                                result,
+                                output_model,
+                                event_logger=self.event_logger,
+                                handler=func.__name__,
+                                request_id=context_dict.get("request_id"),
+                                trace_id=context_dict.get("trace_id"),
+                            )
+                        except Exception as exc:
+                            return self._handle_pre_execution_error(
+                                exc,
+                                handler_name=func.__name__,
+                                context_dict=context_dict,
+                                simple=simple,
+                            )
                         self.event_logger.emit(LogEvent(
                             event="protect_call_succeeded",
                             handler=func.__name__,
                             request_id=context_dict.get("request_id"),
                             trace_id=context_dict.get("trace_id"),
                         ))
+                        self.metrics.record_success()
                         if is_dataclass(validated_output):
                             validated_output = asdict(validated_output)
 
@@ -278,14 +334,22 @@ class Protector:
                     trace_id=context_dict.get("trace_id"),
                 ))
 
-                validated_payload = validate_input(
-                    built_request.payload,
-                    input_model,
-                    event_logger=self.event_logger,
-                    handler=func.__name__,
-                    request_id=context_dict.get("request_id"),
-                    trace_id=context_dict.get("trace_id"),
-                )
+                try:
+                    validated_payload = validate_input(
+                        built_request.payload,
+                        input_model,
+                        event_logger=self.event_logger,
+                        handler=func.__name__,
+                        request_id=context_dict.get("request_id"),
+                        trace_id=context_dict.get("trace_id"),
+                    )
+                except Exception as exc:
+                    return self._handle_pre_execution_error(
+                        exc,
+                        handler_name=func.__name__,
+                        context_dict=context_dict,
+                        simple=simple,
+                    )
                 prepared_request = HandlerRequest(
                     payload=validated_payload,
                     context=built_request.context,
@@ -301,21 +365,27 @@ class Protector:
 
                 if not outcome.executed:
                     self.metrics.record_blocked()
-                elif outcome.succeeded:
-                    self.metrics.record_success()
-                else:
+                elif not outcome.succeeded:
                     self.metrics.record_failure()
 
                 if outcome.succeeded:
                     result = outcome.result
-                    validated_output = validate_output(
-                        result,
-                        output_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
+                    try:
+                        validated_output = validate_output(
+                            result,
+                            output_model,
+                            event_logger=self.event_logger,
+                            handler=func.__name__,
+                            request_id=context_dict.get("request_id"),
+                            trace_id=context_dict.get("trace_id"),
+                        )
+                    except Exception as exc:
+                        return self._handle_pre_execution_error(
+                            exc,
+                            handler_name=func.__name__,
+                            context_dict=context_dict,
+                            simple=simple,
+                        )
 
                     if is_dataclass(validated_output):
                         validated_output = asdict(validated_output)
@@ -326,6 +396,7 @@ class Protector:
                         request_id=context_dict.get("request_id"),
                         trace_id=context_dict.get("trace_id"),
                     ))
+                    self.metrics.record_success()
 
                     return self._success_response(
                         validated_output,
@@ -355,8 +426,71 @@ class Protector:
         return decorator
 
 
-def create_protector(**kwargs: Any) -> Protector:
-    return Protector(**kwargs)
+def create_protector(
+    *,
+    config_file: str | Path | None = None,
+    probe_rate: float | None = None,
+    probe_interval_seconds: float | None = None,
+    consecutive_success_threshold: int | None = None,
+    total_nodes: int | None = None,
+    global_fail_threshold: float | None = None,
+    default_source: str | None = None,
+    backend_type: str | None = None,
+    event_logger: EventLogger | None = None,
+    advanced: dict[str, Any] | None = None,
+    **advanced_kwargs: Any,
+) -> Protector:
+    unsupported = sorted(set(advanced_kwargs) - _ADVANCED_PROTECTOR_KWARGS)
+    if unsupported:
+        names = ", ".join(unsupported)
+        raise TypeError(f"Unsupported create_protector() advanced arguments: {names}")
+
+    if advanced is not None:
+        overlap = sorted(set(advanced) & {
+            "config_file",
+            "probe_rate",
+            "probe_interval_seconds",
+            "consecutive_success_threshold",
+            "total_nodes",
+            "global_fail_threshold",
+            "default_source",
+            "backend_type",
+            "event_logger",
+        })
+        if overlap:
+            names = ", ".join(overlap)
+            raise TypeError(
+                "Pass user-mode create_protector() arguments directly, "
+                f"not through advanced=: {names}"
+            )
+        invalid_advanced = sorted(set(advanced) - _ADVANCED_PROTECTOR_KWARGS)
+        if invalid_advanced:
+            names = ", ".join(invalid_advanced)
+            raise TypeError(f"Unsupported create_protector() advanced arguments: {names}")
+
+    merged_advanced = dict(advanced or {})
+    merged_advanced.update(advanced_kwargs)
+
+    if advanced_kwargs:
+        warnings.warn(
+            "Passing advanced arguments directly to create_protector() is deprecated. "
+            "Use Protector(...) or create_protector(advanced={...}) for advanced control.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+
+    return Protector(
+        config_file=config_file,
+        probe_rate=probe_rate,
+        probe_interval_seconds=probe_interval_seconds,
+        consecutive_success_threshold=consecutive_success_threshold,
+        total_nodes=total_nodes,
+        global_fail_threshold=global_fail_threshold,
+        default_source=default_source,
+        backend_type=backend_type,
+        event_logger=event_logger,
+        **merged_advanced,
+    )
 
 
 def protect(

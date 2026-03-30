@@ -3,7 +3,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 from logicfp import protect
-from logicfp.user_mode import ProtectRuntimeError
+from logicfp.user_mode import ErrorCode, LogicExecutionError, ProtectRuntimeError
 from logicfp.domain.models import HandlerRequest
 
 
@@ -15,7 +15,7 @@ class RefundInput(BaseModel):
 @protect(input_model=RefundInput, simple=True)
 def refund_order(request: HandlerRequest) -> dict[str, str]:
     if request.payload["amount"] > 5000:
-        raise ValueError("Refund requires manual review.")
+        raise LogicExecutionError("Refund requires manual review.")
     return {"status": "approved", "order_id": request.payload["order_id"]}
 
 
@@ -27,6 +27,7 @@ def main() -> None:
         print(
             {
                 "code": exc.code,
+                "is_logic_error": exc.code == ErrorCode.ERR_LOGIC.value,
                 "message": str(exc),
                 "details": exc.details,
                 "context": exc.context,

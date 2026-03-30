@@ -24,6 +24,10 @@
 - `config_diagnostics.py`
   打印当前实际生效的配置、配置文件路径和环境变量前缀。
 
+相关说明：
+
+- `documents/Tutorial/用户模式错误码说明.md`
+
 ## 配置放哪里
 
 真实项目里推荐放在：

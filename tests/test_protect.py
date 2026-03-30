@@ -12,6 +12,7 @@ from logicfp import decorator_impl
 from logicfp.domain.models import HandlerRequest
 from logicfp import create_protector
 from logicfp.infra.logging import NullEventLogger, PrintEventLogger
+from logicfp.user_mode import ErrorCode, LogicExecutionError, ProtectRuntimeError
 
 
 def test_protect_supports_async_functions():
@@ -90,6 +91,28 @@ def test_create_protector_accepts_explicit_event_logger():
     assert protector.event_logger is logger
 
 
+def test_create_protector_accepts_advanced_dict_for_advanced_controls():
+    protector = create_protector(
+        advanced={
+            "instance_id": "advanced-node",
+        }
+    )
+
+    assert protector.settings.instance_id == "advanced-node"
+
+
+def test_create_protector_warns_on_direct_advanced_arguments():
+    with pytest.warns(DeprecationWarning, match="advanced arguments directly"):
+        protector = create_protector(instance_id="legacy-advanced-node")
+
+    assert protector.settings.instance_id == "legacy-advanced-node"
+
+
+def test_create_protector_rejects_unknown_advanced_argument():
+    with pytest.raises(TypeError, match="Unsupported create_protector\\(\\) advanced arguments"):
+        create_protector(not_a_real_option=True)
+
+
 def test_protect_validates_input_once_per_sync_call(monkeypatch):
     protector = create_protector()
     validate_calls = 0
@@ -128,3 +151,134 @@ def test_protect_validates_input_once_per_async_call(monkeypatch):
 
     assert asyncio.run(guarded(payload={"value": 1})) == {"value": 2}
     assert validate_calls == 1
+
+
+def test_protect_runtime_error_uses_normalization_error_code():
+    @create_protector().protect(simple=True)
+    def guarded(request: HandlerRequest):
+        raise ValueError("manual review required")
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    assert exc_info.value.code == ErrorCode.ERR_NORM.value
+
+
+def test_protect_runtime_error_uses_null_error_code():
+    @create_protector().protect(simple=True)
+    def guarded(request: HandlerRequest):
+        return None
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    assert exc_info.value.code == ErrorCode.ERR_NULL.value
+
+
+def test_protect_runtime_error_uses_input_validation_error_code():
+    from pydantic import BaseModel
+
+    class InputModel(BaseModel):
+        quantity: int
+
+    protector = create_protector()
+
+    @protector.protect(input_model=InputModel, simple=True)
+    def guarded(request: HandlerRequest):
+        return {"value": request.payload["quantity"]}
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"quantity": "bad"})
+
+    assert exc_info.value.code == ErrorCode.ERR_VALIDATION.value
+    assert "errors" in exc_info.value.details
+    assert protector.metrics.success_requests == 0
+    assert protector.metrics.failed_requests == 1
+
+
+def test_protect_runtime_error_uses_output_validation_error_code():
+    from pydantic import BaseModel
+
+    class OutputModel(BaseModel):
+        value: int
+
+    protector = create_protector()
+
+    @protector.protect(output_model=OutputModel, simple=True)
+    def guarded(request: HandlerRequest):
+        return {"value": "bad"}
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    assert exc_info.value.code == ErrorCode.ERR_OUTPUT_VALIDATION.value
+    assert "errors" in exc_info.value.details
+    assert protector.metrics.success_requests == 0
+    assert protector.metrics.failed_requests == 1
+
+
+def test_simple_false_success_envelope_shape():
+    @create_protector().protect(simple=False)
+    def guarded(request: HandlerRequest):
+        return {"value": request.payload["value"] + 1}
+
+    result = guarded(payload={"value": 1})
+
+    assert set(result) == {"ok", "result", "context"}
+    assert result["ok"] is True
+    assert result["result"] == {"value": 2}
+    assert set(result["context"]) == {
+        "request_id",
+        "trace_id",
+        "user_id",
+        "source",
+        "timestamp",
+        "headers",
+        "metadata",
+    }
+    assert result["context"]["request_id"] is not None
+    assert result["context"]["trace_id"] is not None
+
+
+def test_simple_false_failure_envelope_shape():
+    @create_protector().protect(simple=False)
+    def guarded(request: HandlerRequest):
+        raise LogicExecutionError("manual review required")
+
+    result = guarded(payload={"value": 1})
+
+    assert set(result) == {"ok", "error", "context"}
+    assert result["ok"] is False
+    assert set(result["error"]) == {"code", "message", "details"}
+    assert result["error"]["code"] == ErrorCode.ERR_LOGIC.value
+    assert result["error"]["message"] == "manual review required"
+    assert result["error"]["details"] == {}
+    assert set(result["context"]) == {
+        "request_id",
+        "trace_id",
+        "user_id",
+        "source",
+        "timestamp",
+        "headers",
+        "metadata",
+    }
+
+
+def test_simple_false_validation_failure_uses_same_error_envelope_shape():
+    from pydantic import BaseModel
+
+    class InputModel(BaseModel):
+        quantity: int
+
+    @create_protector().protect(input_model=InputModel, simple=False)
+    def guarded(request: HandlerRequest):
+        return {"value": request.payload["quantity"]}
+
+    result = guarded(payload={"quantity": "bad"})
+
+    assert set(result) == {"ok", "error", "context"}
+    assert result["ok"] is False
+    assert set(result["error"]) == {"code", "message", "details"}
+    assert result["error"]["code"] == ErrorCode.ERR_VALIDATION.value
+    assert result["error"]["message"] == "Input validation failed."
+    assert "errors" in result["error"]["details"]
