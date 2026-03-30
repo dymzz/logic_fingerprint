@@ -9,7 +9,7 @@ from logicfp.user_mode import get_ai_error
 
 
 LOG_PATH = Path("logs/logicfp.jsonl")
-jsonl_logger = JsonlEventLogger(LOG_PATH)
+jsonl_logger = JsonlEventLogger(LOG_PATH, max_bytes=16_384, backup_count=3)
 
 
 event_logger = MultiEventLogger(

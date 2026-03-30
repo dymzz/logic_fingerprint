@@ -46,6 +46,43 @@ def test_jsonl_event_logger_writes_json_lines() -> None:
         shutil.rmtree(workspace, ignore_errors=True)
 
 
+def test_jsonl_event_logger_rotates_by_file_size() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    workspace = repo_root / ".tmp" / f"logicfp-logging-rotate-{uuid4().hex}"
+    path = workspace / "logs" / "logicfp.jsonl"
+    logger = JsonlEventLogger(path, max_bytes=120, backup_count=2)
+    try:
+        logger.emit(LogEvent(event="protect_call_failed", message="x" * 80))
+        logger.emit(LogEvent(event="protect_call_failed", message="y" * 80))
+
+        assert path.exists()
+        rotated = path.with_name("logicfp.jsonl.1")
+        assert rotated.exists()
+
+        current_lines = path.read_text(encoding="utf-8").splitlines()
+        rotated_lines = rotated.read_text(encoding="utf-8").splitlines()
+        assert len(current_lines) == 1
+        assert len(rotated_lines) == 1
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)
+
+
+def test_jsonl_event_logger_rotation_can_drop_backups() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    workspace = repo_root / ".tmp" / f"logicfp-logging-nobackup-{uuid4().hex}"
+    path = workspace / "logs" / "logicfp.jsonl"
+    logger = JsonlEventLogger(path, max_bytes=120, backup_count=0)
+    try:
+        logger.emit(LogEvent(event="protect_call_failed", message="x" * 80))
+        logger.emit(LogEvent(event="protect_call_failed", message="y" * 80))
+
+        assert path.exists()
+        assert not path.with_name("logicfp.jsonl.1").exists()
+        assert len(path.read_text(encoding="utf-8").splitlines()) == 1
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)
+
+
 def test_summary_logger_aggregates_counts_and_flushes_to_sink() -> None:
     sink = RecorderLogger()
     logger = SummaryLogger(every_n=2, sink=sink)
