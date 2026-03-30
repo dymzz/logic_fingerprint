@@ -25,6 +25,7 @@ design/
 /.venv/
 /.pytest_cache/
 **/.pytest_cache/
+.tmp/
 __pycache__/
 **/__pycache__/
 *.sqlite

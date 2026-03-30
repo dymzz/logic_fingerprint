@@ -23,7 +23,7 @@ from .domain.executor import LogicFingerprintExecutor
 from .domain.fsm import LogicFingerprintFSM
 from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
-from .infra.logging import LogEvent, PrintEventLogger
+from .infra.logging import EventLogger, LogEvent, NullEventLogger
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -66,6 +66,7 @@ class Protector:
         settings: RuntimeSettings | None = None,
         backend: object | None = None,
         redis_client: object | None = None,
+        event_logger: EventLogger | None = None,
     ) -> None:
         config = config or build_runtime_config(
             probe_rate=probe_rate,
@@ -104,7 +105,7 @@ class Protector:
         self.executor = LogicFingerprintExecutor(fsm)
         self.metrics = InMemoryMetrics()
         self.context_builder = ContextBuilder(default_source=settings.default_source)
-        self.event_logger = PrintEventLogger()
+        self.event_logger = event_logger or NullEventLogger()
     def _success_response(
         self,
         validated_output: Any,
@@ -195,18 +196,6 @@ class Protector:
                     )
 
                     def operation() -> Any:
-                        validated_payload = validate_input(
-                            built_request.payload,
-                            input_model,
-                            event_logger=self.event_logger,
-                            handler=func.__name__,
-                            request_id=context_dict.get("request_id"),
-                            trace_id=context_dict.get("trace_id"),
-                        )
-                        prepared_request = HandlerRequest(
-                            payload=validated_payload,
-                            context=built_request.context,
-                        )
                         return func(prepared_request)
 
                     outcome = await self.executor.execute_async(operation, now=now)
@@ -303,18 +292,6 @@ class Protector:
                 )
 
                 def operation() -> Any:
-                    validated_payload = validate_input(
-                        built_request.payload,
-                        input_model,
-                        event_logger=self.event_logger,
-                        handler=func.__name__,
-                        request_id=context_dict.get("request_id"),
-                        trace_id=context_dict.get("trace_id"),
-                    )
-                    prepared_request = HandlerRequest(
-                        payload=validated_payload,
-                        context=built_request.context,
-                    )
                     return func(prepared_request)
 
                 outcome = self.executor.execute(operation, now=now)

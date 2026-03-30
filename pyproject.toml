@@ -33,3 +33,11 @@ include = ["logicfp*"]
 
 [tool.setuptools.dynamic]
 version = {attr = "logicfp._version.__version__"}
+
+[tool.uv]
+cache-dir = ".uv-cache"
+
+[tool.pytest.ini_options]
+addopts = "--basetemp=.pytest_tmp/basetemp"
+tmp_path_retention_policy = "failed"
+tmp_path_retention_count = 2

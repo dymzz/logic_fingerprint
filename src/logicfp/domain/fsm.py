@@ -29,6 +29,12 @@ class LogicFingerprintFSM:
         return self.external_fail_count / self.config.total_nodes
     def should_force_global_open(self) -> bool:
         return self.external_fail_ratio >= self.config.global_fail_threshold
+    def _backend_ratios(self) -> tuple[float, float]:
+        failed_nodes = self.backend.fail_count()
+        local_failed = int(self.backend.is_failed(self.instance_id))
+        global_fail_ratio = failed_nodes / self.config.total_nodes
+        external_fail_ratio = (failed_nodes - local_failed) / self.config.total_nodes
+        return global_fail_ratio, external_fail_ratio
     def record_hard_fail(self, reason: str = "HARD_FAIL") -> None:
         self.state = FSMState.OPEN
         self.success_count = 0
@@ -66,12 +72,14 @@ class LogicFingerprintFSM:
             self.close()
         return self.state
     def before_request(self):
-        if self.should_force_global_open():
+        global_fail_ratio, external_fail_ratio = self._backend_ratios()
+        if external_fail_ratio >= self.config.global_fail_threshold:
             self.state = FSMState.OPEN
-        return {"state": self.state.value, "allow_request": self.state == FSMState.CLOSED, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+        return {"state": self.state.value, "allow_request": self.state == FSMState.CLOSED, "allow_probe": False, "global_fail_ratio": global_fail_ratio, "external_fail_ratio": external_fail_ratio}
     def before_half_open_request(self, now=None):
-        if self.should_force_global_open():
+        global_fail_ratio, external_fail_ratio = self._backend_ratios()
+        if external_fail_ratio >= self.config.global_fail_threshold:
             self.state = FSMState.OPEN
-            return {"state": self.state.value, "allow_request": False, "allow_probe": False, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+            return {"state": self.state.value, "allow_request": False, "allow_probe": False, "global_fail_ratio": global_fail_ratio, "external_fail_ratio": external_fail_ratio}
         allow_probe = self.should_allow_probe(now=now)
-        return {"state": self.state.value, "allow_request": False, "allow_probe": allow_probe, "global_fail_ratio": self.global_fail_ratio, "external_fail_ratio": self.external_fail_ratio}
+        return {"state": self.state.value, "allow_request": False, "allow_probe": allow_probe, "global_fail_ratio": global_fail_ratio, "external_fail_ratio": external_fail_ratio}

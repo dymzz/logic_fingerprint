@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-import shutil
 import sys
-import tempfile
 import types
 from pathlib import Path
 
@@ -15,11 +13,6 @@ from logicfp.domain.models import HandlerRequest
 from logicfp.handler_registry import HandlerRegistry
 from logicfp.handlers import load_handler_registrar, load_handler_registrars
 from logicfp.runtime import build_production_runtime
-
-
-def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfp-example-services-", dir=Path.cwd()))
-
 
 def test_load_handler_registrar_supports_default_function_name(monkeypatch):
     module = types.ModuleType("tests.dynamic_handlers_default")
@@ -84,57 +77,53 @@ def test_build_production_runtime_loads_example_registrar(monkeypatch):
     assert runtime.handler_registry.names() == ["inventory_lookup", "order_quote"]
 
 
-def test_build_production_runtime_loads_service_wired_example(monkeypatch):
-    workspace = _make_temp_dir()
-    try:
-        config_dir = workspace / "config"
-        config_dir.mkdir()
-        (config_dir / "config.yaml").write_text(
-            """
+def test_build_production_runtime_loads_service_wired_example(monkeypatch, tmp_path: Path):
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    (config_dir / "config.yaml").write_text(
+        """
 example_services:
   base_stock: 31
   discount_rate: 0.20
   tax_rate: 0.05
   currency: USD
 """.strip()
-            + "\n",
-            encoding="utf-8",
-        )
-        monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
-        monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
-        monkeypatch.delenv("EXAMPLE_BASE_STOCK", raising=False)
-        monkeypatch.delenv("EXAMPLE_DISCOUNT_RATE", raising=False)
-        monkeypatch.delenv("EXAMPLE_TAX_RATE", raising=False)
-        monkeypatch.delenv("EXAMPLE_CURRENCY", raising=False)
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.syspath_prepend(str(Path(__file__).resolve().parents[1]))
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+    monkeypatch.delenv("EXAMPLE_BASE_STOCK", raising=False)
+    monkeypatch.delenv("EXAMPLE_DISCOUNT_RATE", raising=False)
+    monkeypatch.delenv("EXAMPLE_TAX_RATE", raising=False)
+    monkeypatch.delenv("EXAMPLE_CURRENCY", raising=False)
 
-        runtime = build_production_runtime(
-            handler_registrars=("examples.production_services",),
-        )
+    runtime = build_production_runtime(
+        handler_registrars=("examples.production_services",),
+    )
 
-        inventory = runtime.middleware.execute_handler(
-            "inventory_snapshot",
-            request=HandlerRequest(payload={"sku": "SKU-9000", "warehouse": "east"}),
-        )
-        quote = asyncio.run(
-            runtime.middleware.execute_handler_async(
-                "order_quote_with_services",
-                request=HandlerRequest(
-                    payload={"order_id": "ORDER-7", "items": [10, 20, 30]},
-                ),
-            )
-        )
-
-        assert runtime.handler_registry.names() == [
-            "inventory_snapshot",
+    inventory = runtime.middleware.execute_handler(
+        "inventory_snapshot",
+        request=HandlerRequest(payload={"sku": "SKU-9000", "warehouse": "east"}),
+    )
+    quote = asyncio.run(
+        runtime.middleware.execute_handler_async(
             "order_quote_with_services",
-        ]
-        assert inventory.succeeded is True
-        assert inventory.result.data["quantity"] == 31
-        assert quote.succeeded is True
-        assert quote.result.data["currency"] == "USD"
-        assert quote.result.data["discount"] == 12.0
-        assert quote.result.data["tax"] == 2.4
-        assert quote.result.data["total"] == 50.4
-    finally:
-        shutil.rmtree(workspace, ignore_errors=True)
+            request=HandlerRequest(
+                payload={"order_id": "ORDER-7", "items": [10, 20, 30]},
+            ),
+        )
+    )
+
+    assert runtime.handler_registry.names() == [
+        "inventory_snapshot",
+        "order_quote_with_services",
+    ]
+    assert inventory.succeeded is True
+    assert inventory.result.data["quantity"] == 31
+    assert quote.succeeded is True
+    assert quote.result.data["currency"] == "USD"
+    assert quote.result.data["discount"] == 12.0
+    assert quote.result.data["tax"] == 2.4
+    assert quote.result.data["total"] == 50.4

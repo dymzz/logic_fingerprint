@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import shutil
 import subprocess
 import sys
@@ -12,6 +13,10 @@ DIST_DIR = REPO_ROOT / "dist"
 BUILD_DIR = REPO_ROOT / "build"
 PACKAGE_EXTENSIONS = (".whl", ".tar.gz")
 TEST_PYPI_REPOSITORY = "testpypi"
+RELEASE_INSTALL_HINT = (
+    "Missing release dependency '{module}'. "
+    "Install it with 'pip install .[release]' or 'pip install {package_name}'."
+)
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -140,6 +145,7 @@ def main(argv: Sequence[str] | None = None) -> int:
 
 
 def build_package(*, keep_dist: bool) -> None:
+    ensure_python_module("build")
     if not keep_dist:
         clean_directory(BUILD_DIR)
         clean_directory(DIST_DIR)
@@ -147,6 +153,7 @@ def build_package(*, keep_dist: bool) -> None:
 
 
 def check_package(dist_dir: Path) -> None:
+    ensure_python_module("twine")
     artifacts = collect_distribution_files(dist_dir)
     run_command([sys.executable, "-m", "twine", "check", *map(str, artifacts)], cwd=REPO_ROOT)
 
@@ -158,6 +165,7 @@ def publish_package(
     repository_url: str | None,
     skip_check: bool,
 ) -> None:
+    ensure_python_module("twine")
     artifacts = collect_distribution_files(dist_dir)
     if not skip_check:
         check_package(dist_dir)
@@ -197,6 +205,18 @@ def is_distribution_file(path: Path) -> bool:
         return False
     name = path.name
     return name.endswith(PACKAGE_EXTENSIONS)
+
+
+def ensure_python_module(module: str) -> None:
+    if importlib.util.find_spec(module) is not None:
+        return
+
+    raise RuntimeError(
+        RELEASE_INSTALL_HINT.format(
+            module=module,
+            package_name=module,
+        )
+    )
 
 
 def clean_directory(path: Path) -> None:

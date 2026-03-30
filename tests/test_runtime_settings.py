@@ -1,5 +1,3 @@
-import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
@@ -12,10 +10,6 @@ from logicfp.config import (
     build_runtime_settings,
     load_runtime_settings_from_env,
 )
-
-
-def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfp-settings-", dir=Path.cwd()))
 from logicfp.infra.consensus import (
     InMemoryConsensusBackend,
     build_consensus_backend,
@@ -76,13 +70,11 @@ def test_build_runtime_settings_explicit_args_override_environment(monkeypatch):
     assert settings.redis_url == "redis://cache.internal:6379/1"
 
 
-def test_load_runtime_settings_reads_project_yaml_config_file(monkeypatch):
-    workspace = _make_temp_dir()
-    try:
-        config_dir = workspace / "config"
-        config_dir.mkdir()
-        (config_dir / "config.yaml").write_text(
-            """
+def test_load_runtime_settings_reads_project_yaml_config_file(monkeypatch, tmp_path: Path):
+    config_dir = tmp_path / "config"
+    config_dir.mkdir()
+    (config_dir / "config.yaml").write_text(
+        """
 logicfp:
   instance_id: project-node
   default_source: langchain
@@ -90,47 +82,41 @@ logicfp:
   handler_registrars:
     - tests.sample_handlers
 """.strip()
-            + "\n",
-            encoding="utf-8",
-        )
-        monkeypatch.chdir(workspace)
-        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
-        monkeypatch.delenv("LOGICFP_INSTANCE_ID", raising=False)
-        monkeypatch.delenv("LOGICFP_DEFAULT_SOURCE", raising=False)
-        monkeypatch.delenv("LOGICFP_BACKEND_TYPE", raising=False)
-        monkeypatch.delenv("LOGICFP_HANDLER_REGISTRARS", raising=False)
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(tmp_path)
+    monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+    monkeypatch.delenv("LOGICFP_INSTANCE_ID", raising=False)
+    monkeypatch.delenv("LOGICFP_DEFAULT_SOURCE", raising=False)
+    monkeypatch.delenv("LOGICFP_BACKEND_TYPE", raising=False)
+    monkeypatch.delenv("LOGICFP_HANDLER_REGISTRARS", raising=False)
 
-        settings = load_runtime_settings_from_env()
+    settings = load_runtime_settings_from_env()
 
-        assert settings.instance_id == "project-node"
-        assert settings.default_source == "langchain"
-        assert settings.backend_type == "memory"
-        assert settings.handler_registrars == ("tests.sample_handlers",)
-    finally:
-        shutil.rmtree(workspace, ignore_errors=True)
+    assert settings.instance_id == "project-node"
+    assert settings.default_source == "langchain"
+    assert settings.backend_type == "memory"
+    assert settings.handler_registrars == ("tests.sample_handlers",)
 
 
-def test_build_runtime_settings_supports_explicit_yaml_config_file(monkeypatch):
-    workspace = _make_temp_dir()
-    try:
-        config_path = workspace / "custom.yaml"
-        config_path.write_text(
-            """
+def test_build_runtime_settings_supports_explicit_yaml_config_file(monkeypatch, tmp_path: Path):
+    config_path = tmp_path / "custom.yaml"
+    config_path.write_text(
+        """
 logicfp:
   instance_id: file-node
   default_source: file-source
 """.strip()
-            + "\n",
-            encoding="utf-8",
-        )
-        monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.delenv("LOGICFP_CONFIG_FILE", raising=False)
 
-        settings = build_runtime_settings(config_file=config_path)
+    settings = build_runtime_settings(config_file=config_path)
 
-        assert settings.instance_id == "file-node"
-        assert settings.default_source == "file-source"
-    finally:
-        shutil.rmtree(workspace, ignore_errors=True)
+    assert settings.instance_id == "file-node"
+    assert settings.default_source == "file-source"
 
 
 def test_build_consensus_backend_creates_memory_backend():

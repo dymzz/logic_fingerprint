@@ -5,6 +5,7 @@ from pathlib import Path
 from scripts.release_package import (
     build_parser,
     collect_distribution_files,
+    ensure_python_module,
     is_distribution_file,
     resolve_repository_args,
 )
@@ -69,3 +70,15 @@ def test_resolve_repository_args_prefers_testpypi_template() -> None:
 
     assert repository == "testpypi"
     assert repository_url is None
+
+
+def test_ensure_python_module_raises_helpful_error(monkeypatch) -> None:
+    monkeypatch.setattr("importlib.util.find_spec", lambda name: None)
+
+    try:
+        ensure_python_module("build")
+    except RuntimeError as exc:
+        assert "pip install .[release]" in str(exc)
+        assert "pip install build" in str(exc)
+    else:
+        raise AssertionError("Expected RuntimeError when module is missing")

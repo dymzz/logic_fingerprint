@@ -34,6 +34,31 @@ pip install -e .
 pip install -e .[release]
 ```
 
+## 本地缓存与临时目录
+
+推荐先启用仓库内缓存和临时目录，避免 `uv` 或 `pytest` 落到系统目录后遇到 Windows ACL/清理问题。
+
+PowerShell:
+
+```powershell
+. .\scripts\dev_env.ps1
+```
+
+启用后会统一使用：
+
+- `UV_CACHE_DIR=.uv-cache`
+- `TMP=.tmp`
+- `TEMP=.tmp`
+- `pytest --basetemp=.pytest_tmp/basetemp`
+
+其中：
+
+- `uv` 缓存目录通过 [`pyproject.toml`](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.uv.cache-dir` 固定到项目内
+- `pytest` 临时目录通过 [`pyproject.toml`](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.pytest.ini_options.addopts` 固定到项目内
+- [`dev_env.ps1`](D:/workspace/python/logic_fingerprint_ai/scripts/dev_env.ps1) 主要负责把系统级 `TMP/TEMP` 也切到仓库内
+
+如果当前终端里已经有全局 `UV_CACHE_DIR`，脚本会覆盖它，避免继续写到类似 `D:\uv-cache` 这种高风险目录。
+
 ## 常用命令
 
 运行测试：
@@ -75,6 +100,8 @@ python scripts/release_package.py release --publish --testpypi
 - 兼容旧 section：`logic_fingerprint:`
 - 环境变量前缀：`LOGICFP_`
 - 兼容旧环境变量前缀：`LOGIC_FINGERPRINT_`
+- 用户模式默认建议 `backend_type=memory`
+  对 `LangChain / OpenClaw / HTTP / DB / LLM` 这类调用，优先做本地保护；不要把 Redis 群体熔断当成默认方案
 
 详细配置说明见 [config 参数说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/config%20参数说明.md)。
 

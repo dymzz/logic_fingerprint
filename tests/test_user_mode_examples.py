@@ -1,16 +1,10 @@
 from __future__ import annotations
 
-import shutil
-import tempfile
 from pathlib import Path
 
 import pytest
 
 pytest.importorskip("pydantic")
-
-
-def _make_temp_dir() -> Path:
-    return Path(tempfile.mkdtemp(prefix="logicfp-user-mode-", dir=Path.cwd()))
 
 
 def test_basic_function_example_returns_envelope(monkeypatch):
@@ -64,30 +58,27 @@ def test_exception_handling_example_raises_protect_runtime_error(monkeypatch):
         refund_order(payload={"order_id": "R-1001", "amount": 6000})
 
 
-def test_config_diagnostics_describes_effective_decorator_config(monkeypatch):
-    workspace = _make_temp_dir()
-    try:
-        config_dir = workspace / "config"
-        config_dir.mkdir()
-        (config_dir / "config.yaml").write_text(
-            """
+def test_config_diagnostics_describes_effective_decorator_config(monkeypatch, tmp_path: Path):
+    workspace = tmp_path
+    config_dir = workspace / "config"
+    config_dir.mkdir()
+    (config_dir / "config.yaml").write_text(
+        """
 logicfp:
   instance_id: doc-node
   default_source: docs
   probe_rate: 0.45
 """.strip()
-            + "\n",
-            encoding="utf-8",
-        )
-        monkeypatch.chdir(workspace)
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.chdir(workspace)
 
-        from logicfp.config import DECORATOR_PROFILE, describe_effective_config
+    from logicfp.config import DECORATOR_PROFILE, describe_effective_config
 
-        description = describe_effective_config(profile=DECORATOR_PROFILE)
+    description = describe_effective_config(profile=DECORATOR_PROFILE)
 
-        assert description["config_file"] == str((config_dir / "config.yaml").resolve())
-        assert description["runtime_config"]["probe_rate"] == 0.45
-        assert description["runtime_settings"]["instance_id"] == "doc-node"
-        assert description["runtime_settings"]["default_source"] == "docs"
-    finally:
-        shutil.rmtree(workspace, ignore_errors=True)
+    assert description["config_file"] == str((config_dir / "config.yaml").resolve())
+    assert description["runtime_config"]["probe_rate"] == 0.45
+    assert description["runtime_settings"]["instance_id"] == "doc-node"
+    assert description["runtime_settings"]["default_source"] == "docs"
