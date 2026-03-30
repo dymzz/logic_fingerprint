@@ -25,6 +25,7 @@ def test_summarize_jsonl_logs_reads_rotated_files_in_time_order() -> None:
                 "error_code": "ERR_UNKNOWN",
                 "extra": {
                     "ai_error_code": "RATE_LIMIT_TOKEN",
+                    "provider": "openai",
                     "stage": "dependency",
                     "source": "dependency",
                     "action": "retry",
@@ -38,6 +39,7 @@ def test_summarize_jsonl_logs_reads_rotated_files_in_time_order() -> None:
                 "error_code": "ERR_UNKNOWN",
                 "extra": {
                     "ai_error_code": "UPSTREAM_OVERLOADED",
+                    "provider": "anthropic",
                     "stage": "dependency",
                     "source": "dependency",
                     "action": "retry",
@@ -52,6 +54,10 @@ def test_summarize_jsonl_logs_reads_rotated_files_in_time_order() -> None:
         assert summary.counts["event"]["protect_call_failed"] == 2
         assert summary.counts["ai_error_code"]["RATE_LIMIT_TOKEN"] == 1
         assert summary.counts["ai_error_code"]["UPSTREAM_OVERLOADED"] == 1
+        assert summary.counts["provider"]["openai"] == 1
+        assert summary.counts["provider"]["anthropic"] == 1
+        assert summary.hotspots["RATE_LIMIT_TOKEN | openai | retry"] == 1
+        assert summary.hotspots["UPSTREAM_OVERLOADED | anthropic | retry"] == 1
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
 
@@ -98,6 +104,7 @@ def test_format_log_summary_renders_human_readable_text() -> None:
                 "error_code": "ERR_UNKNOWN",
                 "extra": {
                     "ai_error_code": "UPSTREAM_OVERLOADED",
+                    "provider": "openai",
                     "stage": "dependency",
                     "source": "dependency",
                     "action": "retry",
@@ -109,8 +116,36 @@ def test_format_log_summary_renders_human_readable_text() -> None:
 
         assert "Files: 1" in output
         assert "Events: 1" in output
+        assert "hotspots:" in output
+        assert "UPSTREAM_OVERLOADED | openai | retry: 1" in output
         assert "ai_error_code:" in output
         assert "UPSTREAM_OVERLOADED: 1" in output
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)
+
+
+def test_summarize_jsonl_logs_hotspots_fall_back_to_error_code_without_ai_code() -> None:
+    repo_root = Path(__file__).resolve().parents[1]
+    workspace = repo_root / ".tmp" / f"logicfp-log-summary-hotspots-{uuid4().hex}"
+    base = workspace / "logs" / "logicfp.jsonl"
+    base.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        _write_event(
+            base,
+            {
+                "event": "protect_call_failed",
+                "error_code": "ERR_VALIDATION",
+                "extra": {
+                    "stage": "input",
+                    "source": "caller",
+                    "action": "block",
+                },
+            },
+        )
+
+        summary = summarize_jsonl_logs(base)
+
+        assert summary.hotspots["ERR_VALIDATION | - | block"] == 1
     finally:
         shutil.rmtree(workspace, ignore_errors=True)
 

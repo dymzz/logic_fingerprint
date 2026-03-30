@@ -197,6 +197,9 @@ class Protector:
             ai_code = ai_error.get("code")
             if isinstance(ai_code, str):
                 extra["ai_error_code"] = ai_code
+            provider = ai_error.get("provider")
+            if isinstance(provider, str):
+                extra["provider"] = provider
         error_fact = error_details.get("error_fact")
         if isinstance(error_fact, dict):
             for key in ("stage", "source"):

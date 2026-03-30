@@ -70,12 +70,6 @@ PowerShell:
 uv run pytest tests -q
 ```
 
-查看本地 JSONL 日志摘要：
-
-```bash
-python scripts/log_summary.py logs/logicfp.jsonl
-```
-
 构建发布包：
 
 ```bash

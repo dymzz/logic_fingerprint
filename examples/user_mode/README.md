@@ -36,12 +36,6 @@
 - `local_logging.py`
   演示怎么用 `JsonlEventLogger + SummaryLogger` 做本地 JSONL 日志和轻量汇总，不需要单独跑服务；示例里也带了按文件大小轮转。
 
-如果你已经把日志写到 `logs/logicfp.jsonl`，也可以直接用：
-
-```bash
-python scripts/log_summary.py logs/logicfp.jsonl
-```
-
 相关说明：
 
 - `documents/Tutorial/用户模式速查.md`

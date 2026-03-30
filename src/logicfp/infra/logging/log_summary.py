@@ -11,6 +11,7 @@ SUMMARY_KEYS: tuple[str, ...] = (
     "event",
     "error_code",
     "ai_error_code",
+    "provider",
     "stage",
     "source",
     "action",
@@ -22,12 +23,14 @@ class LogSummary:
     files: list[str]
     total_events: int
     counts: dict[str, dict[str, int]]
+    hotspots: dict[str, int]
 
     def as_dict(self) -> dict[str, Any]:
         return {
             "files": list(self.files),
             "total_events": self.total_events,
             "counts": {key: dict(value) for key, value in self.counts.items()},
+            "hotspots": dict(self.hotspots),
         }
 
 
@@ -43,20 +46,26 @@ def summarize_jsonl_logs(
         events = events[-limit:]
 
     buckets = {key: Counter[str]() for key in SUMMARY_KEYS}
+    hotspots = Counter[str]()
     for event in events:
         extra = event.get("extra")
         extra_dict = extra if isinstance(extra, dict) else {}
         _count_value(buckets["event"], event.get("event"))
         _count_value(buckets["error_code"], event.get("error_code"))
         _count_value(buckets["ai_error_code"], extra_dict.get("ai_error_code"))
+        _count_value(buckets["provider"], extra_dict.get("provider"))
         _count_value(buckets["stage"], extra_dict.get("stage"))
         _count_value(buckets["source"], extra_dict.get("source"))
         _count_value(buckets["action"], extra_dict.get("action"))
+        hotspot = _build_hotspot_label(event, extra_dict)
+        if hotspot is not None:
+            hotspots[hotspot] += 1
 
     return LogSummary(
         files=[str(file_path) for file_path in files],
         total_events=len(events),
         counts={key: dict(counter) for key, counter in buckets.items() if counter},
+        hotspots=dict(hotspots),
     )
 
 
@@ -84,6 +93,12 @@ def format_log_summary(summary: LogSummary, *, top: int = 5) -> str:
     if summary.files:
         lines.append("Paths:")
         lines.extend(f"  {path}" for path in summary.files)
+
+    if summary.hotspots:
+        lines.append("hotspots:")
+        sorted_hotspots = sorted(summary.hotspots.items(), key=lambda item: (-item[1], item[0]))
+        for name, count in sorted_hotspots[:top]:
+            lines.append(f"  {name}: {count}")
 
     for key in SUMMARY_KEYS:
         values = summary.counts.get(key)
@@ -116,6 +131,23 @@ def _read_jsonl_events(path: Path) -> list[dict[str, Any]]:
 def _count_value(counter: Counter[str], value: Any) -> None:
     if isinstance(value, str) and value:
         counter[value] += 1
+
+
+def _build_hotspot_label(event: dict[str, Any], extra: dict[str, Any]) -> str | None:
+    ai_error_code = extra.get("ai_error_code")
+    error_code = event.get("error_code")
+    action = extra.get("action")
+    provider = extra.get("provider")
+
+    primary = ai_error_code if isinstance(ai_error_code, str) and ai_error_code else None
+    if primary is None and isinstance(error_code, str) and error_code:
+        primary = error_code
+    if primary is None:
+        return None
+
+    provider_label = provider if isinstance(provider, str) and provider else "-"
+    action_label = action if isinstance(action, str) and action else "-"
+    return f"{primary} | {provider_label} | {action_label}"
 
 
 def _is_log_member(base_name: str, candidate_name: str) -> bool:

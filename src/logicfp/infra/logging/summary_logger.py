@@ -49,7 +49,7 @@ class SummaryLogger(EventLogger):
             self._counts[f"error_code:{event.error_code}"] += 1
 
         extra = event.extra if isinstance(event.extra, dict) else {}
-        for key in ("ai_error_code", "stage", "source", "action"):
+        for key in ("ai_error_code", "provider", "stage", "source", "action"):
             value = extra.get(key)
             if isinstance(value, str) and value:
                 self._counts[f"{key}:{value}"] += 1

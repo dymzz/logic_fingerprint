@@ -93,6 +93,7 @@ def test_summary_logger_aggregates_counts_and_flushes_to_sink() -> None:
             error_code="ERR_UNKNOWN",
             extra={
                 "ai_error_code": "UPSTREAM_OVERLOADED",
+                "provider": "openai",
                 "stage": "dependency",
                 "source": "dependency",
                 "action": "retry",
@@ -105,6 +106,7 @@ def test_summary_logger_aggregates_counts_and_flushes_to_sink() -> None:
             error_code="ERR_UNKNOWN",
             extra={
                 "ai_error_code": "UPSTREAM_OVERLOADED",
+                "provider": "openai",
                 "stage": "dependency",
                 "source": "dependency",
                 "action": "retry",
@@ -119,6 +121,7 @@ def test_summary_logger_aggregates_counts_and_flushes_to_sink() -> None:
     assert counts["event:protect_call_failed"] == 2
     assert counts["error_code:ERR_UNKNOWN"] == 2
     assert counts["ai_error_code:UPSTREAM_OVERLOADED"] == 2
+    assert counts["provider:openai"] == 2
     assert counts["stage:dependency"] == 2
     assert counts["source:dependency"] == 2
     assert counts["action:retry"] == 2
