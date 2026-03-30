@@ -16,6 +16,8 @@
    `examples/user_mode/action_resolver.py`
 6. 局部识别模板
    `examples/user_mode/custom_recognizer.py`
+7. 本地日志模板
+   `examples/user_mode/local_logging.py`
 
 ## 这些模板分别解决什么问题
 
@@ -31,6 +33,8 @@
   演示怎么用 `error_action_resolver` 把未知失败改成 `fallback`，再由调用方走本地备用路径。
 - `custom_recognizer.py`
   演示怎么给单个 protector 局部注入 `ai_error_recognizers`，把项目私有 provider 错误映射成标准 AI 错误，再由调用方按 `ai_error` 做本地 fallback。
+- `local_logging.py`
+  演示怎么用 `JsonlEventLogger + SummaryLogger` 做本地 JSONL 日志和轻量汇总，不需要单独跑服务。
 
 相关说明：
 

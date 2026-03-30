@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from pathlib import Path
+import shutil
+from uuid import uuid4
 
 import pytest
 
@@ -126,3 +128,30 @@ def test_custom_recognizer_example_maps_private_provider_error(monkeypatch):
 
     assert fallback["source"] == "local-cache"
     assert fallback["stale"] is True
+
+
+def test_local_logging_example_writes_jsonl(monkeypatch):
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    monkeypatch.syspath_prepend(str(repo_root / "src"))
+    workspace = repo_root / ".tmp" / f"logicfp-local-logging-{uuid4().hex}"
+    workspace.mkdir(parents=True, exist_ok=True)
+    try:
+        monkeypatch.chdir(workspace)
+
+        from examples.user_mode.local_logging import event_logger, run_demo
+
+        output = run_demo()
+        event_logger.flush()
+
+        assert output["ai_error"] is not None
+        assert output["ai_error"]["code"] == "UPSTREAM_OVERLOADED"
+
+        log_path = workspace / "logs" / "logicfp.jsonl"
+        assert log_path.exists()
+        lines = log_path.read_text(encoding="utf-8").splitlines()
+        assert len(lines) >= 2
+        assert any("protect_call_failed" in line for line in lines)
+        assert any("logicfp_summary" in line for line in lines)
+    finally:
+        shutil.rmtree(workspace, ignore_errors=True)

@@ -1,5 +1,6 @@
 from .decorator import (
     AIErrorRecognizer,
+    AIErrorData,
     RecognitionContext,
     RegisteredAIErrorRecognizer,
     build_ai_error_recognition,
@@ -14,6 +15,7 @@ from .decorator import (
     ProtectRuntimeError,
     Protector,
     create_protector,
+    get_ai_error,
     get_error_action,
     get_error_details,
     get_error_fact,
@@ -26,6 +28,7 @@ from .decorator import (
 
 __all__ = [
     "AIErrorRecognizer",
+    "AIErrorData",
     "RecognitionContext",
     "RegisteredAIErrorRecognizer",
     "build_ai_error_recognition",
@@ -40,6 +43,7 @@ __all__ = [
     "ProtectRuntimeError",
     "Protector",
     "create_protector",
+    "get_ai_error",
     "get_error_action",
     "get_error_details",
     "get_error_fact",

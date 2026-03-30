@@ -185,6 +185,31 @@ class Protector:
             "context": context_dict,
         }
 
+    def _build_error_log_extra(
+        self,
+        error_details: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        if not isinstance(error_details, dict):
+            return {}
+        extra: dict[str, Any] = {}
+        ai_error = error_details.get("ai_error")
+        if isinstance(ai_error, dict):
+            ai_code = ai_error.get("code")
+            if isinstance(ai_code, str):
+                extra["ai_error_code"] = ai_code
+        error_fact = error_details.get("error_fact")
+        if isinstance(error_fact, dict):
+            for key in ("stage", "source"):
+                value = error_fact.get(key)
+                if isinstance(value, str):
+                    extra[key] = value
+        error_policy = error_details.get("error_policy")
+        if isinstance(error_policy, dict):
+            action = error_policy.get("action")
+            if isinstance(action, str):
+                extra["action"] = action
+        return extra
+
     def _handle_pre_execution_error(
         self,
         exc: Exception,
@@ -213,6 +238,7 @@ class Protector:
             trace_id=context_dict.get("trace_id"),
             error_code=error_code,
             message=str(exc),
+            extra=self._build_error_log_extra(error_details),
         ))
         return self._error_response(
             error_code=error_code,
@@ -339,6 +365,7 @@ class Protector:
                         trace_id=context_dict.get("trace_id"),
                         error_code=outcome.error_code,
                         message=outcome.error_message,
+                        extra=self._build_error_log_extra(outcome.error_details),
                     ))
 
                     return self._error_response(
@@ -460,6 +487,7 @@ class Protector:
                     trace_id=context_dict.get("trace_id"),
                     error_code=outcome.error_code,
                     message=outcome.error_message,
+                    extra=self._build_error_log_extra(outcome.error_details),
                 ))
 
                 return self._error_response(

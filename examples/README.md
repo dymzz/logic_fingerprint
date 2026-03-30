@@ -33,6 +33,7 @@
 - `examples/user_mode/config_diagnostics.py`
 - `examples/user_mode/action_resolver.py`
 - `examples/user_mode/custom_recognizer.py`
+- `examples/user_mode/local_logging.py`
 
 这条路径适合：
 

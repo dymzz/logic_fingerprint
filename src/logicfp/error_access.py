@@ -3,6 +3,18 @@ from __future__ import annotations
 from typing import Any, TypedDict, cast
 
 
+class AIErrorData(TypedDict):
+    code: str
+    category: str
+    retryable: bool | None
+    severity: str
+    phase: str
+    provider: str | None
+    model: str | None
+    matched_signals: list[str]
+    details: dict[str, Any]
+
+
 class ErrorFactData(TypedDict):
     stage: str
     source: str
@@ -20,13 +32,19 @@ class ErrorPolicyData(TypedDict):
 class ErrorDetailsData(TypedDict, total=False):
     error_fact: ErrorFactData
     error_policy: ErrorPolicyData
-    ai_error: dict[str, Any]
+    ai_error: AIErrorData
     errors: list[Any]
 
 
 def get_error_details(error_like: Any) -> ErrorDetailsData:
     details = _resolve_error_details(error_like)
     return cast(ErrorDetailsData, dict(details) if isinstance(details, dict) else {})
+
+
+def get_ai_error(error_like: Any) -> AIErrorData | None:
+    details = _resolve_error_details(error_like)
+    ai_error = details.get("ai_error") if isinstance(details, dict) else None
+    return cast(AIErrorData | None, dict(ai_error) if isinstance(ai_error, dict) else None)
 
 
 def get_error_fact(error_like: Any) -> ErrorFactData | None:

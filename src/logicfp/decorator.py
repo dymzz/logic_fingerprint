@@ -10,9 +10,11 @@ from .domain.ai_error_recognizer import (
 from .domain.error_report import ErrorActionResolverPayload, ErrorActionResolverResult
 from .domain.errors import ErrorCode, LogicExecutionError, NormalizationError
 from .error_access import (
+    AIErrorData,
     ErrorDetailsData,
     ErrorFactData,
     ErrorPolicyData,
+    get_ai_error,
     get_error_action,
     get_error_details,
     get_error_fact,
@@ -22,6 +24,7 @@ from .domain.providers._context import RecognitionContext
 
 __all__ = [
     "AIErrorRecognizer",
+    "AIErrorData",
     "RecognitionContext",
     "RegisteredAIErrorRecognizer",
     "build_ai_error_recognition",
@@ -36,6 +39,7 @@ __all__ = [
     "ProtectRuntimeError",
     "Protector",
     "create_protector",
+    "get_ai_error",
     "get_error_action",
     "get_error_details",
     "get_error_fact",

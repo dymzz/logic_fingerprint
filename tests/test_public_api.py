@@ -13,6 +13,7 @@ user_mode = importlib.import_module("logicfp.user_mode")
 from logicfp import create_protector, protect
 from logicfp.user_mode import (
     AIErrorRecognizer,
+    AIErrorData,
     RecognitionContext,
     RegisteredAIErrorRecognizer,
     build_ai_error_recognition,
@@ -26,6 +27,7 @@ from logicfp.user_mode import (
     ErrorPolicyData,
     ProtectRuntimeError,
     Protector,
+    get_ai_error,
     get_error_action,
     get_error_details,
     get_error_fact,
@@ -62,6 +64,7 @@ def test_root_package_protect_export_survives_submodule_import():
 def test_user_mode_module_exports_advanced_user_mode_api():
     assert user_mode.__all__ == [
         "AIErrorRecognizer",
+        "AIErrorData",
         "RecognitionContext",
         "RegisteredAIErrorRecognizer",
         "build_ai_error_recognition",
@@ -76,6 +79,7 @@ def test_user_mode_module_exports_advanced_user_mode_api():
         "ProtectRuntimeError",
         "Protector",
         "create_protector",
+        "get_ai_error",
         "get_error_action",
         "get_error_details",
         "get_error_fact",
@@ -87,6 +91,7 @@ def test_user_mode_module_exports_advanced_user_mode_api():
     ]
     assert callable(user_mode.protect)
     assert callable(user_mode.create_protector)
+    assert callable(user_mode.get_ai_error)
     assert callable(user_mode.get_error_fact)
     assert callable(user_mode.get_error_policy)
     assert callable(user_mode.get_error_action)
@@ -101,6 +106,7 @@ def test_user_mode_module_exports_advanced_user_mode_api():
     assert user_mode.build_ai_error_recognition is build_ai_error_recognition
     assert user_mode.ErrorActionResolverPayload is ErrorActionResolverPayload
     assert user_mode.ErrorActionResolverResult is ErrorActionResolverResult
+    assert user_mode.AIErrorData is AIErrorData
     assert user_mode.ErrorFactData is ErrorFactData
     assert user_mode.ErrorPolicyData is ErrorPolicyData
     assert user_mode.ErrorDetailsData is ErrorDetailsData
@@ -109,6 +115,7 @@ def test_user_mode_module_exports_advanced_user_mode_api():
     assert NormalizationError is user_mode.NormalizationError
     assert ProtectRuntimeError is user_mode.ProtectRuntimeError
     assert Protector is user_mode.Protector
+    assert get_ai_error is user_mode.get_ai_error
     assert get_error_fact is user_mode.get_error_fact
     assert get_error_policy is user_mode.get_error_policy
     assert get_error_action is user_mode.get_error_action

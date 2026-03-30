@@ -17,6 +17,7 @@ from logicfp.user_mode import (
     ErrorCode,
     LogicExecutionError,
     ProtectRuntimeError,
+    get_ai_error,
     get_error_action,
     get_error_fact,
     get_error_policy,
@@ -373,9 +374,11 @@ def test_user_mode_error_helpers_read_simple_true_error() -> None:
         guarded(payload={"value": 1})
 
     fact = get_error_fact(exc_info.value)
+    ai_error = get_ai_error(exc_info.value)
     policy = get_error_policy(exc_info.value)
 
     assert fact is not None
+    assert ai_error is None
     assert policy is not None
     assert fact["stage"] == "execute"
     assert fact["source"] == "system"
@@ -391,11 +394,27 @@ def test_user_mode_error_helpers_read_simple_false_error_envelope() -> None:
     result = guarded(payload={"value": 1})
 
     fact = get_error_fact(result["error"])
+    ai_error = get_ai_error(result)
     policy = get_error_policy(result)
 
     assert fact is not None
+    assert ai_error is None
     assert policy is not None
     assert fact["stage"] == "execute"
     assert fact["source"] == "system"
     assert fact["recoverability"] == "non_recoverable"
     assert get_error_action(result) == "block"
+
+
+def test_get_ai_error_reads_recognized_ai_failure() -> None:
+    @create_protector().protect(simple=False)
+    def guarded(request: HandlerRequest):
+        raise RuntimeError("OpenAI upstream is temporarily overloaded")
+
+    result = guarded(payload={"value": 1})
+
+    ai_error = get_ai_error(result)
+
+    assert ai_error is not None
+    assert ai_error["code"] == "UPSTREAM_OVERLOADED"
+    assert ai_error["retryable"] is True
