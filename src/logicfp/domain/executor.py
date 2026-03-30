@@ -8,6 +8,7 @@ from .models import ExecutionDecision, ExecutionOutcome, FSMState, ProbeResult
 class LogicFingerprintExecutor:
     fsm: object
     ai_error_classifier: object | None = None
+    ai_error_recognizers: tuple[object, ...] = ()
     error_action_resolver: object | None = None
 
     def _build_decision_from_closed(self):
@@ -46,10 +47,31 @@ class LogicFingerprintExecutor:
             exc,
             stage_hint="execute",
             ai_error_classifier=self.ai_error_classifier,
+            ai_error_recognizers=self.ai_error_recognizers,
             error_action_resolver=self.error_action_resolver,
         )
         self.fsm.record_hard_fail(code.value)
         return ExecutionOutcome(decision=decision, executed=True, succeeded=False, state_after=self.fsm.state.value, error_code=code.value, error_message=str(exc), error_details=details)
+
+    def _is_empty_ai_result(self, result):
+        if result is None:
+            return True, {"empty_result_signals": ["result_none"]}
+
+        if isinstance(result, dict):
+            empty_fields = []
+            ai_text_fields = ("content", "text", "output_text", "completion")
+            for name in ai_text_fields:
+                if name in result and _is_empty_value(result[name]):
+                    empty_fields.append(name)
+            if empty_fields:
+                return True, {"empty_result_signals": ["empty_text_fields"], "empty_fields": empty_fields}
+            if "choices" in result and isinstance(result["choices"], list) and not result["choices"]:
+                return True, {"empty_result_signals": ["empty_choices"]}
+            if "content_blocks" in result and isinstance(result["content_blocks"], list) and not result["content_blocks"]:
+                return True, {"empty_result_signals": ["empty_content_blocks"]}
+
+        return False, {}
+
     def execute(self, operation, now=None):
         decision = self._build_decision_from_half_open(now) if self.fsm.state == FSMState.HALF_OPEN else self._build_decision_from_closed()
         if not decision.allow_request and not decision.allow_probe:
@@ -58,8 +80,9 @@ class LogicFingerprintExecutor:
             result = operation()
             if inspect.isawaitable(result):
                 raise TypeError("Async operation cannot be executed by sync execute(); use execute_async().")
-            if result is None:
-                raise NullResultError("Operation returned None.")
+            is_empty_result, details = self._is_empty_ai_result(result)
+            if is_empty_result:
+                raise NullResultError("Operation returned an empty result.", details=details)
             return self._success_outcome(decision, result)
         except Exception as exc:
             return self._failure_outcome(decision, exc)
@@ -71,8 +94,19 @@ class LogicFingerprintExecutor:
             result = operation()
             if inspect.isawaitable(result):
                 result = await result
-            if result is None:
-                raise NullResultError("Operation returned None.")
+            is_empty_result, details = self._is_empty_ai_result(result)
+            if is_empty_result:
+                raise NullResultError("Operation returned an empty result.", details=details)
             return self._success_outcome(decision, result)
         except Exception as exc:
             return self._failure_outcome(decision, exc)
+
+
+def _is_empty_value(value):
+    if value is None:
+        return True
+    if isinstance(value, str):
+        return value.strip() == ""
+    if isinstance(value, (list, tuple, set, dict)):
+        return len(value) == 0
+    return False

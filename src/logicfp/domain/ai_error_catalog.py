@@ -42,6 +42,8 @@ COMMON_DIAGNOSTIC_FIELDS: tuple[str, ...] = (
     "provider_request_id",
     "retry_after_s",
     "finish_reason",
+    "stop_reason",
+    "refusal",
     "stream_started",
     "received_chunks",
     "input_tokens",

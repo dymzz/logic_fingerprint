@@ -32,6 +32,7 @@
 - `examples/user_mode/exception_handling.py`
 - `examples/user_mode/config_diagnostics.py`
 - `examples/user_mode/action_resolver.py`
+- `examples/user_mode/custom_recognizer.py`
 
 这条路径适合：
 

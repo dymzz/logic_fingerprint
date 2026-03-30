@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, is_dataclass
 from functools import wraps
 from pathlib import Path
-from typing import Any, Callable, TypeVar
+from typing import Any, Callable, Iterable, TypeVar
 import inspect
 import sys
 import warnings
@@ -22,6 +22,7 @@ from .config import (
 )
 from .domain.executor import LogicFingerprintExecutor
 from .domain.errors import build_error_details, classify_exception
+from .domain.ai_error_recognizer import AIErrorRecognizer
 from .domain.fsm import LogicFingerprintFSM
 from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
@@ -40,6 +41,7 @@ _ADVANCED_PROTECTOR_KWARGS = {
     "backend",
     "redis_client",
     "ai_error_classifier",
+    "ai_error_recognizers",
     "error_action_resolver",
     "error_policy_resolver",
 }
@@ -85,6 +87,7 @@ class Protector:
         redis_client: object | None = None,
         event_logger: EventLogger | None = None,
         ai_error_classifier: object | None = None,
+        ai_error_recognizers: list[AIErrorRecognizer] | tuple[AIErrorRecognizer, ...] | None = None,
         error_action_resolver: object | None = None,
         error_policy_resolver: object | None = None,
     ) -> None:
@@ -92,6 +95,7 @@ class Protector:
             error_action_resolver=error_action_resolver,
             error_policy_resolver=error_policy_resolver,
         )
+        normalized_ai_error_recognizers = _normalize_ai_error_recognizers(ai_error_recognizers)
         config = config or build_runtime_config(
             probe_rate=probe_rate,
             probe_interval_seconds=probe_interval_seconds,
@@ -129,12 +133,14 @@ class Protector:
         self.executor = LogicFingerprintExecutor(
             fsm,
             ai_error_classifier=ai_error_classifier,
+            ai_error_recognizers=normalized_ai_error_recognizers,
             error_action_resolver=normalized_error_action_resolver,
         )
         self.metrics = InMemoryMetrics()
         self.context_builder = ContextBuilder(default_source=settings.default_source)
         self.event_logger = event_logger or NullEventLogger()
         self.ai_error_classifier = ai_error_classifier
+        self.ai_error_recognizers = normalized_ai_error_recognizers
         self.error_action_resolver = normalized_error_action_resolver
         self.error_policy_resolver = normalized_error_action_resolver
     def _success_response(
@@ -193,6 +199,7 @@ class Protector:
             exc,
             stage_hint=stage_hint,
             ai_error_classifier=self.executor.ai_error_classifier,
+            ai_error_recognizers=self.executor.ai_error_recognizers,
             error_action_resolver=self.error_action_resolver,
         )
         self.metrics.record_failure(
@@ -552,6 +559,18 @@ def _resolve_error_action_resolver(
         )
         return error_policy_resolver
     return error_action_resolver
+
+
+def _normalize_ai_error_recognizers(
+    ai_error_recognizers: Iterable[AIErrorRecognizer] | None,
+) -> tuple[AIErrorRecognizer, ...]:
+    if ai_error_recognizers is None:
+        return ()
+    normalized = tuple(ai_error_recognizers)
+    for recognizer in normalized:
+        if not callable(recognizer):
+            raise TypeError("ai_error_recognizers must contain only callables.")
+    return normalized
 
 
 def protect(

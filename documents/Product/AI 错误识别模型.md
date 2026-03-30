@@ -222,6 +222,45 @@
 
 这样可以先增强识别能力，又不会太早把新结构冻成长期包袱。
 
+当前代码里已经开始按 provider 拆识别适配层：
+
+- `OpenAI`
+  - `RATE_LIMIT_TOKEN`
+  - `RATE_LIMIT_REQUEST`
+  - `QUOTA_EXHAUSTED`
+  - `AUTH_INVALID`
+  - `AUTH_FORBIDDEN`
+  - `MODEL_NOT_FOUND`
+  - `CONTEXT_TOO_LONG`
+  - `UPSTREAM_OVERLOADED`
+  - `UPSTREAM_5XX`
+- `Anthropic`
+  - `RATE_LIMIT_TOKEN`
+  - `RATE_LIMIT_REQUEST`
+  - `QUOTA_EXHAUSTED`
+  - `AUTH_INVALID`
+  - `AUTH_FORBIDDEN`
+  - `MODEL_NOT_FOUND`
+  - `CONTEXT_TOO_LONG`
+  - `UPSTREAM_OVERLOADED`
+  - `UPSTREAM_5XX`
+- `LangChain`
+  - `OUTPUT_PARSE_ERROR`
+  - `TOOL_ARGS_INVALID`
+  - `TOOL_NOT_FOUND`
+  - `TOOL_EXEC_ERROR`
+  - `STREAM_BROKEN`
+- `Generic transport`
+  - `NET_CONNECT`
+  - `NET_TIMEOUT`
+  - `STREAM_BROKEN`
+- `Generic output`
+  - `SAFETY_REFUSAL`
+  - `OUTPUT_TRUNCATED`
+  - `EMPTY_RESULT`
+
+这一步的目的不是把所有规则都堆进一个大函数，而是让 provider 语义逐步拆成独立适配层。
+
 ## 8. 可选 API 模型识别
 
 如果规则识别不够，也可以按需加一层“API 模型识别”。
@@ -260,5 +299,8 @@ protector = create_protector(
 - 分类结果会进入 `details["ai_error"]`
 
 这样能保留默认轻量路径，同时允许用户按需接入 API 模型做更细的识别。
+
+
+
 
 

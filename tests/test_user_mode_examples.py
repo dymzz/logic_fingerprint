@@ -103,3 +103,26 @@ def test_action_resolver_example_can_drive_fallback(monkeypatch):
 
     assert fallback["source"] == "local-fallback"
     assert fallback["stale"] is True
+
+
+def test_custom_recognizer_example_maps_private_provider_error(monkeypatch):
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    monkeypatch.syspath_prepend(str(repo_root / "src"))
+
+    from examples.user_mode.custom_recognizer import (
+        fetch_model_summary,
+        fetch_model_summary_with_fallback,
+    )
+
+    result = fetch_model_summary(payload={"topic": "release-notes"})
+
+    assert result["ok"] is False
+    assert result["error"]["details"]["ai_error"]["code"] == "UPSTREAM_OVERLOADED"
+    assert result["error"]["details"]["ai_error"]["provider"] == "openai"
+    assert result["error"]["details"]["error_policy"]["action"] == "retry"
+
+    fallback = fetch_model_summary_with_fallback({"topic": "release-notes"})
+
+    assert fallback["source"] == "local-cache"
+    assert fallback["stale"] is True

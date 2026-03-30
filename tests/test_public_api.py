@@ -12,6 +12,10 @@ user_mode = importlib.import_module("logicfp.user_mode")
 
 from logicfp import create_protector, protect
 from logicfp.user_mode import (
+    AIErrorRecognizer,
+    RecognitionContext,
+    RegisteredAIErrorRecognizer,
+    build_ai_error_recognition,
     ErrorActionResolverPayload,
     ErrorActionResolverResult,
     ErrorDetailsData,
@@ -26,6 +30,9 @@ from logicfp.user_mode import (
     get_error_details,
     get_error_fact,
     get_error_policy,
+    list_ai_error_recognizers,
+    register_ai_error_recognizer,
+    unregister_ai_error_recognizer,
 )
 
 
@@ -54,6 +61,10 @@ def test_root_package_protect_export_survives_submodule_import():
 
 def test_user_mode_module_exports_advanced_user_mode_api():
     assert user_mode.__all__ == [
+        "AIErrorRecognizer",
+        "RecognitionContext",
+        "RegisteredAIErrorRecognizer",
+        "build_ai_error_recognition",
         "ErrorActionResolverPayload",
         "ErrorActionResolverResult",
         "ErrorDetailsData",
@@ -69,7 +80,10 @@ def test_user_mode_module_exports_advanced_user_mode_api():
         "get_error_details",
         "get_error_fact",
         "get_error_policy",
+        "list_ai_error_recognizers",
         "protect",
+        "register_ai_error_recognizer",
+        "unregister_ai_error_recognizer",
     ]
     assert callable(user_mode.protect)
     assert callable(user_mode.create_protector)
@@ -77,6 +91,14 @@ def test_user_mode_module_exports_advanced_user_mode_api():
     assert callable(user_mode.get_error_policy)
     assert callable(user_mode.get_error_action)
     assert callable(user_mode.get_error_details)
+    assert callable(user_mode.build_ai_error_recognition)
+    assert callable(user_mode.register_ai_error_recognizer)
+    assert callable(user_mode.unregister_ai_error_recognizer)
+    assert callable(user_mode.list_ai_error_recognizers)
+    assert user_mode.AIErrorRecognizer is AIErrorRecognizer
+    assert user_mode.RecognitionContext is RecognitionContext
+    assert user_mode.RegisteredAIErrorRecognizer is RegisteredAIErrorRecognizer
+    assert user_mode.build_ai_error_recognition is build_ai_error_recognition
     assert user_mode.ErrorActionResolverPayload is ErrorActionResolverPayload
     assert user_mode.ErrorActionResolverResult is ErrorActionResolverResult
     assert user_mode.ErrorFactData is ErrorFactData
@@ -91,3 +113,6 @@ def test_user_mode_module_exports_advanced_user_mode_api():
     assert get_error_policy is user_mode.get_error_policy
     assert get_error_action is user_mode.get_error_action
     assert get_error_details is user_mode.get_error_details
+    assert register_ai_error_recognizer is user_mode.register_ai_error_recognizer
+    assert unregister_ai_error_recognizer is user_mode.unregister_ai_error_recognizer
+    assert list_ai_error_recognizers is user_mode.list_ai_error_recognizers

@@ -2,11 +2,30 @@ import pytest
 
 from logicfp import create_protector
 from logicfp.domain.ai_error_recognizer import (
+    build_ai_error_recognition,
     build_ai_error_classification_input,
+    list_ai_error_recognizers,
     recognize_ai_error,
+    register_ai_error_recognizer,
+    unregister_ai_error_recognizer,
 )
 from logicfp.domain.models import HandlerRequest
 from logicfp.user_mode import ErrorCode, ProtectRuntimeError
+
+
+class FakeResponse:
+    def __init__(
+        self,
+        *,
+        status_code: int | None = None,
+        headers: dict[str, str] | None = None,
+        request_id: str | None = None,
+        error: dict[str, object] | None = None,
+    ) -> None:
+        self.status_code = status_code
+        self.headers = headers or {}
+        self.request_id = request_id
+        self.error = error or {}
 
 
 class FakeOpenAIRateLimitError(Exception):
@@ -19,6 +38,22 @@ class FakeOpenAIRateLimitError(Exception):
 FakeOpenAIRateLimitError.__module__ = "openai"
 
 
+class FakeOpenAINestedResponseRateLimitError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Rate limit reached for gpt-5-mini")
+        self.response = FakeResponse(
+            status_code=429,
+            headers={"retry-after": "7", "x-request-id": "req_nested_123"},
+            request_id="req_nested_123",
+            error={"code": "rate_limit_exceeded"},
+        )
+        self.body = {"model": "gpt-5-mini", "error": {"code": "rate_limit_exceeded"}}
+
+
+FakeOpenAINestedResponseRateLimitError.__module__ = "openai"
+FakeOpenAINestedResponseRateLimitError.__name__ = "RateLimitError"
+
+
 class FakeOpenAIAuthError(Exception):
     def __init__(self, message: str = "Invalid API key", *, status_code: int = 401) -> None:
         super().__init__(message)
@@ -26,6 +61,116 @@ class FakeOpenAIAuthError(Exception):
 
 
 FakeOpenAIAuthError.__module__ = "openai"
+
+
+class FakeOpenAIQuotaError(Exception):
+    def __init__(self) -> None:
+        super().__init__("You exceeded your current quota, please check your plan and billing details.")
+        self.status_code = 429
+        self.code = "insufficient_quota"
+
+
+FakeOpenAIQuotaError.__module__ = "openai"
+
+
+class FakeOpenAIModelNotFoundError(Exception):
+    def __init__(self) -> None:
+        super().__init__("The model `gpt-missing` was not found")
+        self.status_code = 404
+        self.code = "model_not_found"
+        self.model = "gpt-missing"
+
+
+FakeOpenAIModelNotFoundError.__module__ = "openai"
+
+
+class FakeOpenAIInternalServerError(Exception):
+    def __init__(self) -> None:
+        super().__init__("OpenAI upstream internal server error")
+        self.status_code = 500
+        self.code = "internal_server_error"
+
+
+FakeOpenAIInternalServerError.__module__ = "openai"
+
+
+class FakeOpenAIConnectionError(ConnectionError):
+    def __init__(self) -> None:
+        super().__init__("Connection error while reaching OpenAI upstream")
+
+
+FakeOpenAIConnectionError.__module__ = "openai"
+FakeOpenAIConnectionError.__name__ = "APIConnectionError"
+
+
+class FakeAnthropicRateLimitError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Request rate limit exceeded for this workspace")
+        self.status_code = 429
+        self.code = "rate_limit_error"
+
+
+FakeAnthropicRateLimitError.__module__ = "anthropic"
+FakeAnthropicRateLimitError.__name__ = "RateLimitError"
+
+
+class FakeAnthropicOverloadedError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Anthropic API is temporarily overloaded")
+        self.status_code = 529
+        self.code = "overloaded_error"
+
+
+FakeAnthropicOverloadedError.__module__ = "anthropic"
+FakeAnthropicOverloadedError.__name__ = "InternalServerError"
+
+
+class FakeOpenAIRefusalError(Exception):
+    def __init__(self) -> None:
+        super().__init__("The model refused this request due to safety policy.")
+        self.refusal = "safety"
+        self.finish_reason = "content_filter"
+
+
+FakeOpenAIRefusalError.__module__ = "openai"
+
+
+class FakeOpenAITruncatedError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Response generation stopped because finish_reason=length")
+        self.finish_reason = "length"
+
+
+FakeOpenAITruncatedError.__module__ = "openai"
+
+
+class FakeOpenAINestedChoicesTruncatedError(Exception):
+    def __init__(self) -> None:
+        super().__init__("OpenAI response stopped early")
+        self.body = {
+            "model": "gpt-5-mini",
+            "choices": [
+                {
+                    "finish_reason": "length",
+                }
+            ],
+        }
+
+
+FakeOpenAINestedChoicesTruncatedError.__module__ = "openai"
+
+
+class FakeAnthropicNestedRefusalError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Anthropic response was blocked")
+        self.body = {
+            "model": "claude-3-5-sonnet",
+            "stop_reason": "refusal",
+            "refusal": "policy",
+        }
+
+
+FakeAnthropicNestedRefusalError.__module__ = "anthropic"
 
 
 class FakeLangChainStreamError(Exception):
@@ -37,6 +182,34 @@ class FakeLangChainStreamError(Exception):
 
 
 FakeLangChainStreamError.__module__ = "langchain_openai"
+
+
+class FakeLangChainOutputParserException(Exception):
+    def __init__(self) -> None:
+        super().__init__("Could not parse LLM output into the expected JSON shape")
+        self.schema_name = "ReviewResult"
+
+
+FakeLangChainOutputParserException.__module__ = "langchain_core.output_parsers"
+
+
+class FakeLangChainToolArgsError(Exception):
+    def __init__(self) -> None:
+        super().__init__("tool input validation failed for search_docs")
+        self.tool_name = "search_docs"
+
+
+FakeLangChainToolArgsError.__module__ = "langchain_core.tools"
+
+
+class FakeLangChainToolException(Exception):
+    def __init__(self) -> None:
+        super().__init__("tool execution failed while calling search_docs")
+        self.tool_name = "search_docs"
+
+
+FakeLangChainToolException.__module__ = "langchain_core.tools"
+FakeLangChainToolException.__name__ = "ToolException"
 
 
 class FakeToolTimeoutError(TimeoutError):
@@ -56,6 +229,17 @@ def test_recognize_token_rate_limit() -> None:
     assert recognition.retryable is True
 
 
+def test_recognize_openai_rate_limit_from_nested_response_payload() -> None:
+    recognition = recognize_ai_error(FakeOpenAINestedResponseRateLimitError())
+
+    assert recognition is not None
+    assert recognition.code == "RATE_LIMIT_REQUEST"
+    assert recognition.provider == "openai"
+    assert recognition.model == "gpt-5-mini"
+    assert recognition.details["provider_request_id"] == "req_nested_123"
+    assert recognition.details["retry_after_s"] == 7.0
+
+
 def test_recognize_auth_invalid() -> None:
     recognition = recognize_ai_error(FakeOpenAIAuthError())
 
@@ -65,6 +249,99 @@ def test_recognize_auth_invalid() -> None:
     assert recognition.retryable is False
 
 
+def test_recognize_openai_quota_exhausted() -> None:
+    recognition = recognize_ai_error(FakeOpenAIQuotaError())
+
+    assert recognition is not None
+    assert recognition.code == "QUOTA_EXHAUSTED"
+    assert recognition.provider == "openai"
+    assert recognition.retryable is False
+
+
+def test_recognize_openai_model_not_found() -> None:
+    recognition = recognize_ai_error(FakeOpenAIModelNotFoundError())
+
+    assert recognition is not None
+    assert recognition.code == "MODEL_NOT_FOUND"
+    assert recognition.provider == "openai"
+    assert recognition.model == "gpt-missing"
+
+
+def test_recognize_openai_upstream_5xx() -> None:
+    recognition = recognize_ai_error(FakeOpenAIInternalServerError())
+
+    assert recognition is not None
+    assert recognition.code == "UPSTREAM_5XX"
+    assert recognition.provider == "openai"
+    assert recognition.retryable is True
+
+
+def test_recognize_openai_connection_error() -> None:
+    recognition = recognize_ai_error(FakeOpenAIConnectionError())
+
+    assert recognition is not None
+    assert recognition.code == "NET_CONNECT"
+    assert recognition.provider == "openai"
+    assert recognition.retryable is True
+
+
+def test_recognize_anthropic_rate_limit_request() -> None:
+    recognition = recognize_ai_error(FakeAnthropicRateLimitError())
+
+    assert recognition is not None
+    assert recognition.code == "RATE_LIMIT_REQUEST"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is True
+
+
+def test_recognize_anthropic_upstream_overloaded() -> None:
+    recognition = recognize_ai_error(FakeAnthropicOverloadedError())
+
+    assert recognition is not None
+    assert recognition.code == "UPSTREAM_OVERLOADED"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is True
+
+
+def test_recognize_safety_refusal() -> None:
+    recognition = recognize_ai_error(FakeOpenAIRefusalError())
+
+    assert recognition is not None
+    assert recognition.code == "SAFETY_REFUSAL"
+    assert recognition.provider == "openai"
+    assert recognition.retryable is False
+
+
+def test_recognize_output_truncated() -> None:
+    recognition = recognize_ai_error(FakeOpenAITruncatedError())
+
+    assert recognition is not None
+    assert recognition.code == "OUTPUT_TRUNCATED"
+    assert recognition.provider == "openai"
+    assert recognition.details["finish_reason"] == "length"
+
+
+def test_recognize_output_truncated_from_nested_choices() -> None:
+    recognition = recognize_ai_error(FakeOpenAINestedChoicesTruncatedError())
+
+    assert recognition is not None
+    assert recognition.code == "OUTPUT_TRUNCATED"
+    assert recognition.provider == "openai"
+    assert recognition.model == "gpt-5-mini"
+    assert recognition.details["finish_reason"] == "length"
+
+
+def test_recognize_safety_refusal_from_nested_anthropic_body() -> None:
+    recognition = recognize_ai_error(FakeAnthropicNestedRefusalError())
+
+    assert recognition is not None
+    assert recognition.code == "SAFETY_REFUSAL"
+    assert recognition.provider == "anthropic"
+    assert recognition.model == "claude-3-5-sonnet"
+    assert recognition.details["stop_reason"] == "refusal"
+    assert recognition.details["refusal"] == "policy"
+
+
 def test_recognize_stream_broken() -> None:
     recognition = recognize_ai_error(FakeLangChainStreamError())
 
@@ -72,6 +349,33 @@ def test_recognize_stream_broken() -> None:
     assert recognition.code == "STREAM_BROKEN"
     assert recognition.provider == "langchain-openai"
     assert recognition.details["received_chunks"] == 4
+
+
+def test_recognize_langchain_output_parse_error() -> None:
+    recognition = recognize_ai_error(FakeLangChainOutputParserException())
+
+    assert recognition is not None
+    assert recognition.code == "OUTPUT_PARSE_ERROR"
+    assert recognition.provider == "langchain"
+    assert recognition.details["schema_name"] == "ReviewResult"
+
+
+def test_recognize_langchain_tool_args_invalid() -> None:
+    recognition = recognize_ai_error(FakeLangChainToolArgsError())
+
+    assert recognition is not None
+    assert recognition.code == "TOOL_ARGS_INVALID"
+    assert recognition.provider == "langchain"
+    assert recognition.details["tool_name"] == "search_docs"
+
+
+def test_recognize_langchain_tool_exec_error() -> None:
+    recognition = recognize_ai_error(FakeLangChainToolException())
+
+    assert recognition is not None
+    assert recognition.code == "TOOL_EXEC_ERROR"
+    assert recognition.provider == "langchain"
+    assert recognition.details["tool_name"] == "search_docs"
 
 
 def test_recognize_tool_timeout() -> None:
@@ -126,6 +430,86 @@ def test_model_classifier_input_contains_useful_fields() -> None:
     assert payload["provider"] == "openai"
     assert payload["http_status"] == 429
     assert payload["provider_code"] == "rate_limit_exceeded"
+
+
+def test_model_classifier_input_reads_nested_response_fields() -> None:
+    payload = build_ai_error_classification_input(FakeOpenAINestedResponseRateLimitError())
+
+    assert payload["provider"] == "openai"
+    assert payload["http_status"] == 429
+    assert payload["provider_code"] == "rate_limit_exceeded"
+    assert payload["provider_request_id"] == "req_nested_123"
+    assert payload["retry_after_s"] == 7.0
+    assert payload["model"] == "gpt-5-mini"
+
+
+def test_model_classifier_input_reads_nested_finish_reason_from_choices() -> None:
+    payload = build_ai_error_classification_input(FakeOpenAINestedChoicesTruncatedError())
+
+    assert payload["provider"] == "openai"
+    assert payload["model"] == "gpt-5-mini"
+    assert payload["finish_reason"] == "length"
+
+
+def test_custom_ai_error_recognizer_can_override_builtin_by_priority() -> None:
+    def custom_recognizer(context):
+        if context.class_name_lower == "fakeopenaiautherror":
+            return build_ai_error_recognition(
+                "MODEL_NOT_FOUND",
+                provider=context.provider,
+                model=context.model,
+                matched_signals=("custom_test_recognizer",),
+                details=context.base_details,
+            )
+        return None
+
+    register_ai_error_recognizer("test-custom-priority", custom_recognizer, priority=10)
+    try:
+        recognition = recognize_ai_error(FakeOpenAIAuthError())
+    finally:
+        unregister_ai_error_recognizer("test-custom-priority")
+
+    assert recognition is not None
+    assert recognition.code == "MODEL_NOT_FOUND"
+    assert recognition.provider == "openai"
+
+
+def test_local_ai_error_recognizer_precedes_registered_chain() -> None:
+    def local_recognizer(context):
+        if context.class_name_lower == "fakeopenaiautherror":
+            return build_ai_error_recognition(
+                "AUTH_FORBIDDEN",
+                provider=context.provider,
+                model=context.model,
+                matched_signals=("local_test_recognizer",),
+                details=context.base_details,
+            )
+        return None
+
+    recognition = recognize_ai_error(
+        FakeOpenAIAuthError(),
+        recognizers=(local_recognizer,),
+    )
+
+    assert recognition is not None
+    assert recognition.code == "AUTH_FORBIDDEN"
+    assert recognition.provider == "openai"
+
+
+def test_list_ai_error_recognizers_includes_registered_custom_entry() -> None:
+    def passthrough_recognizer(context):
+        return None
+
+    register_ai_error_recognizer("test-list-entry", passthrough_recognizer, priority=130)
+    try:
+        names = [item.name for item in list_ai_error_recognizers()]
+    finally:
+        unregister_ai_error_recognizer("test-list-entry")
+
+    assert "openai" in names
+    assert "anthropic" in names
+    assert "langchain" in names
+    assert "test-list-entry" in names
 
 
 def test_create_protector_allows_optional_model_classifier_for_ai_error_details() -> None:

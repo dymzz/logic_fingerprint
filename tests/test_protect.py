@@ -13,6 +13,7 @@ from logicfp.domain.models import HandlerRequest
 from logicfp import create_protector
 from logicfp.infra.logging import NullEventLogger, PrintEventLogger
 from logicfp.user_mode import (
+    build_ai_error_recognition,
     ErrorCode,
     LogicExecutionError,
     ProtectRuntimeError,
@@ -180,6 +181,51 @@ def test_protect_runtime_error_uses_null_error_code():
         guarded(payload={"value": 1})
 
     assert exc_info.value.code == ErrorCode.ERR_NULL.value
+
+
+def test_protect_runtime_error_recognizes_empty_ai_text_output():
+    @create_protector().protect(simple=True)
+    def guarded(request: HandlerRequest):
+        return {"content": "   "}
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    assert exc_info.value.code == ErrorCode.ERR_NULL.value
+    assert exc_info.value.details["ai_error"]["code"] == "EMPTY_RESULT"
+    assert exc_info.value.details["ai_error"]["details"]["empty_fields"] == ["content"]
+
+
+def test_create_protector_supports_local_ai_error_recognizers():
+    def local_recognizer(context):
+        if context.class_name_lower == "runtimeerror":
+            return build_ai_error_recognition(
+                "UPSTREAM_OVERLOADED",
+                provider="test-local",
+                model=context.model,
+                matched_signals=("local_protector_recognizer",),
+                details=context.base_details,
+            )
+        return None
+
+    protector = create_protector(
+        advanced={"ai_error_recognizers": [local_recognizer]},
+    )
+
+    @protector.protect(simple=True)
+    def guarded(request: HandlerRequest):
+        raise RuntimeError("temporary provider overload")
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    assert exc_info.value.details["ai_error"]["code"] == "UPSTREAM_OVERLOADED"
+    assert exc_info.value.details["ai_error"]["provider"] == "test-local"
+
+
+def test_create_protector_rejects_non_callable_local_ai_error_recognizer():
+    with pytest.raises(TypeError, match="ai_error_recognizers"):
+        create_protector(advanced={"ai_error_recognizers": ["not-callable"]})
 
 
 def test_protect_runtime_error_uses_input_validation_error_code():

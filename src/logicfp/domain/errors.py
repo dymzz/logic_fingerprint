@@ -3,6 +3,7 @@ from typing import Any
 
 from .ai_error_recognizer import (
     AIErrorClassifier,
+    AIErrorRecognizer,
     build_ai_error_recognition,
     recognize_ai_error,
 )
@@ -64,6 +65,7 @@ def build_error_details(
     *,
     stage_hint: str | None = None,
     ai_error_classifier: AIErrorClassifier | None = None,
+    ai_error_recognizers: list[AIErrorRecognizer] | tuple[AIErrorRecognizer, ...] | None = None,
     error_action_resolver: ErrorActionResolver | None = None,
 ) -> dict[str, Any]:
     details = dict(exc.details) if isinstance(exc, LogicFingerprintError) else {}
@@ -71,6 +73,7 @@ def build_error_details(
         ai_error = _recognize_logicfp_ai_error(exc) or recognize_ai_error(
             exc,
             model_classifier=ai_error_classifier,
+            recognizers=ai_error_recognizers,
         )
         if ai_error is not None:
             details["ai_error"] = ai_error.as_dict()
@@ -89,11 +92,27 @@ def build_error_details(
 
 def _recognize_logicfp_ai_error(exc: Exception):
     if isinstance(exc, TimeoutErrorLF):
-        return build_ai_error_recognition("NET_TIMEOUT", matched_signals=("logicfp_timeout",))
+        return build_ai_error_recognition(
+            "NET_TIMEOUT",
+            matched_signals=("logicfp_timeout",),
+            details=dict(exc.details),
+        )
     if isinstance(exc, NullResultError):
-        return build_ai_error_recognition("EMPTY_RESULT", matched_signals=("logicfp_null_result",))
+        return build_ai_error_recognition(
+            "EMPTY_RESULT",
+            matched_signals=("logicfp_empty_result",),
+            details=dict(exc.details),
+        )
     if isinstance(exc, ValidationErrorLF):
-        return build_ai_error_recognition("INPUT_INVALID", matched_signals=("logicfp_validation",))
+        return build_ai_error_recognition(
+            "INPUT_INVALID",
+            matched_signals=("logicfp_validation",),
+            details=dict(exc.details),
+        )
     if isinstance(exc, OutputValidationErrorLF):
-        return build_ai_error_recognition("OUTPUT_SCHEMA_INVALID", matched_signals=("logicfp_output_validation",))
+        return build_ai_error_recognition(
+            "OUTPUT_SCHEMA_INVALID",
+            matched_signals=("logicfp_output_validation",),
+            details=dict(exc.details),
+        )
     return None

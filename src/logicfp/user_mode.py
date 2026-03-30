@@ -1,4 +1,8 @@
 from .decorator import (
+    AIErrorRecognizer,
+    RecognitionContext,
+    RegisteredAIErrorRecognizer,
+    build_ai_error_recognition,
     ErrorActionResolverPayload,
     ErrorActionResolverResult,
     ErrorDetailsData,
@@ -14,10 +18,17 @@ from .decorator import (
     get_error_details,
     get_error_fact,
     get_error_policy,
+    list_ai_error_recognizers,
     protect,
+    register_ai_error_recognizer,
+    unregister_ai_error_recognizer,
 )
 
 __all__ = [
+    "AIErrorRecognizer",
+    "RecognitionContext",
+    "RegisteredAIErrorRecognizer",
+    "build_ai_error_recognition",
     "ErrorActionResolverPayload",
     "ErrorActionResolverResult",
     "ErrorDetailsData",
@@ -33,5 +44,8 @@ __all__ = [
     "get_error_details",
     "get_error_fact",
     "get_error_policy",
+    "list_ai_error_recognizers",
     "protect",
+    "register_ai_error_recognizer",
+    "unregister_ai_error_recognizer",
 ]
