@@ -1,47 +1,47 @@
 # logicfp Developer README
 
-这份文档面向仓库开发者，不是最终用户说明。
+This document is for repository developers, not end users.
 
-产品一句话：
+One-liner:
 
-`logicfp = AI 时代的调用保护层`
+`logicfp = AI-era call protection layer`
 
 
-## 项目定位
+## Project Positioning
 
-- 用户模式入口：`from logicfp import protect, create_protector`
-- 不再提供 CLI / HTTP 服务入口
+- User mode entry: `from logicfp import protect, create_protector`
+- No CLI / HTTP service entry points
 
-## 仓库结构
+## Repository Structure
 
 ```text
-src/logicfp/                核心源码包
-documents/Tutorial/         用户教程
-documents/Product/          产品路线文档
-examples/                   示例项目和示例配置
-scripts/                    开发和发布脚本
-tests/                      测试
-config/                     仓库内配置模板
-design/                     设计文档（不进 Git）
+src/logicfp/                Core source package
+documents/Tutorial/         User tutorials
+documents/Product/          Product roadmap documents
+examples/                   Example projects and config templates
+scripts/                    Dev and release scripts
+tests/                      Tests
+config/                     In-repo config templates
+design/                     Design docs (not in Git)
 ```
 
-## 本地开发
+## Local Development
 
-先安装项目本体：
+Install the package in editable mode:
 
 ```bash
 pip install -e .
 ```
 
-如果要做发布相关操作，再安装发布依赖：
+For release operations, also install release dependencies:
 
 ```bash
 pip install -e .[release]
 ```
 
-## 本地缓存与临时目录
+## Local Cache and Temp Directories
 
-推荐先启用仓库内缓存和临时目录，避免 `uv` 或 `pytest` 落到系统目录后遇到 Windows ACL/清理问题。
+Recommended: enable in-repo cache and temp directories to avoid Windows ACL/cleanup issues when `uv` or `pytest` fall back to system directories.
 
 PowerShell:
 
@@ -49,28 +49,28 @@ PowerShell:
 . .\scripts\dev_env.ps1
 ```
 
-启用后会统一使用：
+This sets:
 
 - `UV_CACHE_DIR=.uv-cache`
 - `TMP=.tmp`
 - `TEMP=.tmp`
 - `pytest --basetemp=.pytest_tmp/basetemp`
 
-其中：
+Details:
 
-- `uv` 缓存目录通过 [pyproject.toml](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.uv.cache-dir` 固定到项目内
-- `pytest` 临时目录通过 [pyproject.toml](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.pytest.ini_options.addopts` 固定到项目内
-- [dev_env.ps1](D:/workspace/python/logic_fingerprint_ai/scripts/dev_env.ps1) 主要负责把系统级 `TMP/TEMP` 也切到仓库内
+- `uv` cache dir is pinned to the project via `tool.uv.cache-dir` in `pyproject.toml`
+- `pytest` temp dir is pinned via `tool.pytest.ini_options.addopts` in `pyproject.toml`
+- `dev_env.ps1` redirects system-level `TMP/TEMP` into the repo
 
-## 常用命令
+## Common Commands
 
-运行测试：
+Run tests:
 
 ```bash
 uv run pytest tests -q
 ```
 
-构建发布包：
+Build release packages:
 
 ```bash
 python scripts/release_package.py build
@@ -78,13 +78,13 @@ python scripts/release_package.py check
 python scripts/release_package.py release
 ```
 
-发布到 PyPI：
+Publish to PyPI:
 
 ```bash
 python scripts/release_package.py publish --repository pypi
 ```
 
-先发到 TestPyPI：
+Publish to TestPyPI first:
 
 ```bash
 python scripts/release_package.py release --publish --testpypi

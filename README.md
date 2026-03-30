@@ -82,12 +82,13 @@ def review_text(request):
 
 ## Learn More
 
-- User-mode cheatsheet: [documents/Tutorial/用户模式速查.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式速查.md)
-- Quick user-mode guide: [documents/Tutorial/用户模式快速接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式快速接入.md)
-- User mode: [documents/Tutorial/用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)
-- User-mode error codes: [documents/Tutorial/用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)
-- User-mode envelope contract: [documents/Tutorial/用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)
-- Mode guide: [documents/Tutorial/protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)
+- User-mode cheatsheet: [documents/Tutorial/user-mode-cheatsheet.md](documents/Tutorial/user-mode-cheatsheet.md)
+- Quick user-mode guide: [documents/Tutorial/user-mode-quickstart.md](documents/Tutorial/user-mode-quickstart.md)
+- User-mode examples: [documents/Tutorial/user-mode-examples.md](documents/Tutorial/user-mode-examples.md)
+- User-mode error codes: [documents/Tutorial/user-mode-error-codes.md](documents/Tutorial/user-mode-error-codes.md)
+- User-mode envelope contract: [documents/Tutorial/user-mode-envelope.md](documents/Tutorial/user-mode-envelope.md)
+- User mode vs engineering mode: [documents/Tutorial/user-mode-vs-engineering.md](documents/Tutorial/user-mode-vs-engineering.md)
+- Config reference: [documents/Tutorial/config-reference.md](documents/Tutorial/config-reference.md)
 
 
 
