@@ -5,13 +5,11 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "logicfp"
 dynamic = ["version"]
-description = "logicfp protection runtime and HTTP service"
+description = "logicfp user-mode protection library"
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
-    "fastapi==0.135.2",
     "pydantic==2.12.5",
-    "uvicorn==0.42.0",
 ]
 
 [project.optional-dependencies]
@@ -19,9 +17,6 @@ release = [
     "build>=1.2.2",
     "twine>=6.1.0",
 ]
-
-[project.scripts]
-logicfp = "logicfp.cli:main"
 
 [tool.setuptools]
 package-dir = {"" = "src"}

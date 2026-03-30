@@ -1,6 +1,6 @@
 # Logic Fingerprint (logicfp)
 
-`logicfp` is a Python protection library for wrapping function boundaries with lightweight circuit-breaker style control.
+`logicfp` is a Python user-mode protection library for wrapping function boundaries with lightweight circuit-breaker style control.
 
 Developer documentation lives in [README.developer.md](D:/workspace/python/logic_fingerprint_ai/README.developer.md).
 
@@ -24,13 +24,13 @@ def call_model(request):
 result = call_model(payload={"text": "hello"})
 ```
 
-Use `@protect()` when you want the default user-mode entrypoint.  
+Use `@protect()` when you want the default entrypoint.  
 Use `create_protector()` when you need more than one protector instance.  
 Use `logicfp.user_mode` when you want explicit user-mode types like `ErrorCode`, `NormalizationError`, `LogicExecutionError`, and `ProtectRuntimeError`.
 
 ## User Mode Contract
 
-The current user-mode contract centers on:
+The current public contract centers on:
 
 - `protect`
 - `create_protector`
@@ -40,7 +40,7 @@ The current user-mode contract centers on:
 - `logicfp.user_mode.ProtectRuntimeError`
 - `logicfp.config.describe_effective_config`
 
-If you do not have a clear service-hosting need, stay in user mode.
+`logicfp` now recommends user mode as the only public entry model.
 
 ## Minimal Config
 
@@ -87,4 +87,3 @@ def review_text(request):
 - User-mode error codes: [documents/Tutorial/用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)
 - User-mode envelope contract: [documents/Tutorial/用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)
 - Mode guide: [documents/Tutorial/protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)
-- Optional engineering mode: [documents/Tutorial/工程模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/工程模式示例.md)

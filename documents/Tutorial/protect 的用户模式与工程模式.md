@@ -1,106 +1,45 @@
 # protect 的用户模式与工程模式
 
-这份文档只讲一件事：什么时候直接用 `@protect()`，什么时候进入工程接入。
+这页保留“模式”这个词，只是为了说明历史路径。
 
-统一结论：
+当前公开产品面只推荐一种模式：
 
-- 用户模式：默认入口是 `@protect()`
-- 高级用户模式：需要多个保护实例时，用 `create_protector()`
-- 工程模式：只有服务化接入时，才用 `logicfp.engineering`
+- 用户模式：`@protect()` / `create_protector()`
 
-如果你没有明确的“单独跑服务”需求，就停在用户模式，不要往工程模式走。
+过去仓库里曾经出现过工程模式、CLI 和 HTTP 服务入口。现在这些入口已经从公开产品面撤下，不再作为默认文档路线，也不再作为安装依赖的一部分。
 
-## 1. 两种模式分别解决什么问题
+## 1. 现在应该怎么用
 
-### 用户模式
+默认只用这两个入口：
 
-用户模式适合“我只想保护一个函数边界”这类场景，比如：
+- `from logicfp import protect`
+- `from logicfp import create_protector`
+
+如果你需要显式的用户模式类型，再用：
+
+- `from logicfp.user_mode import ErrorCode`
+- `from logicfp.user_mode import NormalizationError`
+- `from logicfp.user_mode import LogicExecutionError`
+- `from logicfp.user_mode import ProtectRuntimeError`
+- `from logicfp.user_mode import Protector`
+
+## 2. 为什么收口到用户模式
+
+因为 `logicfp` 的核心价值，是保护函数边界，而不是再造一个独立部署的平台服务。
+
+当前最适合它的场景是：
 
 - LangChain `invoke()` / `ainvoke()`
 - SDK 调用
-- 工具调用
 - 本地脚本任务
-- 单个业务函数
+- 工具调用
+- LLM 请求边界
 
-这一层的目标是：
+这类场景都更适合直接在函数边界使用 `@protect()`。
 
-- 不让用户手动组装 runtime
-- 不让用户关心 handler registrar
-- 除配置外，把 FSM、backend、metrics、logger 都包起来
+## 3. 配置怎么理解
 
-最常见写法就是：
-
-```python
-from logicfp import protect
-from pydantic import BaseModel
-
-
-class ReviewInput(BaseModel):
-    text: str
-
-
-class ReviewOutput(BaseModel):
-    summary: str
-
-
-@protect(input_model=ReviewInput, output_model=ReviewOutput)
-def review_text(request):
-    return {"summary": request.payload["text"][:20]}
-```
-
-如果你需要两个不同配置的保护器，用：
-
-```python
-from logicfp import create_protector
-
-fast_guard = create_protector(
-    default_source="fast_lane",
-    probe_rate=0.1,
-)
-
-slow_guard = create_protector(
-    default_source="slow_lane",
-    probe_rate=0.3,
-)
-```
-
-如果你确实需要 `instance_id`、`redis_*` 或直接注入 backend，这属于高级用户模式，建议直接用 `Protector(...)`。
-
-### 工程模式
-
-工程模式适合“我要把它接进一个服务或平台”这类场景，比如：
-
-- FastAPI / HTTP 服务
-- OpenClaw Gateway
-- ACP / tool dispatch
-- 平台统一注册 handlers
-- 多实例共享 Redis 状态
-
-这一层的目标是：
-
-- 让 handler 注册可配置
-- 让 backend 可切换 `memory / redis / redis_ttl`
-- 让服务启动、运维、部署入口稳定
-
-最常见写法是：
-
-```python
-from logicfp.engineering import create_http_app
-
-app = create_http_app()
-```
-
-然后通过配置把你的 registrar 接进去：
-
-```yaml
-logicfp:
-  handler_registrars:
-    - your_real_package.handlers.register
-```
-
-## 2. 配置文件放哪里
-
-无论是用户模式还是工程模式，默认都建议把配置文件放在你的项目里：
+用户项目统一使用：
 
 ```text
 your_project/
@@ -108,106 +47,39 @@ your_project/
     config.yaml
 ```
 
-logicfp 现在会按这个顺序找文件：
+主 section 统一是：
 
-1. 如果设置了 `LOGICFP_CONFIG_FILE`，优先使用它
-2. 否则从当前工作目录开始，优先查找 `config/config.yaml`
+```yaml
+logicfp:
+  instance_id: decorator-node
+  default_source: user_function
+  backend_type: memory
+```
 
-所以最稳妥的做法就是：
+默认推荐：
 
-- 把文件放到你的项目 `/config/config.yaml`
-- 从项目根目录启动
+- `backend_type: memory`
+- 优先先跑通本地保护链
+- 不把 Redis 群体熔断当成默认路线
 
-模板可以直接参考：
+## 4. 历史工程模式怎么处理
 
-- `config/config.yaml.example`
+如果你在旧文档或旧代码里看到这些名字：
 
-## 3. 两种模式怎么选
+- `logicfp.engineering`
+- `create_http_app()`
+- `logicfp start`
+- `FastAPI` / `uvicorn` 入口
 
-优先用用户模式的情况：
+可以把它们视为历史路径。
 
-- 你只想保护函数调用
-- 你不想引入 HTTP 服务
-- 你不需要 handler registrar
-- 你更像是在“用库”
-- 你不想维护 Nginx、鉴权、服务部署这些工程事项
+当前版本对外只讲用户模式，不再把这些作为默认产品面。
 
-进入工程模式的情况：
+## 5. 下一步看哪里
 
-- 你要把它部署成服务
-- 你要统一注册多个 handlers
-- 你要给平台或网关接入
-- 你要管理 Redis、多实例、运维入口
+推荐按这个顺序继续：
 
-一个简单判断方法：
-
-- 保护函数：用户模式
-- 保护服务边界：工程模式
-
-推荐默认判断：
-
-- 没有明确服务化要求：用户模式
-- 只有已经存在稳定平台接入需求：工程模式
-
-## 4. 用户模式怎么读取配置
-
-`@protect()` 和 `create_protector()` 都会走同一条配置链：
-
-1. `build_runtime_config()`
-2. `build_runtime_settings(profile="decorator")`
-3. 自动发现 `config/config.yaml`
-4. 再叠加进程环境变量
-5. 最后叠加显式参数
-
-用户模式默认 profile 是：
-
-- `instance_id=decorator-node`
-- `default_source=decorator`
-
-如果你在配置文件里写了同名参数，就会覆盖这些默认值。
-
-## 5. 工程模式怎么读取配置
-
-`logicfp.engineering.create_http_app()` 和
-`logicfp.engineering.build_production_runtime()` 会走工程模式配置链：
-
-1. `build_runtime_config()`
-2. `build_runtime_settings(profile="api")`
-3. 自动发现 `config/config.yaml`
-4. 再叠加进程环境变量
-5. 最后叠加显式参数
-
-工程模式默认 profile 是：
-
-- `instance_id=node-a`
-- `default_source=api`
-
-如果配置里提供了 `LOGICFP_HANDLER_REGISTRARS`，production runtime 会继续加载你的业务 registrar。
-
-## 6. 对应示例看哪里
-
-用户模式示例入口：
-
-- `documents/Tutorial/用户模式示例.md`
-
-工程模式示例入口：
-
-- `documents/Tutorial/工程模式示例.md`
-
-从 demo 走到生产接入：
-
-- `documents/Tutorial/从 demo 到生产接入.md`
-
-配置参数完整说明：
-
-- `documents/Tutorial/config 参数说明.md`
-
-## 7. 建议的对外心智
-
-建议你对外就这么讲：
-
-- 普通用户先学 `@protect()`
-- 需要多实例时再看 `create_protector()`
-- 要接服务、平台、网关时，再看工程模式
-
-这样入口会非常清楚，不会让用户一上来就在 `runtime / registrar / app_factory` 里迷路。
+1. [用户模式快速接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式快速接入.md)
+2. [用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)
+3. [用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)
+4. [用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)

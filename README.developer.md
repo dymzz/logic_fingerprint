@@ -5,19 +5,19 @@
 ## 项目定位
 
 - 用户模式入口：`from logicfp import protect, create_protector`
-- 工程模式入口：`from logicfp.engineering import create_http_app, build_production_runtime`
-- CLI 入口：`logicfp start --config config/config.yaml`
+- 不再提供 CLI / HTTP 服务入口
 
 ## 仓库结构
 
 ```text
 src/logicfp/                核心源码包
 documents/Tutorial/         用户教程
+documents/Product/          产品路线文档
 examples/                   示例项目和示例配置
 scripts/                    开发和发布脚本
 tests/                      测试
 config/                     仓库内配置模板
-design/                     设计文档
+design/                     设计文档（不进 Git）
 ```
 
 ## 本地开发
@@ -53,11 +53,9 @@ PowerShell:
 
 其中：
 
-- `uv` 缓存目录通过 [`pyproject.toml`](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.uv.cache-dir` 固定到项目内
-- `pytest` 临时目录通过 [`pyproject.toml`](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.pytest.ini_options.addopts` 固定到项目内
-- [`dev_env.ps1`](D:/workspace/python/logic_fingerprint_ai/scripts/dev_env.ps1) 主要负责把系统级 `TMP/TEMP` 也切到仓库内
-
-如果当前终端里已经有全局 `UV_CACHE_DIR`，脚本会覆盖它，避免继续写到类似 `D:\uv-cache` 这种高风险目录。
+- `uv` 缓存目录通过 [pyproject.toml](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.uv.cache-dir` 固定到项目内
+- `pytest` 临时目录通过 [pyproject.toml](D:/workspace/python/logic_fingerprint_ai/pyproject.toml) 的 `tool.pytest.ini_options.addopts` 固定到项目内
+- [dev_env.ps1](D:/workspace/python/logic_fingerprint_ai/scripts/dev_env.ps1) 主要负责把系统级 `TMP/TEMP` 也切到仓库内
 
 ## 常用命令
 
@@ -65,12 +63,6 @@ PowerShell:
 
 ```bash
 uv run pytest tests -q
-```
-
-启动本地 HTTP 服务：
-
-```bash
-logicfp start --config config/config.yaml
 ```
 
 构建发布包：
@@ -101,7 +93,7 @@ python scripts/release_package.py release --publish --testpypi
 - 环境变量前缀：`LOGICFP_`
 - 兼容旧环境变量前缀：`LOGIC_FINGERPRINT_`
 - 用户模式默认建议 `backend_type=memory`
-  对 `LangChain / OpenClaw / HTTP / DB / LLM` 这类调用，优先做本地保护；不要把 Redis 群体熔断当成默认方案
+  对 `LangChain / OpenClaw / DB / LLM` 这类调用，优先做本地保护；不要把 Redis 群体熔断当成默认方案
 
 详细配置说明见 [config 参数说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/config%20参数说明.md)。
 
@@ -110,11 +102,9 @@ python scripts/release_package.py release --publish --testpypi
 - [README.md](D:/workspace/python/logic_fingerprint_ai/README.md)：用户入口说明
 - [logicfp v3 roadmap.md](D:/workspace/python/logic_fingerprint_ai/documents/Product/logicfp%20v3%20roadmap.md)：下个大版本方向
 - [protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)：入口模型说明
-- [从 demo 到生产接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/从%20demo%20到生产接入.md)：接入路径
 - [用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)：`simple=False` 的 envelope contract
 - [用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)：用户模式示例
 - [用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)：用户模式错误码与失败语义
-- [工程模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/工程模式示例.md)：工程模式示例
 
 ## v3 用户模式 API freeze 清单
 
@@ -163,31 +153,16 @@ python scripts/release_package.py release --publish --testpypi
 
 ## 发布前检查
 
-- 确认版本号已更新：[`src/logicfp/_version.py`](D:/workspace/python/logic_fingerprint_ai/src/logicfp/_version.py)
+- 确认版本号已更新：[src/logicfp/_version.py](D:/workspace/python/logic_fingerprint_ai/src/logicfp/_version.py)
 - 确认 `README.md` 面向用户，`README.developer.md` 面向开发者
 - 运行测试
 - 构建 `sdist` 和 `wheel`
 - 先发 `TestPyPI`，再发正式 `PyPI`
 - 发布后补 Git tag
 
-## 3.0 更新说明
-
-这轮 `3.0` 方向上的主要收口点是：
-
-- 用户模式 contract 开始冻结，公开入口收敛到 `protect / create_protector / ErrorCode / NormalizationError / LogicExecutionError / ProtectRuntimeError / describe_effective_config`
-- `create_protector(...)` 参数面开始收口，正式参数和高级参数开始分层
-- `simple=True` 的失败语义进一步统一，输入校验失败和输出校验失败也统一收进 `ProtectRuntimeError`
-- `simple=False` 的 envelope contract 已锁定为：
-  success=`ok/result/context`，failure=`ok/error/context`
-- 用户模式错误码说明和返回结构说明已经成文档
-
-这意味着当前阶段已经进入：
-
-`3.0 用户模式 contract 收口阶段`
-
 ## 3.0.0 发布说明
 
-`3.0.0` 的核心变化，不是继续扩工程模式，而是把用户模式的长期 contract 开始定下来。
+`3.0.0` 的核心变化，是把用户模式的长期 contract 开始定下来。
 
 本次版本重点包括：
 
@@ -198,6 +173,7 @@ python scripts/release_package.py release --publish --testpypi
 - `simple=False` 的 envelope contract 已固定为：
   success=`ok/result/context`，failure=`ok/error/context`
 - 用户模式错误码说明与返回结构说明已成文档
+- CLI / HTTP 服务入口已从公开产品面收回
 
 发布定位：
 

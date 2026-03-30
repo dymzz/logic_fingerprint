@@ -1,11 +1,16 @@
 # Business Skeleton
 
-这是一个可复制的工程模式骨架，不是最终包目录。
+这是一个可复制的高级骨架，不是默认入口，也不是最终包目录。
 
-总览入口看这里：
+默认公开入口仍然是：
 
-- `documents/Tutorial/工程模式示例.md`
-- `documents/Tutorial/从 demo 到生产接入.md`
+- `from logicfp import protect`
+- `from logicfp import create_protector`
+
+如果你只是想接入 `logicfp`，优先先看：
+
+- [documents/Tutorial/用户模式快速接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式快速接入.md)
+- [documents/Tutorial/用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)
 
 ## Included Files
 
@@ -52,4 +57,4 @@ your_project/config/config.yaml
 3. 把 `business:` 这一节扩成你自己的 settings
 4. 把 repository/service/handler 逐步替换成真实业务实现
 
-这套骨架的目的，是让你从一开始就按“settings -> repositories -> services -> handlers/register”这条工程模式路径组织代码。
+这套骨架更适合仓库内高级参考，不再作为默认公开接入路径。

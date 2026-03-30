@@ -1,24 +1,11 @@
 from __future__ import annotations
 
-from pathlib import Path
 from typing import Any
-
-from ._version import __version__
 
 __all__ = [
     "protect",
     "create_protector",
 ]
-
-_ENGINEERING_EXPORTS = {
-    "assemble_runtime",
-    "build_demo_runtime",
-    "build_production_runtime",
-    "build_runtime",
-    "create_http_app",
-    "create_app",
-    "create_demo_app",
-}
 
 
 def protect(
@@ -38,7 +25,7 @@ def protect(
 
 def create_protector(
     *,
-    config_file: str | Path | None = None,
+    config_file: str | None = None,
     probe_rate: float | None = None,
     probe_interval_seconds: float | None = None,
     consecutive_success_threshold: int | None = None,
@@ -65,12 +52,3 @@ def create_protector(
         advanced=advanced,
         **advanced_kwargs,
     )
-
-
-def __getattr__(name: str):
-    if name in _ENGINEERING_EXPORTS:
-        raise AttributeError(
-            f"'logicfp.{name}' is not exported from the package root. "
-            "Import it from 'logicfp.engineering' instead."
-        )
-    raise AttributeError(f"module 'logicfp' has no attribute '{name}'")

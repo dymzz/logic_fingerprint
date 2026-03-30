@@ -35,6 +35,7 @@ build/
 dist/
 dist_test_logicfp/
 pip-wheel-metadata/
+repomix-output.xml
 .pytest_tmp*/
 /.pytest_tmp*/
 /logicfp/
