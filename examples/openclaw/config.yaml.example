@@ -1,0 +1,7 @@
+logicfp:
+  instance_id: openclaw-node
+  default_source: openclaw
+  backend_type: memory
+  probe_rate: 0.2
+  probe_interval_seconds: 5
+  consecutive_success_threshold: 3

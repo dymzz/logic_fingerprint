@@ -228,10 +228,44 @@ python scripts/release_package.py release --publish --testpypi
 
 版本定位：
 
-- `3.2.0` 是“用户模式错误模型与动作覆写 contract 基本成型”的版本
+- `3.2.0` 是"用户模式错误模型与动作覆写 contract 基本成型"的版本
 - 后续 `3.x` 可以继续围绕 AI 错误识别、轻量策略和用户体验打磨
 
+## 3.3.0 更新说明
 
+`3.3.0` 的核心变化，是把 AI 错误识别测试覆盖补齐、新增 OpenClaw 集成示例、明确 metrics hook 接口、增强配置诊断能力。
 
+本次版本重点包括：
 
+- AI 错误识别 provider 测试全面补齐：
+  - Anthropic：`AUTH_INVALID` / `AUTH_FORBIDDEN` / `QUOTA_EXHAUSTED` / `MODEL_NOT_FOUND` / `CONTEXT_TOO_LONG` / `RATE_LIMIT_TOKEN` / `UPSTREAM_5XX`
+  - LangChain：`TOOL_NOT_FOUND`
+  - Generic transport：`NET_TIMEOUT` / `NET_CONNECT`
+  - Generic output：`OUTPUT_SCHEMA_INVALID` / `EMPTY_RESULT`
+- Bug fix：`_is_safety_refusal` 排除 `ConnectionError`/`OSError`，防止 "connection refused" 误判为 safety refusal
+- 新增 generic recognizer：`_is_output_schema_invalid` / `_is_empty_result`
+- 新增 OpenClaw 集成示例：
+  - `examples/openclaw/user_mode.py`（sync + async guard）
+  - `examples/openclaw/README.md` / `config.yaml.example`
+  - `tests/test_openclaw_examples.py`（4 个测试）
+- 新增 `MetricsHook` 接口：
+  - `logicfp.infra.metrics`：`MetricsHook` / `MetricEvent` / `NullMetricsHook` / `PrintMetricsHook`
+  - `Protector` 接受 `metrics_hook` 参数（通过 `advanced={"metrics_hook": ...}`）
+  - sync + async 路径均 emit `protect.total` / `protect.success` / `protect.failure` / `protect.blocked`
+- 新增 `diagnose_config()`：
+  - 检测 `REDIS_URL_IGNORED` / `REDIS_URL_MISSING`
+  - 检测 `PROBE_RATE_OUT_OF_RANGE` / `GLOBAL_FAIL_THRESHOLD_OUT_OF_RANGE`
+  - 检测 `PROBE_INTERVAL_NON_POSITIVE` / `CONSECUTIVE_SUCCESS_THRESHOLD_NON_POSITIVE`
+  - 检测 `LEGACY_ENV_PREFIX` 使用
+  - `describe_effective_config()` 输出新增 `diagnostics` 字段
+- 热路径微基准测试：
+  - 无模型：~11µs/call（p50=10.6µs, p95=16.3µs, 88k ops/sec）
+  - 含 pydantic 校验：~16µs/call（p50=15.0µs, p95=25.9µs, 61k ops/sec）
+- 开发工具修复：
+  - `conftest.py` 增加 robust basetemp cleanup（修复 Windows PermissionError）
+  - `pytest` 加入 `dependency-groups.dev`（修复 `uv run pytest`）
 
+版本定位：
+
+- `3.3.0` 是"AI 错误识别全面可测 + 可观测性基础设施就位"的版本
+- 后续 `3.x` 可以继续围绕 AI 错误识别策略、metrics 实际接入和用户体验打磨

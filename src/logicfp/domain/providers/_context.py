@@ -76,6 +76,10 @@ def detect_provider(module_lower: str, message_lower: str) -> str | None:
         if "openai" in message_lower:
             return "langchain-openai"
         return "langchain"
+    if "google" in module_lower or "genai" in module_lower or "gemini" in module_lower or "vertexai" in module_lower:
+        return "google"
+    if "azure" in message_lower and ("openai" in module_lower or "openai" in message_lower):
+        return "azure-openai"
     if "openai" in module_lower or "openai" in message_lower:
         return "openai"
     if "anthropic" in module_lower or "anthropic" in message_lower:

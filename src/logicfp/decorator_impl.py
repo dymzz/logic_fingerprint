@@ -27,6 +27,7 @@ from .domain.fsm import LogicFingerprintFSM
 from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
 from .infra.logging import EventLogger, LogEvent, NullEventLogger
+from .infra.metrics import MetricsHook, MetricEvent, NullMetricsHook
 
 F = TypeVar("F", bound=Callable[..., Any])
 _ADVANCED_PROTECTOR_KWARGS = {
@@ -44,6 +45,7 @@ _ADVANCED_PROTECTOR_KWARGS = {
     "ai_error_recognizers",
     "error_action_resolver",
     "error_policy_resolver",
+    "metrics_hook",
 }
 
 
@@ -61,6 +63,28 @@ class ProtectRuntimeError(RuntimeError):
         self.code = code
         self.details = details or {}
         self.context = context or {}
+        ai = _extract_ai_error_fields(self.details)
+        self.ai_error_code: str | None = ai.get("ai_error_code")
+        self.retryable: bool | None = ai.get("retryable")
+        self.provider: str | None = ai.get("provider")
+        self.severity: str | None = ai.get("severity")
+
+
+def _extract_ai_error_fields(details: dict[str, Any] | None) -> dict[str, Any]:
+    if not isinstance(details, dict):
+        return {}
+    ai_error = details.get("ai_error")
+    if not isinstance(ai_error, dict):
+        return {}
+    fields: dict[str, Any] = {}
+    for key in ("retryable", "provider", "severity"):
+        value = ai_error.get(key)
+        if value is not None:
+            fields[key] = value
+    code = ai_error.get("code")
+    if isinstance(code, str) and code:
+        fields["ai_error_code"] = code
+    return fields
         
 
 class Protector:
@@ -86,6 +110,7 @@ class Protector:
         backend: object | None = None,
         redis_client: object | None = None,
         event_logger: EventLogger | None = None,
+        metrics_hook: MetricsHook | None = None,
         ai_error_classifier: object | None = None,
         ai_error_recognizers: list[AIErrorRecognizer] | tuple[AIErrorRecognizer, ...] | None = None,
         error_action_resolver: object | None = None,
@@ -139,6 +164,7 @@ class Protector:
         self.metrics = InMemoryMetrics()
         self.context_builder = ContextBuilder(default_source=settings.default_source)
         self.event_logger = event_logger or NullEventLogger()
+        self.metrics_hook = metrics_hook or NullMetricsHook()
         self.ai_error_classifier = ai_error_classifier
         self.ai_error_recognizers = normalized_ai_error_recognizers
         self.error_action_resolver = normalized_error_action_resolver
@@ -175,11 +201,16 @@ class Protector:
                 context=context_dict,
             )
 
+        ai = _extract_ai_error_fields(error_details)
         return {
             "ok": False,
             "error": {
                 "code": error_code,
                 "message": error_message,
+                "ai_error_code": ai.get("ai_error_code"),
+                "retryable": ai.get("retryable"),
+                "provider": ai.get("provider"),
+                "severity": ai.get("severity"),
                 "details": error_details or {},
             },
             "context": context_dict,
@@ -213,6 +244,52 @@ class Protector:
                 extra["action"] = action
         return extra
 
+    def _emit_metric(
+        self,
+        metric: str,
+        *,
+        handler: str | None = None,
+        error_code: str | None = None,
+        error_details: dict[str, Any] | None = None,
+    ) -> None:
+        dims = self._extract_metric_dimensions(error_details)
+        self.metrics_hook.emit(MetricEvent(
+            metric=metric,
+            handler=handler,
+            error_code=error_code,
+            ai_error_code=dims.get("ai_error_code"),
+            provider=dims.get("provider"),
+            stage=dims.get("stage"),
+            source=dims.get("source"),
+            action=dims.get("action"),
+        ))
+
+    @staticmethod
+    def _extract_metric_dimensions(
+        error_details: dict[str, Any] | None,
+    ) -> dict[str, str]:
+        if not isinstance(error_details, dict):
+            return {}
+        dims: dict[str, str] = {}
+        ai_error = error_details.get("ai_error")
+        if isinstance(ai_error, dict):
+            for key in ("code", "provider"):
+                value = ai_error.get(key)
+                if isinstance(value, str):
+                    dims["ai_error_code" if key == "code" else key] = value
+        fact = error_details.get("error_fact")
+        if isinstance(fact, dict):
+            for key in ("stage", "source"):
+                value = fact.get(key)
+                if isinstance(value, str):
+                    dims[key] = value
+        policy = error_details.get("error_policy")
+        if isinstance(policy, dict):
+            action = policy.get("action")
+            if isinstance(action, str):
+                dims["action"] = action
+        return dims
+
     def _handle_pre_execution_error(
         self,
         exc: Exception,
@@ -231,6 +308,12 @@ class Protector:
             error_action_resolver=self.error_action_resolver,
         )
         self.metrics.record_failure(
+            error_code=error_code,
+            error_details=error_details,
+        )
+        self._emit_metric(
+            "protect.failure",
+            handler=handler_name,
             error_code=error_code,
             error_details=error_details,
         )
@@ -269,6 +352,7 @@ class Protector:
                     now: float | None = None,
                 ) -> Any:
                     self.metrics.record_total()
+                    self._emit_metric("protect.total", handler=func.__name__)
 
                     built_request = self.context_builder.build_request(
                         HandlerRequest(
@@ -320,8 +404,20 @@ class Protector:
                             error_code=outcome.error_code,
                             error_details=outcome.error_details,
                         )
+                        self._emit_metric(
+                            "protect.blocked",
+                            handler=func.__name__,
+                            error_code=outcome.error_code,
+                            error_details=outcome.error_details,
+                        )
                     elif not outcome.succeeded:
                         self.metrics.record_failure(
+                            error_code=outcome.error_code,
+                            error_details=outcome.error_details,
+                        )
+                        self._emit_metric(
+                            "protect.failure",
+                            handler=func.__name__,
                             error_code=outcome.error_code,
                             error_details=outcome.error_details,
                         )
@@ -352,6 +448,7 @@ class Protector:
                             trace_id=context_dict.get("trace_id"),
                         ))
                         self.metrics.record_success()
+                        self._emit_metric("protect.success", handler=func.__name__)
                         if is_dataclass(validated_output):
                             validated_output = asdict(validated_output)
 
@@ -389,6 +486,7 @@ class Protector:
                 now: float | None = None,
             ) -> Any:
                 self.metrics.record_total()
+                self._emit_metric("protect.total", handler=func.__name__)
 
                 built_request = self.context_builder.build_request(
                     HandlerRequest(
@@ -440,8 +538,20 @@ class Protector:
                         error_code=outcome.error_code,
                         error_details=outcome.error_details,
                     )
+                    self._emit_metric(
+                        "protect.blocked",
+                        handler=func.__name__,
+                        error_code=outcome.error_code,
+                        error_details=outcome.error_details,
+                    )
                 elif not outcome.succeeded:
                     self.metrics.record_failure(
+                        error_code=outcome.error_code,
+                        error_details=outcome.error_details,
+                    )
+                    self._emit_metric(
+                        "protect.failure",
+                        handler=func.__name__,
                         error_code=outcome.error_code,
                         error_details=outcome.error_details,
                     )
@@ -476,6 +586,7 @@ class Protector:
                         trace_id=context_dict.get("trace_id"),
                     ))
                     self.metrics.record_success()
+                    self._emit_metric("protect.success", handler=func.__name__)
 
                     return self._success_response(
                         validated_output,

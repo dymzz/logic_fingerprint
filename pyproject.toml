@@ -29,6 +29,11 @@ include = ["logicfp*"]
 [tool.setuptools.dynamic]
 version = {attr = "logicfp._version.__version__"}
 
+[dependency-groups]
+dev = [
+    "pytest>=9.0",
+]
+
 [tool.uv]
 cache-dir = ".uv-cache"
 

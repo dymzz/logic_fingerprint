@@ -197,6 +197,24 @@ def _recognize_ai_error_rules(
         if recognition is not None:
             return recognition
 
+    if _is_output_schema_invalid(context):
+        return build_ai_error_recognition(
+            "OUTPUT_SCHEMA_INVALID",
+            provider=context.provider,
+            model=context.model,
+            matched_signals=("output_schema_invalid",),
+            details=context.base_details,
+        )
+
+    if _is_empty_result(context):
+        return build_ai_error_recognition(
+            "EMPTY_RESULT",
+            provider=context.provider,
+            model=context.model,
+            matched_signals=("empty_result",),
+            details=context.base_details,
+        )
+
     if _is_upstream_overloaded(context):
         return build_ai_error_recognition(
             "UPSTREAM_OVERLOADED",
@@ -211,10 +229,17 @@ def _recognize_ai_error_rules(
 
 def _builtin_ai_error_recognizers() -> tuple[RegisteredAIErrorRecognizer, ...]:
     from .providers.anthropic_recognizer import recognize_anthropic_error
+    from .providers.azure_openai_recognizer import recognize_azure_openai_error
+    from .providers.gemini_recognizer import recognize_gemini_error
     from .providers.langchain_recognizer import recognize_langchain_error
     from .providers.openai_recognizer import recognize_openai_error
 
     return (
+        RegisteredAIErrorRecognizer(
+            name="azure-openai",
+            priority=95,
+            recognizer=recognize_azure_openai_error,
+        ),
         RegisteredAIErrorRecognizer(
             name="openai",
             priority=100,
@@ -224,6 +249,11 @@ def _builtin_ai_error_recognizers() -> tuple[RegisteredAIErrorRecognizer, ...]:
             name="anthropic",
             priority=110,
             recognizer=recognize_anthropic_error,
+        ),
+        RegisteredAIErrorRecognizer(
+            name="google",
+            priority=115,
+            recognizer=recognize_gemini_error,
         ),
         RegisteredAIErrorRecognizer(
             name="langchain",
@@ -338,6 +368,8 @@ def _is_upstream_overloaded(context: RecognitionContext) -> bool:
 
 
 def _is_safety_refusal(context: RecognitionContext) -> bool:
+    if isinstance(context.exc, (ConnectionError, OSError)):
+        return False
     refusal = read_nested_value(context.exc, "refusal")
     stop_reason = read_nested_value(context.exc, "stop_reason")
     finish_reason = read_nested_value(context.exc, "finish_reason")
@@ -410,4 +442,34 @@ def _is_stream_broken(context: RecognitionContext) -> bool:
     return any(
         token in context.message_lower
         for token in ("broken", "closed", "incomplete", "interrupted", "connection reset")
+    )
+
+
+def _is_output_schema_invalid(context: RecognitionContext) -> bool:
+    schema_name = read_nested_value(context.exc, "schema_name")
+    if schema_name:
+        validation_tokens = ("validation", "schema", "pydantic")
+        if any(token in context.message_lower for token in validation_tokens):
+            return True
+    return any(
+        token in context.message_lower
+        for token in (
+            "schema validation",
+            "pydantic validation",
+            "output schema",
+            "schema mismatch",
+        )
+    )
+
+
+def _is_empty_result(context: RecognitionContext) -> bool:
+    return any(
+        token in context.message_lower
+        for token in (
+            "empty result",
+            "null result",
+            "missing content",
+            "no content",
+            "empty response",
+        )
     )

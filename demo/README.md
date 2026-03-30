@@ -69,6 +69,36 @@ Requirements:
 
 ---
 
+## 6. Real OpenAI call
+
+```bash
+python demo/demo_openai_protect.py
+```
+
+Requirements:
+
+* `pip install openai`
+* `OPENAI_API_KEY` set
+
+Shows both `simple=False` envelope and `simple=True` exception with promoted AI error fields (`ai_error_code`, `retryable`, `provider`, `severity`).
+
+---
+
+## 7. Real Anthropic call
+
+```bash
+python demo/demo_anthropic_protect.py
+```
+
+Requirements:
+
+* `pip install anthropic`
+* `ANTHROPIC_API_KEY` set
+
+Same pattern as OpenAI demo — envelope mode + exception mode with AI error fields.
+
+---
+
 ## Summary
 
 | Mode   | Behavior                              |

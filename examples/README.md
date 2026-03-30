@@ -26,6 +26,9 @@
 - `examples/langchain/user_mode.py`
 - `examples/langchain/README.md`
 - `examples/langchain/config.yaml.example`
+- `examples/openclaw/user_mode.py`
+- `examples/openclaw/README.md`
+- `examples/openclaw/config.yaml.example`
 - `examples/user_mode/README.md`
 - `examples/user_mode/basic_function.py`
 - `examples/user_mode/tool_call.py`
@@ -38,6 +41,7 @@
 这条路径适合：
 
 - LangChain `invoke()` / `ainvoke()`
+- OpenClaw `agent.run()` / `agent.arun()`
 - SDK 调用
 - 本地脚本或工具调用
 

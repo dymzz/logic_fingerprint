@@ -369,6 +369,90 @@ def build_runtime_settings(
     return replace(settings, **overrides)
 
 
+def diagnose_config(
+    runtime_config: RuntimeConfig,
+    runtime_settings: RuntimeSettings,
+    *,
+    prefix: str = DEFAULT_ENV_PREFIX,
+) -> list[dict[str, str]]:
+    warnings: list[dict[str, str]] = []
+
+    if runtime_settings.redis_url and runtime_settings.backend_type == "memory":
+        warnings.append({
+            "code": "REDIS_URL_IGNORED",
+            "level": "warn",
+            "message": (
+                "redis_url is set but backend_type is 'memory'. "
+                "The redis_url will be ignored. "
+                "Set backend_type to 'redis' or remove redis_url."
+            ),
+        })
+
+    if runtime_settings.backend_type == "redis" and not runtime_settings.redis_url:
+        warnings.append({
+            "code": "REDIS_URL_MISSING",
+            "level": "error",
+            "message": (
+                "backend_type is 'redis' but redis_url is not set. "
+                "Set redis_url or switch backend_type to 'memory'."
+            ),
+        })
+
+    if not (0.0 <= runtime_config.probe_rate <= 1.0):
+        warnings.append({
+            "code": "PROBE_RATE_OUT_OF_RANGE",
+            "level": "error",
+            "message": (
+                f"probe_rate is {runtime_config.probe_rate}, "
+                "expected a value between 0.0 and 1.0."
+            ),
+        })
+
+    if not (0.0 <= runtime_config.global_fail_threshold <= 1.0):
+        warnings.append({
+            "code": "GLOBAL_FAIL_THRESHOLD_OUT_OF_RANGE",
+            "level": "error",
+            "message": (
+                f"global_fail_threshold is {runtime_config.global_fail_threshold}, "
+                "expected a value between 0.0 and 1.0."
+            ),
+        })
+
+    if runtime_config.probe_interval_seconds <= 0:
+        warnings.append({
+            "code": "PROBE_INTERVAL_NON_POSITIVE",
+            "level": "error",
+            "message": (
+                f"probe_interval_seconds is {runtime_config.probe_interval_seconds}, "
+                "expected a positive value."
+            ),
+        })
+
+    if runtime_config.consecutive_success_threshold <= 0:
+        warnings.append({
+            "code": "CONSECUTIVE_SUCCESS_THRESHOLD_NON_POSITIVE",
+            "level": "error",
+            "message": (
+                f"consecutive_success_threshold is {runtime_config.consecutive_success_threshold}, "
+                "expected a positive integer."
+            ),
+        })
+
+    for legacy_key in ("PROBE_RATE", "BACKEND_TYPE", "INSTANCE_ID", "DEFAULT_SOURCE"):
+        legacy_name = f"{LEGACY_ENV_PREFIX}{legacy_key}"
+        if os.getenv(legacy_name) is not None:
+            warnings.append({
+                "code": "LEGACY_ENV_PREFIX",
+                "level": "info",
+                "message": (
+                    f"Legacy environment variable {legacy_name} is set. "
+                    f"Consider migrating to {prefix}{legacy_key}."
+                ),
+            })
+
+    return warnings
+
+
 def describe_effective_config(
     *,
     profile: str = DECORATOR_PROFILE,
@@ -392,6 +476,11 @@ def describe_effective_config(
         config_file=resolved_config_file,
         start_dir=start_dir,
     )
+    diagnostics = diagnose_config(
+        runtime_config,
+        runtime_settings,
+        prefix=prefix,
+    )
     return {
         "profile": profile,
         "config_file": str(resolved_config_file) if resolved_config_file is not None else None,
@@ -400,4 +489,5 @@ def describe_effective_config(
         "legacy_env_prefix": LEGACY_ENV_PREFIX,
         "runtime_config": asdict(runtime_config),
         "runtime_settings": asdict(runtime_settings),
+        "diagnostics": diagnostics,
     }

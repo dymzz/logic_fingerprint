@@ -218,6 +218,110 @@ class FakeToolTimeoutError(TimeoutError):
         self.tool_name = "search_docs"
 
 
+class FakeAnthropicAuthError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Invalid API key provided")
+        self.status_code = 401
+        self.code = "authentication_error"
+
+
+FakeAnthropicAuthError.__module__ = "anthropic"
+FakeAnthropicAuthError.__name__ = "AuthenticationError"
+
+
+class FakeAnthropicForbiddenError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Permission denied for this resource")
+        self.status_code = 403
+        self.code = "permission_denied_error"
+
+
+FakeAnthropicForbiddenError.__module__ = "anthropic"
+FakeAnthropicForbiddenError.__name__ = "PermissionDeniedError"
+
+
+class FakeAnthropicQuotaError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Your credit balance is too low to access this model.")
+        self.status_code = 429
+        self.code = "insufficient_quota"
+
+
+FakeAnthropicQuotaError.__module__ = "anthropic"
+
+
+class FakeAnthropicModelNotFoundError(Exception):
+    def __init__(self) -> None:
+        super().__init__("The model `claude-missing` was not found")
+        self.status_code = 404
+        self.code = "not_found_error"
+        self.model = "claude-missing"
+
+
+FakeAnthropicModelNotFoundError.__module__ = "anthropic"
+FakeAnthropicModelNotFoundError.__name__ = "NotFoundError"
+
+
+class FakeAnthropicContextTooLongError(Exception):
+    def __init__(self) -> None:
+        super().__init__("prompt is too long: 210000 tokens > 200000 maximum context length")
+        self.status_code = 400
+        self.code = "invalid_request_error"
+
+
+FakeAnthropicContextTooLongError.__module__ = "anthropic"
+
+
+class FakeAnthropicTokenRateLimitError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Rate limit reached: token throughput limit exceeded")
+        self.status_code = 429
+        self.code = "rate_limit_error"
+
+
+FakeAnthropicTokenRateLimitError.__module__ = "anthropic"
+FakeAnthropicTokenRateLimitError.__name__ = "RateLimitError"
+
+
+class FakeAnthropicUpstream5xxError(Exception):
+    def __init__(self) -> None:
+        super().__init__("Anthropic internal server error")
+        self.status_code = 500
+
+
+FakeAnthropicUpstream5xxError.__module__ = "anthropic"
+
+
+class FakeLangChainToolNotFoundError(Exception):
+    def __init__(self) -> None:
+        super().__init__("tool not found: summarize_docs")
+        self.tool_name = "summarize_docs"
+
+
+FakeLangChainToolNotFoundError.__module__ = "langchain_core.tools"
+
+
+class FakePlainTimeoutError(TimeoutError):
+    def __init__(self) -> None:
+        super().__init__("read timed out")
+
+
+class FakePlainConnectionError(ConnectionError):
+    def __init__(self) -> None:
+        super().__init__("connection refused to upstream host")
+
+
+class FakeSchemaValidationError(Exception):
+    def __init__(self) -> None:
+        super().__init__("pydantic validation error: 2 validation errors for ReviewResult")
+        self.schema_name = "ReviewResult"
+
+
+class FakeEmptyResultError(Exception):
+    def __init__(self) -> None:
+        super().__init__("empty result returned from model")
+
+
 def test_recognize_token_rate_limit() -> None:
     exc = FakeOpenAIRateLimitError("TPM limit reached for this model")
 
@@ -643,4 +747,131 @@ def test_legacy_error_policy_resolver_still_works_with_warning() -> None:
     result = guarded(payload={"value": 1})
 
     assert result["error"]["details"]["error_policy"]["action"] == "fallback"
+
+
+# ---------------------------------------------------------------------------
+# Anthropic provider – missing coverage
+# ---------------------------------------------------------------------------
+
+
+def test_recognize_anthropic_auth_invalid() -> None:
+    recognition = recognize_ai_error(FakeAnthropicAuthError())
+
+    assert recognition is not None
+    assert recognition.code == "AUTH_INVALID"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is False
+
+
+def test_recognize_anthropic_auth_forbidden() -> None:
+    recognition = recognize_ai_error(FakeAnthropicForbiddenError())
+
+    assert recognition is not None
+    assert recognition.code == "AUTH_FORBIDDEN"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is False
+
+
+def test_recognize_anthropic_quota_exhausted() -> None:
+    recognition = recognize_ai_error(FakeAnthropicQuotaError())
+
+    assert recognition is not None
+    assert recognition.code == "QUOTA_EXHAUSTED"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is False
+
+
+def test_recognize_anthropic_model_not_found() -> None:
+    recognition = recognize_ai_error(FakeAnthropicModelNotFoundError())
+
+    assert recognition is not None
+    assert recognition.code == "MODEL_NOT_FOUND"
+    assert recognition.provider == "anthropic"
+    assert recognition.model == "claude-missing"
+
+
+def test_recognize_anthropic_context_too_long() -> None:
+    recognition = recognize_ai_error(FakeAnthropicContextTooLongError())
+
+    assert recognition is not None
+    assert recognition.code == "CONTEXT_TOO_LONG"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is False
+
+
+def test_recognize_anthropic_token_rate_limit() -> None:
+    recognition = recognize_ai_error(FakeAnthropicTokenRateLimitError())
+
+    assert recognition is not None
+    assert recognition.code == "RATE_LIMIT_TOKEN"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is True
+
+
+def test_recognize_anthropic_upstream_5xx() -> None:
+    recognition = recognize_ai_error(FakeAnthropicUpstream5xxError())
+
+    assert recognition is not None
+    assert recognition.code == "UPSTREAM_5XX"
+    assert recognition.provider == "anthropic"
+    assert recognition.retryable is True
+
+
+# ---------------------------------------------------------------------------
+# LangChain provider – missing coverage
+# ---------------------------------------------------------------------------
+
+
+def test_recognize_langchain_tool_not_found() -> None:
+    recognition = recognize_ai_error(FakeLangChainToolNotFoundError())
+
+    assert recognition is not None
+    assert recognition.code == "TOOL_NOT_FOUND"
+    assert recognition.provider == "langchain"
+    assert recognition.details["tool_name"] == "summarize_docs"
+
+
+# ---------------------------------------------------------------------------
+# Generic transport – missing coverage
+# ---------------------------------------------------------------------------
+
+
+def test_recognize_plain_timeout_as_net_timeout() -> None:
+    recognition = recognize_ai_error(FakePlainTimeoutError())
+
+    assert recognition is not None
+    assert recognition.code == "NET_TIMEOUT"
+    assert recognition.retryable is True
+    assert recognition.provider is None
+
+
+def test_recognize_plain_connection_error_as_net_connect() -> None:
+    recognition = recognize_ai_error(FakePlainConnectionError())
+
+    assert recognition is not None
+    assert recognition.code == "NET_CONNECT"
+    assert recognition.retryable is True
+    assert recognition.provider is None
+
+
+# ---------------------------------------------------------------------------
+# Generic output – missing coverage
+# ---------------------------------------------------------------------------
+
+
+def test_recognize_schema_validation_error() -> None:
+    recognition = recognize_ai_error(FakeSchemaValidationError())
+
+    assert recognition is not None
+    assert recognition.code == "OUTPUT_SCHEMA_INVALID"
+    assert recognition.retryable is False
+    assert recognition.details["schema_name"] == "ReviewResult"
+
+
+def test_recognize_empty_result_error() -> None:
+    recognition = recognize_ai_error(FakeEmptyResultError())
+
+    assert recognition is not None
+    assert recognition.code == "EMPTY_RESULT"
+    assert recognition.retryable is False
 

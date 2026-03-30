@@ -6,6 +6,7 @@ from .loader import (
     build_runtime_config,
     build_runtime_settings,
     describe_effective_config,
+    diagnose_config,
     discover_config_file,
     load_config_file_values,
     load_runtime_config_from_env,

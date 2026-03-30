@@ -327,7 +327,7 @@ def test_simple_false_failure_envelope_shape():
 
     assert set(result) == {"ok", "error", "context"}
     assert result["ok"] is False
-    assert set(result["error"]) == {"code", "message", "details"}
+    assert set(result["error"]) == {"code", "message", "ai_error_code", "retryable", "provider", "severity", "details"}
     assert result["error"]["code"] == ErrorCode.ERR_LOGIC.value
     assert result["error"]["message"] == "manual review required"
     assert "error_fact" in result["error"]["details"]
@@ -359,7 +359,7 @@ def test_simple_false_validation_failure_uses_same_error_envelope_shape():
 
     assert set(result) == {"ok", "error", "context"}
     assert result["ok"] is False
-    assert set(result["error"]) == {"code", "message", "details"}
+    assert set(result["error"]) == {"code", "message", "ai_error_code", "retryable", "provider", "severity", "details"}
     assert result["error"]["code"] == ErrorCode.ERR_VALIDATION.value
     assert result["error"]["message"] == "Input validation failed."
     assert "errors" in result["error"]["details"]
