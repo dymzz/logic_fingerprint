@@ -106,21 +106,6 @@ def _read_bool(
     return str(value).strip().lower() in {"1", "true", "yes", "on"}
 
 
-def _read_tuple(
-    env_name: str,
-    config_key: str,
-    default: tuple[str, ...],
-    *,
-    file_values: Mapping[str, Any],
-) -> tuple[str, ...]:
-    value = _resolve_value(env_name, config_key, default, file_values=file_values)
-    if value is None:
-        return default
-    if isinstance(value, (list, tuple)):
-        return tuple(str(item) for item in value if str(item).strip())
-    return tuple(item.strip() for item in value.split(",") if item.strip())
-
-
 def _normalize_config_path(path: str | Path) -> Path:
     normalized = Path(path).expanduser()
     if normalized.is_absolute():
@@ -189,8 +174,8 @@ def load_config_file_values(
 
 
 def _default_runtime_settings(profile: str) -> RuntimeSettings:
-    if profile == DECORATOR_PROFILE:
-        return RuntimeSettings(instance_id="decorator-node", default_source="decorator")
+    if profile == API_PROFILE:
+        return RuntimeSettings(instance_id="node-a", default_source="api")
     return RuntimeSettings()
 
 
@@ -276,7 +261,7 @@ def build_runtime_config(
 
 def load_runtime_settings_from_env(
     *,
-    profile: str = API_PROFILE,
+    profile: str = DECORATOR_PROFILE,
     prefix: str = DEFAULT_ENV_PREFIX,
     config_file: str | Path | None = None,
     start_dir: str | Path | None = None,
@@ -304,12 +289,6 @@ def load_runtime_settings_from_env(
             f"{prefix}BACKEND_TYPE",
             "backend_type",
             defaults.backend_type,
-            file_values=file_values,
-        ),
-        handler_registrars=_read_tuple(
-            f"{prefix}HANDLER_REGISTRARS",
-            "handler_registrars",
-            defaults.handler_registrars,
             file_values=file_values,
         ),
         redis_url=_read_optional_str(
@@ -347,11 +326,10 @@ def load_runtime_settings_from_env(
 
 def build_runtime_settings(
     *,
-    profile: str = API_PROFILE,
+    profile: str = DECORATOR_PROFILE,
     instance_id: str | None = None,
     default_source: str | None = None,
     backend_type: str | None = None,
-    handler_registrars: tuple[str, ...] | None = None,
     redis_url: str | None = None,
     redis_decode_responses: bool | None = None,
     redis_key: str | None = None,
@@ -367,7 +345,7 @@ def build_runtime_settings(
         config_file=config_file,
         start_dir=start_dir,
     )
-    overrides: dict[str, str | int | bool | tuple[str, ...]] = {}
+    overrides: dict[str, str | int | bool] = {}
 
     if instance_id is not None:
         overrides["instance_id"] = instance_id
@@ -375,8 +353,6 @@ def build_runtime_settings(
         overrides["default_source"] = default_source
     if backend_type is not None:
         overrides["backend_type"] = backend_type
-    if handler_registrars is not None:
-        overrides["handler_registrars"] = handler_registrars
     if redis_url is not None:
         overrides["redis_url"] = redis_url
     if redis_decode_responses is not None:
@@ -395,7 +371,7 @@ def build_runtime_settings(
 
 def describe_effective_config(
     *,
-    profile: str = API_PROFILE,
+    profile: str = DECORATOR_PROFILE,
     prefix: str = DEFAULT_ENV_PREFIX,
     config_file: str | Path | None = None,
     start_dir: str | Path | None = None,

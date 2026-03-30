@@ -92,8 +92,8 @@ logicfp:
 
 | YAML key | 环境变量覆盖名 | 默认值 | 作用 |
 | --- | --- | --- | --- |
-| `instance_id` | `LOGICFP_INSTANCE_ID` | `decorator-node` 或 `node-a` | 当前实例标识 |
-| `default_source` | `LOGICFP_DEFAULT_SOURCE` | `decorator` 或 `api` | 请求上下文里的默认来源 |
+| `instance_id` | `LOGICFP_INSTANCE_ID` | `decorator-node` | 当前实例标识 |
+| `default_source` | `LOGICFP_DEFAULT_SOURCE` | `decorator` | 请求上下文里的默认来源 |
 | `backend_type` | `LOGICFP_BACKEND_TYPE` | `memory` | 状态后端类型：`memory`、`redis`、`redis_ttl` |
 | `redis_url` | `LOGICFP_REDIS_URL` | 空 | Redis 连接地址，高级用法 |
 | `redis_decode_responses` | `LOGICFP_REDIS_DECODE_RESPONSES` | `true` | Redis client 是否自动 decode |

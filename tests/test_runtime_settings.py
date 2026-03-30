@@ -31,10 +31,6 @@ def test_load_runtime_settings_from_env_reads_backend_fields(monkeypatch):
     monkeypatch.setenv("LOGICFP_INSTANCE_ID", "node-b")
     monkeypatch.setenv("LOGICFP_DEFAULT_SOURCE", "gateway")
     monkeypatch.setenv("LOGICFP_BACKEND_TYPE", "memory")
-    monkeypatch.setenv(
-        "LOGICFP_HANDLER_REGISTRARS",
-        "tests.sample_handlers:register_handlers, tests.more_handlers",
-    )
     monkeypatch.setenv("LOGICFP_REDIS_URL", "redis://localhost:6379/0")
     monkeypatch.setenv("LOGICFP_REDIS_TTL_SECONDS", "45")
 
@@ -43,10 +39,6 @@ def test_load_runtime_settings_from_env_reads_backend_fields(monkeypatch):
     assert settings.instance_id == "node-b"
     assert settings.default_source == "gateway"
     assert settings.backend_type == "memory"
-    assert settings.handler_registrars == (
-        "tests.sample_handlers:register_handlers",
-        "tests.more_handlers",
-    )
     assert settings.redis_url == "redis://localhost:6379/0"
     assert settings.redis_ttl_seconds == 45
 
@@ -54,19 +46,16 @@ def test_load_runtime_settings_from_env_reads_backend_fields(monkeypatch):
 def test_build_runtime_settings_explicit_args_override_environment(monkeypatch):
     monkeypatch.setenv("LOGICFP_INSTANCE_ID", "node-b")
     monkeypatch.setenv("LOGICFP_DEFAULT_SOURCE", "gateway")
-    monkeypatch.setenv("LOGICFP_HANDLER_REGISTRARS", "tests.sample_handlers")
     monkeypatch.setenv("LOGICFP_REDIS_URL", "redis://localhost:6379/0")
 
     settings = build_runtime_settings(
         instance_id="node-c",
         default_source="worker",
-        handler_registrars=("tests.custom_handlers:register_handlers",),
         redis_url="redis://cache.internal:6379/1",
     )
 
     assert settings.instance_id == "node-c"
     assert settings.default_source == "worker"
-    assert settings.handler_registrars == ("tests.custom_handlers:register_handlers",)
     assert settings.redis_url == "redis://cache.internal:6379/1"
 
 
@@ -79,8 +68,6 @@ logicfp:
   instance_id: project-node
   default_source: langchain
   backend_type: memory
-  handler_registrars:
-    - tests.sample_handlers
 """.strip()
         + "\n",
         encoding="utf-8",
@@ -90,14 +77,12 @@ logicfp:
     monkeypatch.delenv("LOGICFP_INSTANCE_ID", raising=False)
     monkeypatch.delenv("LOGICFP_DEFAULT_SOURCE", raising=False)
     monkeypatch.delenv("LOGICFP_BACKEND_TYPE", raising=False)
-    monkeypatch.delenv("LOGICFP_HANDLER_REGISTRARS", raising=False)
 
     settings = load_runtime_settings_from_env()
 
     assert settings.instance_id == "project-node"
     assert settings.default_source == "langchain"
     assert settings.backend_type == "memory"
-    assert settings.handler_registrars == ("tests.sample_handlers",)
 
 
 def test_build_runtime_settings_supports_explicit_yaml_config_file(monkeypatch, tmp_path: Path):

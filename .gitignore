@@ -20,6 +20,7 @@ config/config.yaml
 
 analysis/
 design/
+static/
 .vscode/
 /.uv-cache/
 /.venv/
