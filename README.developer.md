@@ -184,3 +184,22 @@ python scripts/release_package.py release --publish --testpypi
 这意味着当前阶段已经进入：
 
 `3.0 用户模式 contract 收口阶段`
+
+## 3.0.0 发布说明
+
+`3.0.0` 的核心变化，不是继续扩工程模式，而是把用户模式的长期 contract 开始定下来。
+
+本次版本重点包括：
+
+- 用户模式公开入口收敛到：
+  `protect / create_protector / ErrorCode / NormalizationError / LogicExecutionError / ProtectRuntimeError / describe_effective_config`
+- `create_protector(...)` 正式参数与高级参数开始分层
+- `simple=True` 的失败语义进一步统一，输入校验和输出校验失败也统一收进 `ProtectRuntimeError`
+- `simple=False` 的 envelope contract 已固定为：
+  success=`ok/result/context`，failure=`ok/error/context`
+- 用户模式错误码说明与返回结构说明已成文档
+
+发布定位：
+
+- `3.0.0` 是“用户模式 contract 基本成型”的版本
+- 后续 `3.x` 继续以用户模式性能、体验、示例和文档打磨为主
