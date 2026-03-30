@@ -1,6 +1,6 @@
 # Logic Fingerprint (logicfp)
 
-`logicfp` is a Python user-mode protection library for wrapping function boundaries with lightweight circuit-breaker style control.
+`logicfp` is an AI-era call protection layer.
 
 Developer documentation lives in [README.developer.md](D:/workspace/python/logic_fingerprint_ai/README.developer.md).
 
@@ -82,8 +82,12 @@ def review_text(request):
 
 ## Learn More
 
+- User-mode cheatsheet: [documents/Tutorial/用户模式速查.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式速查.md)
 - Quick user-mode guide: [documents/Tutorial/用户模式快速接入.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式快速接入.md)
 - User mode: [documents/Tutorial/用户模式示例.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式示例.md)
 - User-mode error codes: [documents/Tutorial/用户模式错误码说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式错误码说明.md)
 - User-mode envelope contract: [documents/Tutorial/用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)
 - Mode guide: [documents/Tutorial/protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)
+
+
+

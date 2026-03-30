@@ -12,7 +12,14 @@ from logicfp import decorator_impl
 from logicfp.domain.models import HandlerRequest
 from logicfp import create_protector
 from logicfp.infra.logging import NullEventLogger, PrintEventLogger
-from logicfp.user_mode import ErrorCode, LogicExecutionError, ProtectRuntimeError
+from logicfp.user_mode import (
+    ErrorCode,
+    LogicExecutionError,
+    ProtectRuntimeError,
+    get_error_action,
+    get_error_fact,
+    get_error_policy,
+)
 
 
 def test_protect_supports_async_functions():
@@ -194,6 +201,10 @@ def test_protect_runtime_error_uses_input_validation_error_code():
     assert "errors" in exc_info.value.details
     assert protector.metrics.success_requests == 0
     assert protector.metrics.failed_requests == 1
+    assert protector.metrics.failed_by_code[ErrorCode.ERR_VALIDATION.value] == 1
+    assert protector.metrics.failed_by_stage["input"] == 1
+    assert protector.metrics.failed_by_source["caller"] == 1
+    assert protector.metrics.failed_by_action["block"] == 1
 
 
 def test_protect_runtime_error_uses_output_validation_error_code():
@@ -215,6 +226,26 @@ def test_protect_runtime_error_uses_output_validation_error_code():
     assert "errors" in exc_info.value.details
     assert protector.metrics.success_requests == 0
     assert protector.metrics.failed_requests == 1
+
+
+def test_blocked_request_records_dimension_metrics():
+    protector = create_protector()
+
+    @protector.protect(simple=False)
+    def guarded(request: HandlerRequest):
+        return {"value": request.payload["value"] + 1}
+
+    protector.fsm.record_hard_fail("manual-open")
+
+    result = guarded(payload={"value": 1})
+
+    assert result["ok"] is False
+    assert result["error"]["code"] == ErrorCode.ERR_EXECUTION_BLOCKED.value
+    assert protector.metrics.blocked_requests == 1
+    assert protector.metrics.blocked_by_code[ErrorCode.ERR_EXECUTION_BLOCKED.value] == 1
+    assert protector.metrics.blocked_by_stage["execute"] == 1
+    assert protector.metrics.blocked_by_source["system"] == 1
+    assert protector.metrics.blocked_by_action["trip"] == 1
 
 
 def test_simple_false_success_envelope_shape():
@@ -252,7 +283,10 @@ def test_simple_false_failure_envelope_shape():
     assert set(result["error"]) == {"code", "message", "details"}
     assert result["error"]["code"] == ErrorCode.ERR_LOGIC.value
     assert result["error"]["message"] == "manual review required"
-    assert result["error"]["details"] == {}
+    assert "error_fact" in result["error"]["details"]
+    assert "error_policy" in result["error"]["details"]
+    assert result["error"]["details"]["error_fact"]["stage"] == "execute"
+    assert result["error"]["details"]["error_policy"]["action"] == "block"
     assert set(result["context"]) == {
         "request_id",
         "trace_id",
@@ -282,3 +316,40 @@ def test_simple_false_validation_failure_uses_same_error_envelope_shape():
     assert result["error"]["code"] == ErrorCode.ERR_VALIDATION.value
     assert result["error"]["message"] == "Input validation failed."
     assert "errors" in result["error"]["details"]
+
+
+def test_user_mode_error_helpers_read_simple_true_error() -> None:
+    @create_protector().protect(simple=True)
+    def guarded(request: HandlerRequest):
+        raise LogicExecutionError("manual review required")
+
+    with pytest.raises(ProtectRuntimeError) as exc_info:
+        guarded(payload={"value": 1})
+
+    fact = get_error_fact(exc_info.value)
+    policy = get_error_policy(exc_info.value)
+
+    assert fact is not None
+    assert policy is not None
+    assert fact["stage"] == "execute"
+    assert fact["source"] == "system"
+    assert fact["recoverability"] == "non_recoverable"
+    assert get_error_action(exc_info.value) == "block"
+
+
+def test_user_mode_error_helpers_read_simple_false_error_envelope() -> None:
+    @create_protector().protect(simple=False)
+    def guarded(request: HandlerRequest):
+        raise LogicExecutionError("manual review required")
+
+    result = guarded(payload={"value": 1})
+
+    fact = get_error_fact(result["error"])
+    policy = get_error_policy(result)
+
+    assert fact is not None
+    assert policy is not None
+    assert fact["stage"] == "execute"
+    assert fact["source"] == "system"
+    assert fact["recoverability"] == "non_recoverable"
+    assert get_error_action(result) == "block"

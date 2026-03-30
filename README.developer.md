@@ -2,6 +2,11 @@
 
 这份文档面向仓库开发者，不是最终用户说明。
 
+产品一句话：
+
+`logicfp = AI 时代的调用保护层`
+
+
 ## 项目定位
 
 - 用户模式入口：`from logicfp import protect, create_protector`
@@ -100,6 +105,7 @@ python scripts/release_package.py release --publish --testpypi
 ## 文档分工
 
 - [README.md](D:/workspace/python/logic_fingerprint_ai/README.md)：用户入口说明
+- [AI 错误识别模型.md](D:/workspace/python/logic_fingerprint_ai/documents/Product/AI%20错误识别模型.md)：AI 调用错误识别方向
 - [logicfp v3 roadmap.md](D:/workspace/python/logic_fingerprint_ai/documents/Product/logicfp%20v3%20roadmap.md)：下个大版本方向
 - [protect 的用户模式与工程模式.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/protect%20的用户模式与工程模式.md)：入口模型说明
 - [用户模式返回结构说明.md](D:/workspace/python/logic_fingerprint_ai/documents/Tutorial/用户模式返回结构说明.md)：`simple=False` 的 envelope contract
@@ -197,3 +203,35 @@ python scripts/release_package.py release --publish --testpypi
 
 - `3.1.0` 是“用户模式-only 收口完成”的版本
 - 后续 `3.x` 继续专注用户模式性能、体验、错误语义和示例质量
+
+## 3.2.0 更新说明
+
+`3.2.0` 的核心变化，是把用户模式里的错误归一化和动作覆写能力做成稳定的高级接口。
+
+本次版本重点包括：
+
+- 错误结构收口到 4 个核心问题：
+  `stage / source / recoverability / action`
+- `simple=False` 的失败 envelope 里，现在稳定带出：
+  `error_fact` 和 `error_policy`
+- 新增用户模式读取接口：
+  `get_error_fact / get_error_policy / get_error_action / get_error_details`
+- 新增 `error_action_resolver` 高级入口
+  - 输入 contract：`fact / default_action`
+  - 兼容保留：`default_policy`
+  - 最小返回：`{\"action\": \"...\"}`
+- `error_policy_resolver` 保留兼容，但进入弃用路径
+- 用户模式示例和速查文档补齐：
+  - `action_resolver.py`
+  - 用户模式速查
+  - 错误码说明 / 返回结构 / 快速接入 同步到新 contract
+
+版本定位：
+
+- `3.2.0` 是“用户模式错误模型与动作覆写 contract 基本成型”的版本
+- 后续 `3.x` 可以继续围绕 AI 错误识别、轻量策略和用户体验打磨
+
+
+
+
+

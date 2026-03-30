@@ -6,6 +6,7 @@
 
 如果你想先按入口看，先看这两页：
 
+- `documents/Tutorial/用户模式速查.md`
 - `documents/Tutorial/用户模式快速接入.md`
 - `documents/Tutorial/用户模式示例.md`
 
@@ -30,6 +31,7 @@
 - `examples/user_mode/tool_call.py`
 - `examples/user_mode/exception_handling.py`
 - `examples/user_mode/config_diagnostics.py`
+- `examples/user_mode/action_resolver.py`
 
 这条路径适合：
 

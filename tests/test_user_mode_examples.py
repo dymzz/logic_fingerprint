@@ -82,3 +82,24 @@ logicfp:
     assert description["runtime_config"]["probe_rate"] == 0.45
     assert description["runtime_settings"]["instance_id"] == "doc-node"
     assert description["runtime_settings"]["default_source"] == "docs"
+
+
+def test_action_resolver_example_can_drive_fallback(monkeypatch):
+    repo_root = Path(__file__).resolve().parents[1]
+    monkeypatch.syspath_prepend(str(repo_root))
+    monkeypatch.syspath_prepend(str(repo_root / "src"))
+
+    from examples.user_mode.action_resolver import (
+        fetch_inventory_snapshot,
+        fetch_inventory_with_fallback,
+    )
+
+    result = fetch_inventory_snapshot(payload={"warehouse": "cn-east-1"})
+
+    assert result["ok"] is False
+    assert result["error"]["details"]["error_policy"]["action"] == "fallback"
+
+    fallback = fetch_inventory_with_fallback({"warehouse": "cn-east-1"})
+
+    assert fallback["source"] == "local-fallback"
+    assert fallback["stale"] is True

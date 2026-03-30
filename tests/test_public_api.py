@@ -12,11 +12,20 @@ user_mode = importlib.import_module("logicfp.user_mode")
 
 from logicfp import create_protector, protect
 from logicfp.user_mode import (
+    ErrorActionResolverPayload,
+    ErrorActionResolverResult,
+    ErrorDetailsData,
     ErrorCode,
+    ErrorFactData,
     LogicExecutionError,
     NormalizationError,
+    ErrorPolicyData,
     ProtectRuntimeError,
     Protector,
+    get_error_action,
+    get_error_details,
+    get_error_fact,
+    get_error_policy,
 )
 
 
@@ -45,18 +54,40 @@ def test_root_package_protect_export_survives_submodule_import():
 
 def test_user_mode_module_exports_advanced_user_mode_api():
     assert user_mode.__all__ == [
+        "ErrorActionResolverPayload",
+        "ErrorActionResolverResult",
+        "ErrorDetailsData",
         "ErrorCode",
+        "ErrorFactData",
         "LogicExecutionError",
         "NormalizationError",
+        "ErrorPolicyData",
         "ProtectRuntimeError",
         "Protector",
         "create_protector",
+        "get_error_action",
+        "get_error_details",
+        "get_error_fact",
+        "get_error_policy",
         "protect",
     ]
     assert callable(user_mode.protect)
     assert callable(user_mode.create_protector)
+    assert callable(user_mode.get_error_fact)
+    assert callable(user_mode.get_error_policy)
+    assert callable(user_mode.get_error_action)
+    assert callable(user_mode.get_error_details)
+    assert user_mode.ErrorActionResolverPayload is ErrorActionResolverPayload
+    assert user_mode.ErrorActionResolverResult is ErrorActionResolverResult
+    assert user_mode.ErrorFactData is ErrorFactData
+    assert user_mode.ErrorPolicyData is ErrorPolicyData
+    assert user_mode.ErrorDetailsData is ErrorDetailsData
     assert ErrorCode is user_mode.ErrorCode
     assert LogicExecutionError is user_mode.LogicExecutionError
     assert NormalizationError is user_mode.NormalizationError
     assert ProtectRuntimeError is user_mode.ProtectRuntimeError
     assert Protector is user_mode.Protector
+    assert get_error_fact is user_mode.get_error_fact
+    assert get_error_policy is user_mode.get_error_policy
+    assert get_error_action is user_mode.get_error_action
+    assert get_error_details is user_mode.get_error_details

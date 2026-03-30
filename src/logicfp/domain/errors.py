@@ -1,4 +1,12 @@
 from enum import Enum
+from typing import Any
+
+from .ai_error_recognizer import (
+    AIErrorClassifier,
+    build_ai_error_recognition,
+    recognize_ai_error,
+)
+from .error_report import ErrorActionResolver, ErrorPolicyResolver, build_error_report
 
 class ErrorCode(str, Enum):
     ERR_TIMEOUT = "ERR_TIMEOUT"
@@ -49,3 +57,43 @@ def classify_exception(exc: Exception) -> ErrorCode:
     if isinstance(exc, (AssertionError, RuntimeError)):
         return ErrorCode.ERR_LOGIC
     return ErrorCode.ERR_UNKNOWN
+
+
+def build_error_details(
+    exc: Exception,
+    *,
+    stage_hint: str | None = None,
+    ai_error_classifier: AIErrorClassifier | None = None,
+    error_action_resolver: ErrorActionResolver | None = None,
+) -> dict[str, Any]:
+    details = dict(exc.details) if isinstance(exc, LogicFingerprintError) else {}
+    if "ai_error" not in details:
+        ai_error = _recognize_logicfp_ai_error(exc) or recognize_ai_error(
+            exc,
+            model_classifier=ai_error_classifier,
+        )
+        if ai_error is not None:
+            details["ai_error"] = ai_error.as_dict()
+
+    report = build_error_report(
+        code=classify_exception(exc).value,
+        message=str(exc),
+        stage_hint=stage_hint,
+        details=details,
+        action_resolver=error_action_resolver,
+    )
+    details["error_fact"] = report.fact.as_dict()
+    details["error_policy"] = report.policy.as_dict()
+    return details
+
+
+def _recognize_logicfp_ai_error(exc: Exception):
+    if isinstance(exc, TimeoutErrorLF):
+        return build_ai_error_recognition("NET_TIMEOUT", matched_signals=("logicfp_timeout",))
+    if isinstance(exc, NullResultError):
+        return build_ai_error_recognition("EMPTY_RESULT", matched_signals=("logicfp_null_result",))
+    if isinstance(exc, ValidationErrorLF):
+        return build_ai_error_recognition("INPUT_INVALID", matched_signals=("logicfp_validation",))
+    if isinstance(exc, OutputValidationErrorLF):
+        return build_ai_error_recognition("OUTPUT_SCHEMA_INVALID", matched_signals=("logicfp_output_validation",))
+    return None

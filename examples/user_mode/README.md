@@ -12,6 +12,8 @@
    `examples/user_mode/exception_handling.py`
 4. 配置诊断模板
    `examples/user_mode/config_diagnostics.py`
+5. 动作解析模板
+   `examples/user_mode/action_resolver.py`
 
 ## 这些模板分别解决什么问题
 
@@ -23,9 +25,12 @@
   演示 `simple=True` 时如何捕获 `logicfp.user_mode.ProtectRuntimeError`。
 - `config_diagnostics.py`
   打印当前实际生效的配置、配置文件路径和环境变量前缀。
+- `action_resolver.py`
+  演示怎么用 `error_action_resolver` 把未知失败改成 `fallback`，再由调用方走本地备用路径。
 
 相关说明：
 
+- `documents/Tutorial/用户模式速查.md`
 - `documents/Tutorial/用户模式错误码说明.md`
 
 ## 配置放哪里

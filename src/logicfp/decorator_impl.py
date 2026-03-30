@@ -21,7 +21,7 @@ from .config import (
     build_runtime_settings,
 )
 from .domain.executor import LogicFingerprintExecutor
-from .domain.errors import LogicFingerprintError, classify_exception
+from .domain.errors import build_error_details, classify_exception
 from .domain.fsm import LogicFingerprintFSM
 from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
@@ -39,6 +39,9 @@ _ADVANCED_PROTECTOR_KWARGS = {
     "settings",
     "backend",
     "redis_client",
+    "ai_error_classifier",
+    "error_action_resolver",
+    "error_policy_resolver",
 }
 
 
@@ -81,7 +84,14 @@ class Protector:
         backend: object | None = None,
         redis_client: object | None = None,
         event_logger: EventLogger | None = None,
+        ai_error_classifier: object | None = None,
+        error_action_resolver: object | None = None,
+        error_policy_resolver: object | None = None,
     ) -> None:
+        normalized_error_action_resolver = _resolve_error_action_resolver(
+            error_action_resolver=error_action_resolver,
+            error_policy_resolver=error_policy_resolver,
+        )
         config = config or build_runtime_config(
             probe_rate=probe_rate,
             probe_interval_seconds=probe_interval_seconds,
@@ -116,10 +126,17 @@ class Protector:
         self.settings = settings
         self.backend = backend
         self.fsm = fsm
-        self.executor = LogicFingerprintExecutor(fsm)
+        self.executor = LogicFingerprintExecutor(
+            fsm,
+            ai_error_classifier=ai_error_classifier,
+            error_action_resolver=normalized_error_action_resolver,
+        )
         self.metrics = InMemoryMetrics()
         self.context_builder = ContextBuilder(default_source=settings.default_source)
         self.event_logger = event_logger or NullEventLogger()
+        self.ai_error_classifier = ai_error_classifier
+        self.error_action_resolver = normalized_error_action_resolver
+        self.error_policy_resolver = normalized_error_action_resolver
     def _success_response(
         self,
         validated_output: Any,
@@ -169,10 +186,19 @@ class Protector:
         handler_name: str,
         context_dict: dict[str, Any],
         simple: bool,
+        stage_hint: str,
     ) -> Any:
         error_code = classify_exception(exc).value
-        error_details = exc.details if isinstance(exc, LogicFingerprintError) else {}
-        self.metrics.record_failure()
+        error_details = build_error_details(
+            exc,
+            stage_hint=stage_hint,
+            ai_error_classifier=self.executor.ai_error_classifier,
+            error_action_resolver=self.error_action_resolver,
+        )
+        self.metrics.record_failure(
+            error_code=error_code,
+            error_details=error_details,
+        )
         self.event_logger.emit(LogEvent(
             event="protect_call_failed",
             handler=handler_name,
@@ -238,6 +264,7 @@ class Protector:
                             handler_name=func.__name__,
                             context_dict=context_dict,
                             simple=simple,
+                            stage_hint="input",
                         )
                     prepared_request = HandlerRequest(
                         payload=validated_payload,
@@ -253,9 +280,15 @@ class Protector:
                         self.metrics.record_probe()
 
                     if not outcome.executed:
-                        self.metrics.record_blocked()
+                        self.metrics.record_blocked(
+                            error_code=outcome.error_code,
+                            error_details=outcome.error_details,
+                        )
                     elif not outcome.succeeded:
-                        self.metrics.record_failure()
+                        self.metrics.record_failure(
+                            error_code=outcome.error_code,
+                            error_details=outcome.error_details,
+                        )
 
                     if outcome.succeeded:
                         result = outcome.result
@@ -274,6 +307,7 @@ class Protector:
                                 handler_name=func.__name__,
                                 context_dict=context_dict,
                                 simple=simple,
+                                stage_hint="output",
                             )
                         self.event_logger.emit(LogEvent(
                             event="protect_call_succeeded",
@@ -349,6 +383,7 @@ class Protector:
                         handler_name=func.__name__,
                         context_dict=context_dict,
                         simple=simple,
+                        stage_hint="input",
                     )
                 prepared_request = HandlerRequest(
                     payload=validated_payload,
@@ -364,9 +399,15 @@ class Protector:
                     self.metrics.record_probe()
 
                 if not outcome.executed:
-                    self.metrics.record_blocked()
+                    self.metrics.record_blocked(
+                        error_code=outcome.error_code,
+                        error_details=outcome.error_details,
+                    )
                 elif not outcome.succeeded:
-                    self.metrics.record_failure()
+                    self.metrics.record_failure(
+                        error_code=outcome.error_code,
+                        error_details=outcome.error_details,
+                    )
 
                 if outcome.succeeded:
                     result = outcome.result
@@ -385,6 +426,7 @@ class Protector:
                             handler_name=func.__name__,
                             context_dict=context_dict,
                             simple=simple,
+                            stage_hint="output",
                         )
 
                     if is_dataclass(validated_output):
@@ -491,6 +533,25 @@ def create_protector(
         event_logger=event_logger,
         **merged_advanced,
     )
+
+
+def _resolve_error_action_resolver(
+    *,
+    error_action_resolver: object | None,
+    error_policy_resolver: object | None,
+) -> object | None:
+    if error_action_resolver is not None and error_policy_resolver is not None and error_action_resolver is not error_policy_resolver:
+        raise TypeError(
+            "Pass only one of error_action_resolver or error_policy_resolver."
+        )
+    if error_policy_resolver is not None:
+        warnings.warn(
+            "error_policy_resolver is deprecated. Use error_action_resolver instead.",
+            DeprecationWarning,
+            stacklevel=3,
+        )
+        return error_policy_resolver
+    return error_action_resolver
 
 
 def protect(
