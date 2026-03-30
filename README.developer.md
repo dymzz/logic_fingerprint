@@ -179,3 +179,21 @@ python scripts/release_package.py release --publish --testpypi
 
 - `3.0.0` 是“用户模式 contract 基本成型”的版本
 - 后续 `3.x` 继续以用户模式性能、体验、示例和文档打磨为主
+
+## 3.1.0 更新说明
+
+`3.1.0` 的核心变化，是把公开产品面彻底收口到用户模式。
+
+本次版本重点包括：
+
+- 移除 `fastapi` / `uvicorn` 基础依赖
+- 删除 CLI 与 HTTP 服务入口
+- 删除公开的工程模式文档入口和对应示例
+- 根包继续只保留：
+  `protect / create_protector`
+- README、教程、examples 全部改成围绕 `@protect()` 组织
+
+版本定位：
+
+- `3.1.0` 是“用户模式-only 收口完成”的版本
+- 后续 `3.x` 继续专注用户模式性能、体验、错误语义和示例质量
