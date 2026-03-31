@@ -1,0 +1,13 @@
+server:
+  host: 127.0.0.1
+  port: 8000
+
+app:
+  demo: false
+
+logicfp:
+  instance_id: prod-node-a
+  default_source: api
+  backend_type: memory
+  handler_registrars:
+    - examples.production_handlers

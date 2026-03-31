@@ -90,6 +90,43 @@ Publish to TestPyPI first:
 python scripts/release_package.py release --publish --testpypi
 ```
 
+## GitHub Actions Publishing
+
+This repository includes a GitHub Actions workflow at `.github/workflows/publish.yml`.
+
+- Manual TestPyPI publish:
+  run the `Publish Python package` workflow and choose `testpypi`
+- Automatic PyPI publish:
+  push a Git tag like `v3.3.0`
+- Manual PyPI publish:
+  run the same workflow and choose `pypi`
+
+The workflow builds and validates the package with the existing release script:
+
+```bash
+python scripts/release_package.py build
+python scripts/release_package.py check
+```
+
+Publishing itself is handled by PyPI Trusted Publishing in GitHub Actions, so you do not need to store a long-lived PyPI API token in GitHub secrets.
+
+Before the workflow can publish, configure trusted publishers on both TestPyPI and PyPI:
+
+1. TestPyPI project:
+   add a GitHub Actions trusted publisher for this repository and workflow file `.github/workflows/publish.yml`, and set the environment name to `testpypi`
+2. PyPI project:
+   add the same trusted publisher for `.github/workflows/publish.yml`, and set the environment name to `pypi`
+3. GitHub repository environments:
+   create `testpypi` and `pypi`
+4. Recommended:
+   require manual approval for the `pypi` environment before release jobs can continue
+
+Recommended release flow:
+
+1. Run the workflow manually with `testpypi`
+2. Verify installation from TestPyPI
+3. Push a version tag like `v3.3.0` to publish to PyPI
+
 ## 配置约定
 
 - 用户项目标准配置路径：`your_project/config/config.yaml`
