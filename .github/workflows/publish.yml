@@ -8,6 +8,8 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # 关键点：添加下面这一行，必须和 PyPI 网页填的一模一样
+    environment: pypi
     # 增加权限支持（为了更安全的 OIDC 认证，见下方说明）
     permissions:
       id-token: write
