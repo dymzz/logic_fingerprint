@@ -8,24 +8,29 @@ on:
 jobs:
   publish:
     runs-on: ubuntu-latest
+    # 增加权限支持（为了更安全的 OIDC 认证，见下方说明）
+    permissions:
+      id-token: write
+      contents: read
 
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Pythong
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
       - name: Install build tools
-        run: |
-          pip install build twine
+        run: pip install build
 
       - name: Build package
         run: python -m build
 
       - name: Publish
-        run: twine upload dist/*
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        # 使用官方封装好的 Action，而不是手动调 twine
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # 如果你已经设置了上文提到的“信任发布者(Trusted Publishing)”，
+        # 下面这两行甚至都不需要填！
+        # with:
+        #   password: ${{ secrets.PYPI_API_TOKEN }}
