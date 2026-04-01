@@ -4,7 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logicfp"
-dynamic = ["version"]
+version = "3.4.9"
+#dynamic = ["version"]
 description = "logicfp user-mode protection library"
 readme = "README.md"
 requires-python = ">=3.11"
@@ -21,8 +22,8 @@ include-package-data = false
 where = ["src"]
 include = ["logicfp*"]
 
-[tool.setuptools.dynamic]
-version = { attr = "logicfp._version.__version__" }
+#[tool.setuptools.dynamic]
+#version = { attr = "logicfp._version.__version__" }
 
 [dependency-groups]
 dev = ["pytest>=9.0"]
