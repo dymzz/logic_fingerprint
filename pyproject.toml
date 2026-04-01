@@ -4,22 +4,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "logicfp"
-dynamic = ["version"]
+dynamic = ["3.4.2"]
 description = "logicfp user-mode protection library"
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = [
-    "pydantic==2.12.5",
-]
+dependencies = ["pydantic==2.12.5"]
 
 [project.optional-dependencies]
-release = [
-    "build>=1.2.2",
-    "twine>=6.1.0",
-]
+release = ["build>=1.2.2", "twine>=6.1.0"]
 
 [tool.setuptools]
-package-dir = {"" = "src"}
+package-dir = { "" = "src" }
 include-package-data = false
 
 [tool.setuptools.packages.find]
@@ -27,12 +22,10 @@ where = ["src"]
 include = ["logicfp*"]
 
 [tool.setuptools.dynamic]
-version = {attr = "logicfp._version.__version__"}
+version = { attr = "logicfp._version.__version__" }
 
 [dependency-groups]
-dev = [
-    "pytest>=9.0",
-]
+dev = ["pytest>=9.0"]
 
 [tool.uv]
 cache-dir = ".uv-cache"
