@@ -32,6 +32,6 @@ dev = ["pytest>=9.0"]
 cache-dir = ".uv-cache"
 
 [tool.pytest.ini_options]
-addopts = "--basetemp=.pytest_tmp/basetemp"
+addopts = "-p no:cacheprovider -p no:tmpdir"
 tmp_path_retention_policy = "failed"
 tmp_path_retention_count = 2

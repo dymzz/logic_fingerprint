@@ -11,3 +11,4 @@ class RuntimeSettings:
     redis_key: str = "logicfp:failed_nodes"
     redis_key_prefix: str = "logicfp:failed_node"
     redis_ttl_seconds: int = 30
+    handler_registrars: tuple[str, ...] = ()

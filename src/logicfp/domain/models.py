@@ -55,3 +55,4 @@ class HandlerResponse:
     ok: bool
     data: Any = None
     message: str | None = None
+    meta: dict[str, Any] = field(default_factory=dict)

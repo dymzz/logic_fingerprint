@@ -14,6 +14,7 @@
 
 - `documents/Tutorial/protect 的用户模式与工程模式.md`
 - `documents/Tutorial/config 参数说明.md`
+- `documents/Tutorial/plugin-hooks.md`
 
 ## 用户模式
 
@@ -60,3 +61,10 @@ your_project/
 `examples/` 里的 `config.yaml.example` 只是模板来源，不建议直接在仓库根目录长期改它们。
 
 其他偏工程化的示例会逐步迁出公开入口说明，不再作为默认接入路径。
+
+## 插件接口
+
+如果你要给 `logicfp` 接本地 hook，或者准备拆成独立插件仓库，可以看：
+
+- `examples/plugins/README.md`
+- `examples/plugins/basic_success_hook.py`

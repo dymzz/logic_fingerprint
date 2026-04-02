@@ -28,6 +28,7 @@ from .domain.models import HandlerRequest, RequestContext
 from .infra.consensus import build_consensus_backend
 from .infra.logging import EventLogger, LogEvent, NullEventLogger
 from .infra.metrics import MetricsHook, MetricEvent, NullMetricsHook
+from .plugins import SuccessHook, apply_success_hooks
 
 F = TypeVar("F", bound=Callable[..., Any])
 _ADVANCED_PROTECTOR_KWARGS = {
@@ -46,6 +47,8 @@ _ADVANCED_PROTECTOR_KWARGS = {
     "error_action_resolver",
     "error_policy_resolver",
     "metrics_hook",
+    "success_hooks",
+    "plugin_failure_mode",
 }
 
 
@@ -111,6 +114,8 @@ class Protector:
         redis_client: object | None = None,
         event_logger: EventLogger | None = None,
         metrics_hook: MetricsHook | None = None,
+        success_hooks: Iterable[SuccessHook] | None = None,
+        plugin_failure_mode: str = "fail_open",
         ai_error_classifier: object | None = None,
         ai_error_recognizers: list[AIErrorRecognizer] | tuple[AIErrorRecognizer, ...] | None = None,
         error_action_resolver: object | None = None,
@@ -165,6 +170,8 @@ class Protector:
         self.context_builder = ContextBuilder(default_source=settings.default_source)
         self.event_logger = event_logger or NullEventLogger()
         self.metrics_hook = metrics_hook or NullMetricsHook()
+        self.success_hooks = tuple(success_hooks or ())
+        self.plugin_failure_mode = plugin_failure_mode
         self.ai_error_classifier = ai_error_classifier
         self.ai_error_recognizers = normalized_ai_error_recognizers
         self.error_action_resolver = normalized_error_action_resolver
@@ -451,6 +458,21 @@ class Protector:
                         self._emit_metric("protect.success", handler=func.__name__)
                         if is_dataclass(validated_output):
                             validated_output = asdict(validated_output)
+                        try:
+                            validated_output, _ = apply_success_hooks(
+                                request=built_request,
+                                result=validated_output,
+                                hooks=self.success_hooks,
+                                plugin_failure_mode=self.plugin_failure_mode,
+                            )
+                        except Exception as exc:
+                            return self._handle_pre_execution_error(
+                                exc,
+                                handler_name=func.__name__,
+                                context_dict=context_dict,
+                                simple=simple,
+                                stage_hint="plugin",
+                            )
 
                         return self._success_response(
                             validated_output,
@@ -587,6 +609,21 @@ class Protector:
                     ))
                     self.metrics.record_success()
                     self._emit_metric("protect.success", handler=func.__name__)
+                    try:
+                        validated_output, _ = apply_success_hooks(
+                            request=built_request,
+                            result=validated_output,
+                            hooks=self.success_hooks,
+                            plugin_failure_mode=self.plugin_failure_mode,
+                        )
+                    except Exception as exc:
+                        return self._handle_pre_execution_error(
+                            exc,
+                            handler_name=func.__name__,
+                            context_dict=context_dict,
+                            simple=simple,
+                            stage_hint="plugin",
+                        )
 
                     return self._success_response(
                         validated_output,

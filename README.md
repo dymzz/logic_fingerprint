@@ -89,6 +89,6 @@ def review_text(request):
 - User-mode envelope contract: [documents/Tutorial/user-mode-envelope.md](documents/Tutorial/user-mode-envelope.md)
 - User mode vs engineering mode: [documents/Tutorial/user-mode-vs-engineering.md](documents/Tutorial/user-mode-vs-engineering.md)
 - Config reference: [documents/Tutorial/config-reference.md](documents/Tutorial/config-reference.md)
-
+- Plugin hook guide: [documents/Tutorial/plugin-hooks.md](documents/Tutorial/plugin-hooks.md)
 
 

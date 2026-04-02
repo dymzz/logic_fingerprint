@@ -98,7 +98,7 @@ def build_error_report(
 
 
 def _resolve_stage(code: str, stage_hint: str | None, ai_error: dict[str, Any] | None) -> str:
-    if stage_hint in {"input", "output"}:
+    if stage_hint in {"input", "output", "plugin"}:
         return stage_hint
     ai_code = _ai_code(ai_error)
     if ai_code in {"INPUT_INVALID", "CONTEXT_TOO_LONG"}:
