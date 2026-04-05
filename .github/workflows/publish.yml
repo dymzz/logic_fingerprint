@@ -22,9 +22,15 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
-
+      # 在安装依赖前删除 requirements.txt 中的 -e .
+      - name: Remove editable current repo
+        run: sed -i '/^-e /d' requirements.txt
       - name: Install build tools
         run: pip install build
+
+        # 在安装依赖前删除 requirements.txt 中的 -e .
+      - name: Remove editable current repo
+        run: sed -i '/^-e /d' requirements.txt
 
       - name: Build package
         run: python -m build
