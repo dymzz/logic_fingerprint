@@ -1,5 +1,35 @@
 # Logic Fingerprint (logicfp)
 
+```mermaid
+graph TD
+    subgraph Input ["输入层"]
+        A[用户提问] --> B[上下文池 Context Pool]
+        B -->|带指纹的 Evidence| C[LLM 大模型]
+    end
+
+    subgraph LLM_Output ["大模型输出 (概率性)"]
+        C --> D{生成内容}
+        D -->|Claim A| E[断言 A]
+        D -->|Claim B| F[断言 B]
+    end
+
+    subgraph Logic_FP ["Logic Fingerprint 拦截层 (确定性)"]
+        E --> G{指纹比对}
+        F --> G
+        B -.->|校验| G
+        
+        G -->|验证通过| H[✅ 确定的逻辑链路]
+        G -->|引用缺失/伪造| I[🚫 物理阻断/熔断]
+    end
+
+    H --> Output[最终安全输出]
+    I --> Error[错误降级/人工审核]
+
+    style Logic_FP fill:#f9f,stroke:#333,stroke-width:2px
+    style I fill:#ff9999,stroke:#cc0000
+    style H fill:#99ff99,stroke:#006600
+```
+
 `logicfp` is an AI-era call protection layer.
 
 Developer documentation lives in [README.developer.md](D:/workspace/python/logic_fingerprint_ai/README.developer.md).
